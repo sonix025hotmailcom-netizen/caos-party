@@ -336,7 +336,7 @@ button{touch-action:manipulation;-webkit-user-select:none;user-select:none}
 .actbtn .albl{position:relative;z-index:1}
 .cdov{position:absolute;inset:0;border-radius:50%;display:none;align-items:center;justify-content:center;font-family:'Lilita One';font-size:clamp(22px,6vw,34px);color:#fff;background:conic-gradient(#000b var(--p,100%),#0005 0);z-index:2;text-shadow:0 2px 0 #000}
 .actbtn.cool .cdov{display:flex}
-.actbtn.cool{filter:grayscale(.8)}
+.actbtn.cool{filter:grayscale(.8)}.actbtn.cool .albl{opacity:0}
 /* conecta 4 tocando el hoyo */
 .pboard.c4 .c4c{aspect-ratio:1;border-radius:50%;border:0;background:#0b1f5c;font-size:min(7vw,30px);padding:0;display:flex;align-items:center;justify-content:center}
 .pboard.c4 .c4c.hl{background:#1e40af;box-shadow:inset 0 0 0 3px #facc15}
@@ -436,11 +436,11 @@ svg.lucide{width:1.1em;height:1.1em;vertical-align:-.18em;stroke-width:2.5}
 .hcard svg.lucide{width:52px;height:52px;stroke-width:2.2;filter:drop-shadow(0 3px 0 var(--ink))}
 .hcard b{font-family:'Lilita One';font-size:32px;font-weight:400;text-shadow:0 3px 0 var(--ink)}
 .hcard span{font-size:16px;opacity:.9}
-.hcard.tv{background:linear-gradient(160deg,#ff6aa8,var(--gum));cursor:pointer;transition:transform .15s}
-.hcard.tv:hover{transform:translateY(-4px) rotate(-1deg)}
+.hcard.tv{background:linear-gradient(160deg,#ff6aa8,var(--gum));cursor:pointer;justify-content:center}
+.hcard.tv:hover{filter:brightness(1.08)}
 .hcard.tv:active{transform:translateY(4px);box-shadow:0 4px 0 var(--ink)}
 .hcard.join{background:linear-gradient(160deg,#5fd3ff,#2b8de0)}
-.hcard.join .row{margin-top:8px}
+.hcard.join .row{margin-top:8px;width:100%}.hcard.join .row input{flex:1;min-width:0}.hcard.join .row .btn{flex:0 0 auto}.home-cards{align-items:stretch}
 .hcard.join input{border:3px solid var(--ink);background:#fff;color:var(--ink);font-family:'Bungee';letter-spacing:6px;text-align:center;font-size:24px}
 .credit{font-size:12px;opacity:.55;max-width:520px}
 @media (max-width:700px){.home-cards{grid-template-columns:1fr}.hcard{padding:18px}.hcard b{font-size:26px}}
@@ -3625,7 +3625,7 @@ function paintScreen(v, mode) {
   app.innerHTML = shell(`<div class="c-prompt small pop">${title}</div>
     <div class="cvwrap"><canvas id="cv" width="${W}" height="${W}"></canvas></div>
     <div class="ptools">${PTOOLS.map(([k, ic, lb], i) => `<button class="ptool ${i === 0 ? 'sel' : ''}" data-tool="${k}"><span>${ic}</span><small>${lb}</small></button>`).join('')}</div>
-    <div class="pcolors">${PAL.map((c, i) => `<button class="sw ${i === 0 ? 'sel' : ''}" data-c="${c}" style="background:${c}"></button>`).join('')}<label class="sw custom" title="Elegí cualquier color"><input type="color" id="cpick" value="#ff4d8d"><span>🎨</span></label></div>
+    <div class="pcolors"><label class="sw custom" title="Elegí cualquier color"><input type="color" id="cpick" value="#ff4d8d"><span>🎨</span></label>${PAL.map((c, i) => `<button class="sw ${i === 0 ? 'sel' : ''}" data-c="${c}" style="background:${c}"></button>`).join('')}</div>
     <div class="psize"><span class="dotprev" id="dotp"></span><input type="range" id="psz" min="2" max="60" value="12"><button class="btn small gray" id="bUndo">↩️</button><button class="btn small gray" id="bClr">🗑️</button></div>
     ${live ? '<p class="hint">📺 Tu dibujo sale en vivo en la tele</p>' : '<button class="btn big pink" id="bSend">¡Listo! 🖼️</button>'}`, true);
   const c = $('#cv'), g = c.getContext('2d', { willReadFrequently: true });
@@ -4166,7 +4166,7 @@ const Stage3D = (() => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
     renderer.toneMapping = T.ACESFilmicToneMapping; renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
     renderer.domElement.className = 'stage-canvas';
-    const scene = new T.Scene(), cam = new T.PerspectiveCamera(34, 16 / 9, .1, 100);
+    const scene = new T.Scene(), cam = new T.PerspectiveCamera(40, 16 / 9, .1, 100);
     scene.add(new T.HemisphereLight(0xc9b8ff, 0x1a1033, 1.3));
     const key = new T.DirectionalLight(0xfff1d6, 2.2); key.position.set(3, 9, 7); key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
     Object.assign(key.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8 }); scene.add(key);
@@ -4188,7 +4188,7 @@ const Stage3D = (() => {
       spots.forEach((s, i) => s.target.position.set(Math.sin(t * .7 + i * 2.1) * 4, 0, Math.cos(t * .5 + i) * 2));
       bulbs.forEach((b, i) => b.material.emissiveIntensity = ((i + Math.floor(t * 6)) % 3 === 0) ? 3 : .4);
       const orbit = S.mode === 'lobby' ? Math.sin(t * .15) * 1.6 : Math.sin(t * .25) * .8;
-      cam.position.set(orbit, S.mode === 'podium' ? 3.6 : 3.9, S.mode === 'podium' ? 9.5 : 11.5); cam.lookAt(0, S.mode === 'podium' ? 1.7 : 1.3, 0);
+      const nar = cam.aspect < 1.2 ? 1.35 : 1; cam.position.set(orbit, (S.mode === 'podium' ? 4.2 : 4.3) * nar, (S.mode === 'podium' ? 10.5 : 13) * nar); cam.lookAt(0, S.mode === 'podium' ? 1.6 : 1.2, 0);
       S.actors.forEach(a => { a.mixer.update(dt); a.g.position.lerp(a.target, Math.min(1, dt * 4)); a.g.rotation.y += (a.rot - a.g.rotation.y) * Math.min(1, dt * 5); a.badge.position.y = 2.35 + Math.sin(t * 2 + a.seed) * .05; });
       renderer.render(scene, cam);
     };
@@ -4229,12 +4229,12 @@ const Stage3D = (() => {
       const isNew = !a; if (!a) { a = actor(p); S.actors.set(p.id, a); }
       const n = players.length;
       if (mode === 'lobby') {
-        const ang = n === 1 ? 0 : (i / (n - 1) - .5) * Math.min(2.4, .55 * n);
-        a.target.set(Math.sin(ang) * 4.6, 0, -Math.cos(ang) * 4.6 + 4.2); a.rot = -ang * .6;
+        const ang = n === 1 ? 0 : (i / (n - 1) - .5) * Math.min(1.9, .45 * n);
+        a.target.set(Math.sin(ang) * 4.4, 0, -Math.cos(ang) * 4.4 + 3.6); a.rot = -ang * .6;
         if (isNew) { a.g.position.set(a.target.x, 6, a.target.z); play(a, 'Wave', true, pickR(['Dance', 'Idle', 'Dance'])); }
         else if (!a.cur) play(a, 'Idle');
       } else {
-        const slot = [[0, 1.6, 0], [-2.3, 1.05, .3], [2.3, .6, .3]][i] || [(i - 2.5) * 1.3, 0, 2.6];
+        const slot = [[0, 1.6, 0], [-2.3, 1.05, .3], [2.3, .6, .3]][i] || [((i - 3) % 2 ? 1 : -1) * (4.3 + Math.floor((i - 3) / 2) * 1.3), 0, 1.4];
         a.target.set(slot[0], slot[1], slot[2]); a.rot = 0; a.g.position.copy(a.target);
         play(a, i === 0 ? 'Dance' : i === 1 ? 'ThumbsUp' : i === 2 ? 'Yes' : pickR(['No', 'Sitting']), i === 1 || i === 2, i < 3 ? 'Idle' : undefined);
       }
@@ -4276,7 +4276,7 @@ showHome = function () {
   $('#bHost').onclick = () => { beep(1, .01, 'sine', .0001); startHost(); };
   const go = () => { const c = $('#iCode').value.trim().toUpperCase(); if (/^[A-Z]{4}$/.test(c)) location.search = '?sala=' + c; else { const i = $('#iCode'); i.classList.remove('shake'); void i.offsetWidth; i.classList.add('shake'); } };
   $('#bJoin').onclick = go; $('#iCode').onkeydown = e => { if (e.key === 'Enter') go(); };
-  if (window.gsap) try { gsap.from('.mq-word span', { y: -90, opacity: 0, rotation: () => gsap.utils.random(-40, 40), stagger: .05, duration: .8, ease: 'back.out(2)' }); gsap.from('.hcard', { y: 60, opacity: 0, stagger: .12, duration: .7, delay: .4, ease: 'power3.out' }); } catch (e) {}
+  if (window.gsap) try { gsap.from('.mq-word span', { y: -90, opacity: 0, rotation: () => gsap.utils.random(-40, 40), stagger: .05, duration: .8, ease: 'back.out(2)' }); gsap.from('.hcard', { y: 60, opacity: 0, stagger: .12, duration: .7, delay: .4, ease: 'power3.out', clearProps: 'transform,opacity' }); } catch (e) {}
 };
 const _showJoin0 = showJoin;
 showJoin = function (code) {
