@@ -1,3 +1,5 @@
 Assets de terceros (todos CC0 1.0, dominio público):
 - robot.glb y cards/: Quaternius (quaternius.com) — CC0
 - plat/, planes/, flags/, keys/, patterns/, sky_nebula.jpg: Kenney (kenney.nl) — CC0
+- chars/ (conejos, panda, soldados, rata, rana, avispa, araña, serpiente) y props/ (comida, objetos): Quaternius — CC0
+  Paquetes: Sushi Restaurant Kit, Toon Shooter Game Kit, Ultimate Food Pack, Easy Animated Enemy Pack, Platformer Pack
