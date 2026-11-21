@@ -7,7 +7,8 @@
 <title>CAOS PARTY 🎉</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Lilita+One&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <style>
 :root{--pink:#ff4d8d;--blue:#3b82f6;--green:#22c55e;--yellow:#facc15;--orange:#ff922b;--purple:#a855f7;--me:#ff4d8d}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -409,6 +410,102 @@ button{touch-action:manipulation;-webkit-user-select:none;user-select:none}
 .rrow{box-shadow:0 6px 20px #0004}
 .c-top{background:linear-gradient(90deg,var(--me),color-mix(in srgb,var(--me) 70%,#000));}
 .prompt-card{background:linear-gradient(180deg,#fff,#f1ecff)}
+/* ================== v7: identidad "estudio de TV" ================== */
+:root{--ink:#1a1033;--grape:#2b1366;--gum:#ff3d8b;--lemon:#ffd23f;--mint:#3ee6b0;--sky:#4cc9ff}
+svg.lucide{width:1.1em;height:1.1em;vertical-align:-.18em;stroke-width:2.5}
+/* botones tipo sticker con borde de tinta */
+.btn{border:3px solid var(--ink);box-shadow:0 6px 0 var(--ink);text-shadow:0 2px 0 #0004}
+.btn:active{box-shadow:0 2px 0 var(--ink)}
+.btn.small{border-width:2.5px;box-shadow:0 4px 0 var(--ink);display:inline-flex;align-items:center;gap:6px}
+/* marquesina con focos */
+.marquee{position:relative;display:inline-flex;flex-direction:column;align-items:center;padding:22px 34px 18px;background:linear-gradient(180deg,#3b1a8f,#22104f);border:4px solid var(--ink);border-radius:26px;box-shadow:0 10px 0 var(--ink),0 0 60px #ff3d8b55,inset 0 0 30px #0007;transform:rotate(-2deg)}
+.marquee .bulbs{position:absolute;inset:6px;border-radius:20px;padding:7px;background:radial-gradient(circle,#fff6c9 0 3.5px,#ffd23f55 4.5px,transparent 6px) 0 0/20px 20px;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:bulbs .9s steps(2) infinite;pointer-events:none}
+@keyframes bulbs{50%{background-position:10px 10px}}
+.mq-word{font-family:'Bungee',sans-serif;font-size:clamp(54px,11vw,118px);line-height:.95;letter-spacing:2px;color:var(--lemon);text-shadow:0 5px 0 var(--ink),0 0 24px #ffd23f88}
+.mq-word.party{color:var(--gum);text-shadow:0 5px 0 var(--ink),0 0 24px #ff3d8b88;font-size:clamp(44px,9vw,96px)}
+.mq-word span{display:inline-block}
+.marquee.sm{padding:14px 22px 12px;border-radius:20px;transform:rotate(-1.5deg)}
+.marquee.sm .mq-word{font-size:clamp(34px,6vw,56px)}.marquee.sm .mq-word.party{font-size:clamp(28px,5vw,46px)}
+@media (prefers-reduced-motion:reduce){.marquee .bulbs,.btn::after,.logo span,.code span{animation:none!important}}
+/* inicio */
+.home{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;padding:30px 18px;text-align:center}
+.home-hero{display:flex;flex-direction:column;align-items:center;gap:22px}
+.home-tag{font-size:clamp(17px,2.2vw,21px);max-width:560px;opacity:.92;line-height:1.4}
+.home-cards{display:grid;grid-template-columns:repeat(2,minmax(0,330px));gap:22px;width:100%;justify-content:center}
+.hcard{position:relative;border:4px solid var(--ink);border-radius:28px;padding:24px 22px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#fff;font-family:inherit;box-shadow:0 10px 0 var(--ink);text-align:center}
+.hcard svg.lucide{width:52px;height:52px;stroke-width:2.2;filter:drop-shadow(0 3px 0 var(--ink))}
+.hcard b{font-family:'Lilita One';font-size:32px;font-weight:400;text-shadow:0 3px 0 var(--ink)}
+.hcard span{font-size:16px;opacity:.9}
+.hcard.tv{background:linear-gradient(160deg,#ff6aa8,var(--gum));cursor:pointer;transition:transform .15s}
+.hcard.tv:hover{transform:translateY(-4px) rotate(-1deg)}
+.hcard.tv:active{transform:translateY(4px);box-shadow:0 4px 0 var(--ink)}
+.hcard.join{background:linear-gradient(160deg,#5fd3ff,#2b8de0)}
+.hcard.join .row{margin-top:8px}
+.hcard.join input{border:3px solid var(--ink);background:#fff;color:var(--ink);font-family:'Bungee';letter-spacing:6px;text-align:center;font-size:24px}
+.credit{font-size:12px;opacity:.55;max-width:520px}
+@media (max-width:700px){.home-cards{grid-template-columns:1fr}.hcard{padding:18px}.hcard b{font-size:26px}}
+.joinscr .emo{border:2.5px solid transparent}.joinscr .emo.sel{border-color:var(--lemon);box-shadow:0 0 0 3px var(--ink)}
+.joinscr #iName{border:3px solid var(--ink);background:#fff;color:var(--ink)}
+/* lobby */
+.lob{min-height:100vh;display:grid;grid-template-columns:minmax(0,1.65fr) minmax(320px,1fr);grid-template-areas:"head head" "stage side" "tests tests";gap:18px 22px;padding:18px 24px 26px;align-items:stretch}
+.lob-head{grid-area:head;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.lob-count{font-size:20px;background:#0006;border:3px solid var(--ink);padding:8px 16px;border-radius:999px;display:flex;gap:8px;align-items:center}
+.lob-stage{grid-area:stage;position:relative;min-height:440px;border:4px solid var(--ink);border-radius:30px;overflow:hidden;box-shadow:0 10px 0 var(--ink);
+  background:radial-gradient(ellipse at 50% 120%,#ff3d8b44,transparent 55%),conic-gradient(from 180deg at 30% -10%,transparent 0 160deg,#fff2 172deg,transparent 184deg),conic-gradient(from 180deg at 70% -10%,transparent 0 176deg,#ffd23f22 188deg,transparent 200deg),
+  repeating-linear-gradient(90deg,#4a1a86 0 26px,#3a1470 26px 52px)}
+.lob-stage::before{content:'';position:absolute;inset:auto 0 0 0;height:38%;background:linear-gradient(180deg,transparent,#140a2e)}
+.stage3d{position:absolute;inset:0}
+.stage3d .stage-canvas{width:100%!important;height:100%!important;display:block}
+.stage-chips{position:absolute;left:0;right:0;bottom:14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:0 12px;z-index:2}
+.stage-chips .pchip{font-size:17px;padding:6px 14px;border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink)}
+.stage3d.ready ~ .stage-chips .pchip{font-size:14px;padding:4px 10px;opacity:.9}
+.stage-empty{background:#0008;padding:10px 18px;border-radius:16px;font-size:18px}
+.lob-side{grid-area:side;display:flex;flex-direction:column;gap:16px}
+.ticket{display:flex;gap:0;background:#fff;color:var(--ink);border:4px solid var(--ink);border-radius:24px;box-shadow:0 10px 0 var(--ink);position:relative;overflow:hidden}
+.ticket .qr{padding:14px;border-right:3px dashed #1a103355;border-radius:0;background:#fff;display:flex;align-items:center}
+.ticket .qr img{width:132px;height:132px}
+.tk-info{padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+.tk-lbl{font-size:14px;opacity:.7}
+.ticket .code{font-family:'Bungee';font-size:clamp(40px,4.6vw,58px);letter-spacing:6px;line-height:1}
+.ticket .code span{color:var(--gum);text-shadow:0 3px 0 var(--ink)}
+.tk-link{font-size:13px;opacity:.7;word-break:break-all}
+.tk-btns{display:flex;gap:8px;flex-wrap:wrap}
+.panel{background:#ffffff14;border:3px solid var(--ink);border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:12px;box-shadow:0 6px 0 var(--ink)}
+.pn-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:18px}
+.pn-row>span{display:flex;align-items:center;gap:8px}
+.seg{display:flex;background:#0006;border:3px solid var(--ink);border-radius:14px;overflow:hidden}
+.seg button{border:0;background:none;color:#fff;font:800 18px Nunito;padding:6px 14px;cursor:pointer}
+.seg button.on{background:var(--lemon);color:var(--ink)}
+.seg button:disabled{opacity:.35}
+.segv{padding:6px 10px;font-size:18px;min-width:30px;text-align:center}
+.pn-test{border:3px dashed #ffffff66;background:none;color:#fff;border-radius:14px;padding:10px;font:800 16px Nunito;cursor:pointer;display:flex;gap:8px;justify-content:center;align-items:center}
+.go-btn{margin-top:auto;border:4px solid var(--ink);border-radius:24px;background:linear-gradient(180deg,#6ff2c4,var(--mint));color:var(--ink);font-family:'Lilita One';font-size:clamp(24px,2.6vw,32px);padding:18px;box-shadow:0 10px 0 var(--ink);cursor:pointer;display:flex;gap:10px;align-items:center;justify-content:center;transition:transform .1s}
+.go-btn:not(:disabled){animation:pulseGo 1.6s ease-in-out infinite}
+.go-btn:active{transform:translateY(6px);box-shadow:0 4px 0 var(--ink)}
+.go-btn:disabled{background:#ffffff22;color:#fff9;animation:none;cursor:not-allowed}
+@keyframes pulseGo{50%{transform:scale(1.03)}}
+.lob-tests{grid-area:tests;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.tgame{border:3px solid var(--ink);border-radius:16px;background:linear-gradient(180deg,color-mix(in srgb,var(--gc) 70%,#fff),var(--gc));color:#fff;font:800 15px Nunito;padding:10px;display:flex;align-items:center;gap:8px;box-shadow:0 5px 0 var(--ink);cursor:pointer;text-align:left;text-shadow:0 2px 0 #0006}
+.tgame span{font-size:24px}
+@media (max-width:900px){.lob{grid-template-columns:1fr;grid-template-areas:"head" "side" "stage" "tests";padding:14px}.lob-stage{min-height:320px}.lob-head{flex-direction:column}}
+/* podio 3D */
+.final-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+.podium3d{position:relative;width:min(100%,1100px);height:min(56vh,520px);border:4px solid var(--ink);border-radius:30px;overflow:hidden;box-shadow:0 10px 0 var(--ink);background:radial-gradient(ellipse at 50% 110%,#ffd23f44,transparent 60%),repeating-linear-gradient(90deg,#4a1a86 0 26px,#3a1470 26px 52px);display:none}
+.podium3d.ready{display:block}
+.podium3d.ready + .final-2d .podium{display:none}
+.final-2d{display:flex;flex-direction:column;align-items:center;gap:14px}
+/* tele: barra y fichas más "sticker" */
+.topbar .chip{border:2.5px solid var(--ink)}
+.schip{border-width:3px;box-shadow:0 3px 0 var(--ink)}
+.rrow{border-width:3px;box-shadow:0 5px 0 var(--ink)}
+.prompt-card{border:4px solid var(--ink);box-shadow:0 8px 0 var(--ink)}
+.gc,.cf,.zbox,.pboxx{border:4px solid var(--ink)!important}
+/* control */
+.c-top{border-bottom:4px solid var(--ink)}
+.c-prompt{border:3px solid var(--ink);box-shadow:0 5px 0 var(--ink)}
+.opt,.cbtn,.jrow{border:3px solid var(--ink)!important;box-shadow:0 5px 0 var(--ink)!important}
+.tapbtn,.actbtn{border:4px solid var(--ink)!important}
+.kbhint{font-size:14px;opacity:.75;display:flex;gap:6px;align-items:center;justify-content:center;margin:6px 0 0}
 </style>
 </head>
 <body>
@@ -417,6 +514,8 @@ button{touch-action:manipulation;-webkit-user-select:none;user-select:none}
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script>
 /* ================== CAOS PARTY ================== */
 const PREFIX = 'caospartycr-v1-';
@@ -1797,7 +1896,9 @@ const XS = {
     const act = $('#act');
     if (act) act.addEventListener('pointerdown', e => { e.preventDefault(); b++; act.classList.remove('hit'); void act.offsetWidth; act.classList.add('hit'); if (navigator.vibrate) navigator.vibrate(25); });
     P.timers.push(setInterval(() => {
-      const rx = Math.round(x * 100) / 100, ry = Math.round(y * 100) / 100, now = Date.now();
+      let kx = 0, ky = 0; if (typeof kdown !== 'undefined' && kdown.size) { const h = g => KEYS[g].some(q => kdown.has(q)); kx = (h('right') ? 1 : 0) - (h('left') ? 1 : 0); ky = (h('down') ? 1 : 0) - (h('up') ? 1 : 0); if (kx && ky) { kx *= .7071; ky *= .7071; } }
+      const ux = (kx || ky) ? kx : x, uy = (kx || ky) ? ky : y;
+      const rx = Math.round(ux * 100) / 100, ry = Math.round(uy * 100) / 100, now = Date.now();
       if (rx !== lx || ry !== ly || b !== lb || now - ls > 400) { lx = rx; ly = ry; lb = b; ls = now; send({ t: 'act', a: 'joy', x: rx, y: ry, b }); }
     }, 45));
   },
@@ -3425,7 +3526,9 @@ Object.assign(XS, {
     });
     P.onLive = m => { if (m.kind === 'lock' && act) cool(m.ms, '🥶'); };
     P.timers.push(setInterval(() => {
-      const rx = Math.round(x * 100) / 100, ry = Math.round(y * 100) / 100, now = Date.now();
+      let kx = 0, ky = 0; if (typeof kdown !== 'undefined' && kdown.size) { const h = g => KEYS[g].some(q => kdown.has(q)); kx = (h('right') ? 1 : 0) - (h('left') ? 1 : 0); ky = (h('down') ? 1 : 0) - (h('up') ? 1 : 0); if (kx && ky) { kx *= .7071; ky *= .7071; } }
+      const ux = (kx || ky) ? kx : x, uy = (kx || ky) ? ky : y;
+      const rx = Math.round(ux * 100) / 100, ry = Math.round(uy * 100) / 100, now = Date.now();
       if (rx !== lx || ry !== ly || b !== lb || now - ls > 400) { lx = rx; ly = ry; lb = b; ls = now; send({ t: 'act', a: 'joy', x: rx, y: ry, b }); }
     }, 45));
   },
@@ -3490,7 +3593,7 @@ function loadScript(src) {
 const LIBS = { matter: 'https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js', gsap: 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js' };
 let _three = null;
 function getTHREE() { return _three || (_three = import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js').catch(e => { _three = null; throw e; })); }
-function preloadHostLibs() { loadScript(LIBS.matter).catch(() => {}); loadScript(LIBS.gsap).catch(() => {}); getTHREE().catch(() => {}); }
+function preloadHostLibs() { loadScript(LIBS.matter).catch(() => {}); if (!window.gsap) loadScript(LIBS.gsap).catch(() => {}); getTHREE().catch(() => {}); }
 
 /* ================== 🎨 KIT DE DIBUJO PRO (lo usan Dibujito Desastre y Dibuja y Adivina) ================== */
 const PTOOLS = [['marker', '🖊️', 'Plumón'], ['pencil', '✏️', 'Grafito'], ['brush', '🖌️', 'Pincel'], ['crayon', '🖍️', 'Crayón'], ['spray', '💨', 'Spray'], ['fill', '🪣', 'Rellenar'], ['eraser', '🧽', 'Borrar']];
@@ -4037,6 +4140,282 @@ hostFx = function (ph) {
 };
 const _startHost0 = startHost;
 startHost = function () { preloadHostLibs(); return _startHost0(); };
+
+</script>
+<script>
+/* ================== CAOS PARTY v7 — ESCENARIO 3D, NUEVA INTERFAZ, TECLADO ================== */
+const ICO = (n, extra = '') => `<i data-lucide="${n}" ${extra}></i>`;
+const drawIcons = () => { try { if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 2.5 } }); } catch (e) {} };
+const isWide = () => window.matchMedia && matchMedia('(min-width: 900px)').matches;
+const finePointer = () => window.matchMedia && matchMedia('(pointer: fine)').matches;
+function marqueeHTML(small) {
+  let i = 0; const w = s => [...s].map(c => `<span style="--i:${i++}">${c}</span>`).join('');
+  return `<div class="marquee ${small ? 'sm' : ''}"><div class="bulbs"></div><div class="mq-word">${w('CAOS')}</div><div class="mq-word party">${w('PARTY')}</div></div>`;
+}
+
+/* ================== ESCENARIO 3D CON PERSONAJES (three.js + modelo CC0 de Quaternius) ================== */
+const Stage3D = (() => {
+  let S = null, loading = null, failed = false;
+  const TV = 'https://cdn.jsdelivr.net/npm/three@0.160.0/';
+  async function init() {
+    const T = await import(TV + 'build/three.module.js');
+    const { GLTFLoader } = await import(TV + 'examples/jsm/loaders/GLTFLoader.js');
+    const SU = await import(TV + 'examples/jsm/utils/SkeletonUtils.js');
+    const gltf = await new GLTFLoader().loadAsync('assets/robot.glb');
+    const renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
+    renderer.toneMapping = T.ACESFilmicToneMapping; renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
+    renderer.domElement.className = 'stage-canvas';
+    const scene = new T.Scene(), cam = new T.PerspectiveCamera(34, 16 / 9, .1, 100);
+    scene.add(new T.HemisphereLight(0xc9b8ff, 0x1a1033, 1.3));
+    const key = new T.DirectionalLight(0xfff1d6, 2.2); key.position.set(3, 9, 7); key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
+    Object.assign(key.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8 }); scene.add(key);
+    const spots = ['#ff3d8b', '#ffd23f', '#4cc9ff'].map((c, i) => { const s = new T.SpotLight(c, 60, 30, .35, .6, 1.4); s.position.set(-6 + i * 6, 9, 4); scene.add(s); scene.add(s.target); return s; });
+    const floor = new T.Mesh(new T.CylinderGeometry(6.2, 6.6, .5, 72), new T.MeshStandardMaterial({ color: '#3a1a86', roughness: .28, metalness: .35 }));
+    floor.position.y = -.25; floor.receiveShadow = true; scene.add(floor);
+    const rim = new T.Mesh(new T.TorusGeometry(6.35, .09, 10, 120), new T.MeshStandardMaterial({ color: '#ffd23f', emissive: '#ffd23f', emissiveIntensity: 1.4 }));
+    rim.rotation.x = Math.PI / 2; rim.position.y = .01; scene.add(rim);
+    const bulbG = new T.SphereGeometry(.09, 10, 8), bulbs = [];
+    for (let k = 0; k < 40; k++) { const a = k / 40 * Math.PI * 2, m = new T.Mesh(bulbG, new T.MeshStandardMaterial({ color: '#fff4c2', emissive: '#ffd23f', emissiveIntensity: 2 })); m.position.set(Math.cos(a) * 6.55, -.02, Math.sin(a) * 6.55); scene.add(m); bulbs.push(m); }
+    const blocks = new T.Group(); scene.add(blocks);
+    S = { T, SU, gltf, renderer, scene, cam, spots, bulbs, blocks, actors: new Map(), mode: 'lobby', clock: new T.Clock(), host: null };
+    const loop = () => {
+      requestAnimationFrame(loop);
+      const el = renderer.domElement; if (!el.isConnected) return;
+      const dt = Math.min(.05, S.clock.getDelta()), t = S.clock.elapsedTime;
+      const w = el.parentElement.clientWidth, h = el.parentElement.clientHeight;
+      if (w && h && (el.width !== Math.round(w * renderer.getPixelRatio()) || el.height !== Math.round(h * renderer.getPixelRatio()))) { renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); }
+      spots.forEach((s, i) => s.target.position.set(Math.sin(t * .7 + i * 2.1) * 4, 0, Math.cos(t * .5 + i) * 2));
+      bulbs.forEach((b, i) => b.material.emissiveIntensity = ((i + Math.floor(t * 6)) % 3 === 0) ? 3 : .4);
+      const orbit = S.mode === 'lobby' ? Math.sin(t * .15) * 1.6 : Math.sin(t * .25) * .8;
+      cam.position.set(orbit, S.mode === 'podium' ? 3.6 : 3.9, S.mode === 'podium' ? 9.5 : 11.5); cam.lookAt(0, S.mode === 'podium' ? 1.7 : 1.3, 0);
+      S.actors.forEach(a => { a.mixer.update(dt); a.g.position.lerp(a.target, Math.min(1, dt * 4)); a.g.rotation.y += (a.rot - a.g.rotation.y) * Math.min(1, dt * 5); a.badge.position.y = 2.35 + Math.sin(t * 2 + a.seed) * .05; });
+      renderer.render(scene, cam);
+    };
+    loop();
+    return S;
+  }
+  function badge(p) {
+    const { T } = S, c = document.createElement('canvas'); c.width = 512; c.height = 160; const g = c.getContext('2d');
+    g.fillStyle = '#1a1033'; g.beginPath(); g.roundRect ? g.roundRect(8, 30, 496, 104, 52) : g.rect(8, 30, 496, 104); g.fill();
+    g.fillStyle = p.color; g.beginPath(); g.roundRect ? g.roundRect(14, 24, 484, 100, 50) : g.rect(14, 24, 484, 100); g.fill();
+    g.font = '64px serif'; g.textBaseline = 'middle'; g.textAlign = 'left'; g.fillText(p.emoji, 34, 78);
+    g.font = '900 54px Nunito, sans-serif'; g.fillStyle = '#fff'; g.lineWidth = 10; g.strokeStyle = '#1a1033';
+    const name = p.name.length > 11 ? p.name.slice(0, 10) + '…' : p.name; g.strokeText(name, 118, 80); g.fillText(name, 118, 80);
+    const tex = new T.CanvasTexture(c); tex.colorSpace = T.SRGBColorSpace;
+    const sp = new T.Sprite(new T.SpriteMaterial({ map: tex, transparent: true, depthTest: false })); sp.scale.set(1.9, .6, 1); sp.renderOrder = 10; return sp;
+  }
+  function actor(p) {
+    const { T, SU, gltf } = S, m = SU.clone(gltf.scene);
+    m.traverse(o => { if (o.isMesh) { o.castShadow = true; if (o.material && o.material.name === 'Main') { o.material = o.material.clone(); o.material.color.set(p.color); o.material.roughness = .35; } } });
+    m.scale.setScalar(.42);
+    const g = new T.Group(); g.add(m); const b = badge(p); g.add(b);
+    const mixer = new T.AnimationMixer(m), acts = {};
+    gltf.animations.forEach(cl => acts[cl.name] = mixer.clipAction(cl));
+    const a = { g, m, mixer, acts, badge: b, cur: null, target: new T.Vector3(), rot: 0, seed: Math.random() * 6, key: p.color + p.emoji + p.name };
+    S.scene.add(g); return a;
+  }
+  function play(a, name, once, then) {
+    const next = a.acts[name]; if (!next || a.cur === next) return;
+    next.reset(); next.setLoop(once ? S.T.LoopOnce : S.T.LoopRepeat); next.clampWhenFinished = !!once;
+    if (a.cur) next.crossFadeFrom(a.cur, .35, false); next.play(); a.cur = next;
+    if (once && then) { const f = e => { if (e.action === next) { a.mixer.removeEventListener('finished', f); play(a, then); } }; a.mixer.addEventListener('finished', f); }
+  }
+  function sync(players, mode) {
+    S.mode = mode; const seen = new Set();
+    players.forEach((p, i) => {
+      seen.add(p.id); let a = S.actors.get(p.id);
+      if (a && a.key !== p.color + p.emoji + p.name) { S.scene.remove(a.g); S.actors.delete(p.id); a = null; }
+      const isNew = !a; if (!a) { a = actor(p); S.actors.set(p.id, a); }
+      const n = players.length;
+      if (mode === 'lobby') {
+        const ang = n === 1 ? 0 : (i / (n - 1) - .5) * Math.min(2.4, .55 * n);
+        a.target.set(Math.sin(ang) * 4.6, 0, -Math.cos(ang) * 4.6 + 4.2); a.rot = -ang * .6;
+        if (isNew) { a.g.position.set(a.target.x, 6, a.target.z); play(a, 'Wave', true, pickR(['Dance', 'Idle', 'Dance'])); }
+        else if (!a.cur) play(a, 'Idle');
+      } else {
+        const slot = [[0, 1.6, 0], [-2.3, 1.05, .3], [2.3, .6, .3]][i] || [(i - 2.5) * 1.3, 0, 2.6];
+        a.target.set(slot[0], slot[1], slot[2]); a.rot = 0; a.g.position.copy(a.target);
+        play(a, i === 0 ? 'Dance' : i === 1 ? 'ThumbsUp' : i === 2 ? 'Yes' : pickR(['No', 'Sitting']), i === 1 || i === 2, i < 3 ? 'Idle' : undefined);
+      }
+    });
+    S.actors.forEach((a, id) => { if (!seen.has(id)) { S.scene.remove(a.g); S.actors.delete(id); } });
+    S.blocks.clear();
+    if (mode === 'podium') {
+      const { T } = S;
+      [[0, 1.6, '#ffd23f'], [-2.3, 1.05, '#d7dde8'], [2.3, .6, '#e39b5a']].forEach(([x, h, c], k) => {
+        if (k >= players.length) return;
+        const b = new T.Mesh(new T.BoxGeometry(1.9, h, 1.6), new T.MeshStandardMaterial({ color: c, roughness: .3, metalness: .4 })); b.position.set(x, h / 2, k ? .3 : 0); b.castShadow = b.receiveShadow = true; S.blocks.add(b);
+      });
+    }
+  }
+  return {
+    mount(el, players, mode) {
+      if (!el || failed) return;
+      const go = () => { if (!el.isConnected) return; el.appendChild(S.renderer.domElement); el.classList.add('ready'); sync(players, mode); if (mode === 'lobby') players.forEach(p => { const a = S.actors.get(p.id); if (a && !a.cur) play(a, 'Idle'); }); };
+      if (S) return go();
+      if (!loading) loading = init().catch(e => { failed = true; console.log('Escenario 3D no disponible', e && e.message); });
+      loading.then(() => { if (S) go(); });
+    },
+    cheer(id) { if (!S) return; const a = S.actors.get(id); if (a) play(a, pickR(['Jump', 'Wave', 'Yes']), true, 'Dance'); },
+  };
+})();
+
+/* ================== NUEVA INTERFAZ: INICIO ================== */
+showHome = function () {
+  app.innerHTML = `<div class="home">
+    <div class="home-hero">${marqueeHTML()}<p class="home-tag">Minijuegos para jugar en grupo: la tele muestra el juego y cada uno usa su cel (o compu) como control.</p></div>
+    <div class="home-cards">
+      <button class="hcard tv" id="bHost">${ICO('tv')}<b>Ser la tele</b><span>Creá la sala en la pantalla grande</span></button>
+      <div class="hcard join">${ICO('smartphone')}<b>Unirme</b><span>Escribí el código de 4 letras</span>
+        <div class="row"><input id="iCode" maxlength="4" placeholder="ABCD" autocomplete="off" autocapitalize="characters"><button class="btn blue" id="bJoin">Entrar</button></div></div>
+    </div>
+    <p class="credit">Personaje 3D: Quaternius (CC0) · Hecho con three.js, Matter.js, GSAP y anime.js</p>
+  </div>`;
+  drawIcons();
+  $('#bHost').onclick = () => { beep(1, .01, 'sine', .0001); startHost(); };
+  const go = () => { const c = $('#iCode').value.trim().toUpperCase(); if (/^[A-Z]{4}$/.test(c)) location.search = '?sala=' + c; else { const i = $('#iCode'); i.classList.remove('shake'); void i.offsetWidth; i.classList.add('shake'); } };
+  $('#bJoin').onclick = go; $('#iCode').onkeydown = e => { if (e.key === 'Enter') go(); };
+  if (window.gsap) try { gsap.from('.mq-word span', { y: -90, opacity: 0, rotation: () => gsap.utils.random(-40, 40), stagger: .05, duration: .8, ease: 'back.out(2)' }); gsap.from('.hcard', { y: 60, opacity: 0, stagger: .12, duration: .7, delay: .4, ease: 'power3.out' }); } catch (e) {}
+};
+const _showJoin0 = showJoin;
+showJoin = function (code) {
+  _showJoin0(code);
+  const lg = app.querySelector('.logo'); if (lg) lg.outerHTML = marqueeHTML(true);
+  const s = app.querySelector('.screen'); if (s) s.classList.add('joinscr');
+};
+
+/* ================== NUEVA INTERFAZ: LOBBY CON ESCENARIO 3D ================== */
+lobbyHTML = function () {
+  const ps = [...H.players.values()], n = ps.filter(p => p.online).length, bots = ps.filter(p => p.isBot).length;
+  return `<div class="lob">
+    <header class="lob-head">${marqueeHTML(true)}<span class="lob-count">${ICO('users')} ${n} de 8 jugadores</span></header>
+    <section class="lob-stage">
+      <div class="stage3d" id="stage3d"></div>
+      <div class="stage-chips">${ps.length ? ps.map(p => `<span class="pchip ${p.online ? '' : 'off'}" style="--c:${p.color}"><span class="e">${p.emoji}</span>${esc(p.name)}</span>`).join('') : '<span class="stage-empty">El escenario está vacío. Escaneá el código para subirte 👉</span>'}</div>
+    </section>
+    <aside class="lob-side">
+      <div class="ticket">
+        <div class="qr">${qrHTML()}</div>
+        <div class="tk-info"><span class="tk-lbl">Código de la sala</span><div class="code">${[...H.code].map((c, i) => `<span style="--i:${i}">${c}</span>`).join('')}</div>
+          <div class="tk-link">${esc(joinLink().replace(/^https?:\/\//, ''))}</div>
+          <div class="tk-btns"><button class="btn small blue" data-act="copy">${ICO('copy')} Copiar link</button>${navigator.share ? `<button class="btn small purple" data-act="share">${ICO('share-2')} Compartir</button>` : ''}</div></div>
+      </div>
+      <div class="panel">
+        <div class="pn-row"><span>${ICO('repeat')} Rondas</span><div class="seg">${[5, 7, 10, 15].map(r => `<button class="${H.rounds === r ? 'on' : ''}" data-act="rounds" data-n="${r}">${r}</button>`).join('')}</div></div>
+        <div class="pn-row"><span>${ICO('bot')} Bots</span><div class="seg"><button data-act="rmbot" ${bots ? '' : 'disabled'}>−</button><b class="segv">${bots}</b><button data-act="addbot">+</button></div></div>
+        <button class="pn-test" data-act="testmenu">${ICO('flask-conical')} ${H.testMenu ? 'Ocultar la lista de juegos' : `Probar un juego suelto (${Object.keys(GAMES).length})`}</button>
+      </div>
+      <button class="go-btn" data-act="start" ${n < 2 ? 'disabled' : ''}>${ICO('play')} ${n < 2 ? 'Faltan jugadores (mínimo 2)' : '¡Empezar la fiesta!'}</button>
+    </aside>
+    ${H.testMenu ? `<section class="lob-tests">${Object.entries(GAMES).map(([k, g]) => `<button class="tgame" data-act="test" data-k="${k}" style="--gc:${g.color}"><span>${g.emoji}</span>${esc(g.name)}</button>`).join('')}</section>` : ''}
+  </div>`;
+};
+const _renderHost1 = renderHost;
+renderHost = function () {
+  _renderHost1();
+  drawIcons();
+  const ps = [...H.players.values()].filter(p => p.online);
+  if (H.phase === 'lobby') {
+    const el = $('#stage3d'); if (el) Stage3D.mount(el, ps, 'lobby');
+  }
+  if (H.phase === 'final') { const el = $('#stage3d'); if (el) Stage3D.mount(el, sortedPlayers(), 'podium'); }
+};
+const _finalHTML0 = finalHTML;
+finalHTML = function () {
+  return `<div class="final-wrap"><div class="stage3d podium3d" id="stage3d"></div><div class="final-2d">${_finalHTML0()}</div></div>`;
+};
+const _onHostMsg0 = onHostMsg;
+onHostMsg = function (conn, m) { const had = m && m.t === 'join' && H.players.has(m.pid); _onHostMsg0(conn, m); if (m && m.t === 'join' && !had) setTimeout(() => Stage3D.cheer(conn._pid), 900); };
+
+/* ================== CONTROLES CON TECLADO (para quien juega desde la compu) ================== */
+const KEYS = { up: ['w', 'arrowup'], down: ['s', 'arrowdown'], left: ['a', 'arrowleft'], right: ['d', 'arrowright'], act: [' ', 'enter', 'k', 'j', 'e'] };
+const kdown = new Set();
+const isTyping = () => { const a = document.activeElement; return a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA'); };
+window.addEventListener('keydown', e => {
+  if (isTyping()) return; const k = e.key.toLowerCase();
+  if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
+  const first = !kdown.has(k); kdown.add(k);
+  if (P.onKey) P.onKey(k, first, e);
+});
+window.addEventListener('keyup', e => { kdown.delete(e.key.toLowerCase()); });
+window.addEventListener('blur', () => kdown.clear());
+const keyIs = (k, g) => KEYS[g].includes(k);
+const pdown = el => { if (!el || el.disabled) return; const E = window.PointerEvent || MouseEvent; el.dispatchEvent(new E('pointerdown', { bubbles: true, cancelable: true })); };
+const numKey = k => { const n = parseInt(k, 10); return n >= 1 && n <= 9 ? n - 1 : -1; };
+function kbHint(txt) { if (!finePointer()) return; const b = app.querySelector('.c-body'); if (b && !b.querySelector('.kbhint')) b.insertAdjacentHTML('beforeend', `<p class="kbhint">${ICO('keyboard')} ${txt}</p>`); drawIcons(); }
+const _clearTimers1 = clearTimers;
+clearTimers = function () { _clearTimers1(); P.onKey = null; };
+
+const wrapScreen = (get, set, hint, onKey) => { const orig = get(); set(function (v) { orig.apply(this, arguments); P.onKey = onKey; if (hint) kbHint(typeof hint === 'function' ? hint(v) : hint); }); };
+wrapScreen(() => tapScreen, f => tapScreen = f, 'Apretá ESPACIO lo más rápido que podás', (k, first) => { if (first && keyIs(k, 'act')) pdown($('#tb')); });
+wrapScreen(() => reflexScreen, f => reflexScreen = f, 'ESPACIO cuando se ponga verde', (k, first) => { if (first && keyIs(k, 'act')) pdown($('#rx')); });
+wrapScreen(() => chooseScreen, f => chooseScreen = f, 'Usá los números 1, 2, 3… para elegir', (k, first) => { const i = numKey(k); if (first && i >= 0) { const o = app.querySelectorAll('.opt')[i]; if (o && !o.disabled) o.click(); } });
+const xsWrap = (name, hint, onKey) => wrapScreen(() => XS[name], f => XS[name] = f, hint, onKey);
+xsWrap('quiz', 'Usá 1, 2, 3 o 4 para responder', (k, first) => { const i = numKey(k); if (first && i >= 0) { const o = app.querySelectorAll('.opt')[i]; if (o && !o.disabled) o.click(); } });
+xsWrap('mash', 'Alterná A y D (o ← y →)', (k, first) => { if (!first) return; if (keyIs(k, 'left')) pdown($('#mL')); if (keyIs(k, 'right')) pdown($('#mR')); });
+xsWrap('jump', 'ESPACIO o ↑ para saltar', (k, first) => { if (first && (keyIs(k, 'act') || keyIs(k, 'up'))) pdown($('#jb')); });
+xsWrap('drop', 'ESPACIO o ↓ para soltar', (k, first) => { if (first && (keyIs(k, 'act') || keyIs(k, 'down'))) pdown($('#db')); });
+xsWrap('simon', 'Teclas 1, 2, 3 y 4 (en el orden de los colores)', (k, first) => { const i = numKey(k); if (first && i >= 0 && i < 4) pdown(app.querySelectorAll('.spad')[i]); });
+xsWrap('colors', 'Teclas 1 a 6 para elegir el color', (k, first) => { const i = numKey(k); if (first && i >= 0 && i < 6) pdown(app.querySelectorAll('.cbtn')[i]); });
+xsWrap('grid9', 'Teclas 1 a 9 (como un teclado numérico: 1 arriba a la izquierda) o Q W E / A S D / Z X C', (k, first) => {
+  if (!first) return; let i = numKey(k); if (i < 0) i = 'qweasdzxc'.indexOf(k); if (i >= 0) pdown(app.querySelectorAll('#pg button')[i]);
+});
+xsWrap('duelboard', v => v.kind === 'c4' ? 'Teclas 1 a 7 para elegir la columna' : 'Teclas 1 a 9 para elegir la casilla (1 arriba a la izquierda)', (k, first) => {
+  const i = numKey(k); if (!first || i < 0) return;
+  if (app.querySelector('.pboard.c4')) { if (i > 6) return; const b = [...app.querySelectorAll('.pboard [data-i]')].find(x => (+x.dataset.i) % 7 === i && !x.disabled); if (b) b.click(); }
+  else { const b = app.querySelectorAll('.pboard [data-i]')[i]; if (b && !b.disabled) b.click(); }
+});
+/* joystick: WASD / flechas + ESPACIO para la habilidad */
+const _joy0 = XS.joy;
+XS.joy = function (v) {
+  _joy0(v);
+  if (finePointer()) { const h = app.querySelector('.jhint'); if (h) h.innerHTML = `${ICO('keyboard')} WASD o flechas para moverte${v.btn ? ' · ESPACIO = ' + esc(v.btn) : ''}`; drawIcons(); }
+  const act = $('#act');
+  P.onKey = (k, first) => { if (first && act && keyIs(k, 'act')) pdown(act); };
+};
+/* el botón de habilidad cuenta sus toques en P._joyB para que el teclado y el touch no se pisen */
+
+/* ================== ☄️ METEOROS: MUCHO MÁS DIFÍCIL ================== */
+Object.assign(GAMES.meteor, {
+  desc: '¡En 3D! Caen meteoros cada vez más rápido y la plataforma se va ENCOGIENDO 😱. Cada tanto cae un MEGA meteoro. Miren las sombras rojas y esquiven con el joystick (o WASD).',
+  step(dt) {
+    const gd = H.gd; gd.t += dt; gd.spawn -= dt; gd.mega = (gd.mega ?? 8) - dt;
+    gd.R = Math.max(5.5, 10 - gd.t * .075);
+    const R = gd.R, alive = gd.ids.filter(id => gd.ps[id].alive);
+    const add = (x, z, T0, r, mega) => gd.ms.push({ id: gd.mid++, x, z, t: T0, T: T0, r, mega });
+    const spot = () => { if (alive.length && Math.random() < .82) { const t = gd.ps[pickR(alive)]; return [t.x + (Math.random() - .5) * 2.6, t.z + (Math.random() - .5) * 2.6]; } const a = Math.random() * 6.28, r = Math.sqrt(Math.random()) * R; return [Math.cos(a) * r, Math.sin(a) * r]; };
+    if (gd.spawn <= 0) {
+      gd.spawn = Math.max(.16, .75 - gd.t * .018);
+      const n = 1 + Math.floor(gd.t / 14), T0 = Math.max(.6, 1.25 - gd.t * .012);
+      for (let k = 0; k < n; k++) { const [x, z] = spot(); add(x, z, T0 + k * .08, 1.6 + Math.random() * .7); }
+    }
+    if (gd.mega <= 0) { gd.mega = Math.max(4.5, 9 - gd.t * .07); const [x, z] = spot(); add(x, z, 1.5, 3.3, true); beep(70, .6, 'sawtooth', .07); }
+    for (const id of alive) { const p = gd.ps[id], i = inp(id); p.x += i.x * 7.2 * dt; p.z += i.y * 7.2 * dt; const d = Math.hypot(p.x, p.z); if (d > R - .45) { p.x *= (R - .45) / d; p.z *= (R - .45) / d; } }
+    for (const m of gd.ms) {
+      m.t -= dt;
+      if (m.t <= 0 && !m.hit) {
+        m.hit = true; gd.fx.push({ id: m.id, x: m.x, z: m.z, t: 0, r: m.r }); beep(m.mega ? 55 : 90, .35, 'sawtooth', .07); if (m.mega) shakeScreen();
+        for (const id of alive) { const p = gd.ps[id]; if (p.alive && Math.hypot(p.x - m.x, p.z - m.z) < m.r) { p.alive = false; gd.out.push(id); SFX.bad(); shakeScreen(); sync(); updateStrip(); } }
+      }
+    }
+    gd.ms = gd.ms.filter(m => !m.hit); gd.fx.forEach(f => f.t += dt); gd.fx = gd.fx.filter(f => f.t < .6);
+    if (gd.r3) { const s = R / GAMES.meteor.R; gd.r3.scene.children.forEach(o => { if (o.userData.plat) o.scale.set(s, 1, s); }); }
+    const left = gd.ids.filter(id => gd.ps[id].alive).length;
+    if (!gd.ending && ((gd.ids.length > 1 && left <= 1) || left === 0)) { gd.ending = true; const tok = H.token; setTimeout(() => { if (tok === H.token) GAMES.meteor.end(); }, 1300); }
+  },
+});
+const _build3D0 = GAMES.meteor.build3D;
+GAMES.meteor.build3D = function (T) {
+  const r = _build3D0.call(this, T);
+  r.scene.children.forEach(o => { if (o.geometry && (o.geometry.type === 'CylinderGeometry' || o.geometry.type === 'TorusGeometry')) o.userData.plat = true; });
+  return r;
+};
+const _mdraw0 = GAMES.meteor.draw;
+GAMES.meteor.draw = function (ctx) {
+  const gd = H.gd, R0 = GAMES.meteor.R; if (!gd.r3 && gd.R) { GAMES.meteor.R = gd.R; try { _mdraw0.call(GAMES.meteor, ctx); } finally { GAMES.meteor.R = R0; } return; }
+  return _mdraw0.call(GAMES.meteor, ctx);
+};
 
 boot();
 </script>
