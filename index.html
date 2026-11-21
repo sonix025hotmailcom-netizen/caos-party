@@ -2869,7 +2869,7 @@ function botBrain(p) {
     } break;
     case 'form': if (!M.done && (H.phase === 'b-stop' || el > 10000 + M.wait * 8)) { M.done = true; act({ a: 'basta', ans: v.cats.map(() => botWord(v.letter)) }); } break;
     case 'grid9': if (Math.random() < .3) { const hs = H.gd.holes.map((h, i) => h && !h.hit && h.type !== 'bomb' ? i : -1).filter(i => i >= 0); if (hs.length) act({ a: 'hit', i: pickR(hs) }); } break;
-    case 'jump': { const gd = H.gd, toBottom = ((1.5 - (gd.ph % 1)) % 1) * gd.period, cy = Math.floor(gd.ph + .5); if (toBottom < .45 && toBottom > .06 && M.cyc !== cy) { M.cyc = cy; if (Math.random() < .93) act({ a: 'jump' }); } } break;
+    case 'jump': { const gd = H.gd, toBottom = ((1.5 - (gd.ph % 1)) % 1) * gd.period, cy = Math.floor(gd.ph + .5); if (H.phase === 'jp-go' && M.cyc !== cy && toBottom > .3) { M.cyc = cy; if (Math.random() < .95) setTimeout(() => { if (H.phase === 'jp-go') act({ a: 'jump' }); }, Math.max(0, toBottom - .22) * 1000); } } break;
     case 'judge': if (!M.done && el > 3000 + rand(6000)) { M.done = true; act({ a: 'judge', rej: v.items.filter(() => Math.random() < .12).map(x => x.i) }); } break;
     case 'joy': botJoy(p, M, act); break;
   }
