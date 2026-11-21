@@ -1,0 +1,3 @@
+Assets de terceros (todos CC0 1.0, dominio público):
+- robot.glb y cards/: Quaternius (quaternius.com) — CC0
+- plat/, planes/, flags/, keys/, patterns/, sky_nebula.jpg: Kenney (kenney.nl) — CC0
