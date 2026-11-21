@@ -290,6 +290,25 @@ textarea{min-height:110px;resize:none}
 .pring .pa.hold .e{box-shadow:0 0 0 6px #ef4444,0 0 40px #ef4444;animation:wiggle .3s infinite}
 #bomb{position:absolute;transform:translate(-50%,-50%);font-size:clamp(50px,9vh,80px);transition:left .45s cubic-bezier(.3,1.4,.5,1),top .45s cubic-bezier(.3,1.4,.5,1);z-index:2;filter:drop-shadow(0 6px 0 #0007)}
 .pcenter{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Lilita One';font-size:clamp(22px,3.4vw,40px);text-align:center}
+/* ---------- v4 ---------- */
+.tgrid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:1000px}
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:1000px}
+.qopt{background:var(--c);border-radius:20px;padding:16px 18px;display:flex;align-items:center;gap:12px;font-size:clamp(18px,2.6vw,28px);box-shadow:0 6px 0 #0006;text-align:left;transition:opacity .3s,transform .3s}
+.qopt b{font-family:'Lilita One';font-size:1.3em;background:#0003;border-radius:12px;padding:2px 12px}
+.qopt span{flex:1}.qopt em{font-style:normal;font-size:28px}
+.qopt.wrong{opacity:.3;transform:scale(.95)}
+.qopt.right{box-shadow:0 0 0 6px var(--yellow),0 0 40px var(--yellow);transform:scale(1.04)}
+.tiles{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.tile{width:clamp(48px,7vw,84px);aspect-ratio:1;background:#fff;color:#2a0c55;border-radius:16px;display:flex;align-items:center;justify-content:center;font-family:'Lilita One';font-size:clamp(30px,5vw,56px);box-shadow:0 7px 0 #0006}
+.pwrap{display:flex;gap:20px;width:100%;max-width:1150px;align-items:stretch;justify-content:center;flex-wrap:wrap}
+.pboxx{background:#fff;border-radius:20px;padding:8px;box-shadow:0 8px 0 #0006;width:min(100%,60vh);aspect-ratio:1;display:flex}
+.pimg{width:100%;height:100%;object-fit:contain;border-radius:14px}
+.pside{flex:1;min-width:240px;max-width:440px;display:flex;flex-direction:column;gap:12px}
+.phint{font-family:'Lilita One';font-size:clamp(26px,4vw,46px);letter-spacing:4px;background:#0004;border-radius:18px;padding:12px}
+.phint small{font-family:'Nunito';font-size:16px;letter-spacing:0;opacity:.8}
+.pfeed{display:flex;flex-direction:column;gap:6px;text-align:left}
+.fd{background:#ffffff16;border-radius:12px;padding:8px 12px;font-size:20px;animation:pop .3s both}
+.fd.ok{background:#16a34a}
 </style>
 </head>
 <body>
@@ -596,6 +615,7 @@ function hostTick() {
 function onHostClick(e) {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act;
+  if (typeof onHostClick2 === 'function' && onHostClick2(a, b)) return;
   if (a === 'start') startGame();
   else if (a === 'rounds') { H.rounds = +b.dataset.n; renderHost(); }
   else if (a === 'next') { if (H.phase === 'board') { H.roundIdx++; nextRound(); } }
@@ -679,6 +699,7 @@ function lobbyHTML() {
     <div class="lobby-players">${ps.length ? ps.map(p => `<div class="pchip pop ${p.online ? '' : 'off'}" style="--c:${p.color}"><span class="e">${p.emoji}</span>${esc(p.name)}</div>`).join('') : '<h2 class="float" style="opacity:.8">Esperando jugadores… 👀</h2>'}</div>
     <div class="hint">🎮 ${Object.keys(GAMES).length} minijuegos en total</div>
     <div class="settings"><span>Rondas:</span>${[5, 7, 10, 15].map(r => `<button class="btn small ${H.rounds === r ? 'pink sel' : 'gray'}" data-act="rounds" data-n="${r}">${r}</button>`).join('')}</div>
+    ${typeof lobbyExtra === 'function' ? lobbyExtra() : ''}
     <button class="btn big green ${n >= 2 ? 'wiggle' : ''}" data-act="start" ${n < 2 ? 'disabled' : ''}>🚀 ¡EMPEZAR! (${n}/8)</button>
     ${n < 2 ? '<div class="hint">Ocupan al menos 2 jugadores conectados</div>' : ''}
   </div>`;
@@ -695,7 +716,7 @@ function boardHTML() {
       <div class="tpos">${medal(i)}</div>
       <div class="tway"><div class="tflag">🏁</div><div class="runner" data-to="${(p.score / max * 86).toFixed(1)}" style="left:${((p.prev || 0) / max * 86).toFixed(1)}%">${p.emoji}${i === 0 && p.score > 0 ? '<span class="crown">👑</span>' : ''}</div></div>
       <div class="tinfo"><b>${esc(p.name)}</b><span data-from="${p.prev || 0}" data-count="${p.score}">${p.prev || 0}</span>${p.gain ? `<em class="gain">+${p.gain}</em>` : ''}</div></div>`).join('')}</div>
-    <button class="btn big ${last ? 'orange' : 'green'}" data-act="next">${last ? '🏆 ¡Ver quién ganó!' : 'Siguiente juego ▶'}</button>`;
+    <button class="btn big ${last ? 'orange' : 'green'}" data-act="next">${H.testMode ? '🔙 Volver al lobby' : last ? '🏆 ¡Ver quién ganó!' : 'Siguiente juego ▶'}</button>`;
 }
 function finalHTML() {
   const ps = sortedPlayers(), top = [ps[1], ps[0], ps[2]], places = [2, 1, 3];
@@ -1546,7 +1567,7 @@ Object.assign(GAMES, {
       if (H.phase !== 's-in') return;
       const gd = H.gd, ok = gd.alive.filter(id => gd.ans[id] === true), bad = gd.alive.filter(id => gd.ans[id] !== true);
       gd.ok = ok; gd.bad = bad;
-      gd.over = ok.length <= 1 || gd.round >= 12;
+      gd.over = ok.length <= 1 || gd.round >= 8;
       if (ok.length) { bad.forEach(id => gd.outR[id] = gd.round); gd.alive = ok; }
       if (bad.length) SFX.bad(); else SFX.win();
       setPhase('s-res', 3500, () => gd.over ? GAMES.simon.end() : (gd.len++, GAMES.simon.next()), 0, false);
@@ -1796,7 +1817,7 @@ function makeDuel(kind) {
       const opp = m.a === p.id ? m.b : m.a, oppName = opp === 'cpu' ? '🤖 CPU' : `${pl(opp)?.emoji} ${pl(opp)?.name}`;
       if (m.done) return m.win === p.id ? { screen: 'msg', big: '🏆', title: '¡GANASTE EL DUELO!', text: 'Le ganaste a ' + oppName } : m.win ? { screen: 'msg', big: '😭', title: 'Perdiste…', text: 'Te ganó ' + oppName } : { screen: 'msg', big: '🤝', title: '¡Empate!', text: 'Contra ' + oppName };
       const mine = m.turn === p.id;
-      return { screen: 'board', kind, key: 'bd' + H.gd.ms.indexOf(m) + '-' + m.cells.filter(Boolean).length, cells: m.cells, me: m.a === p.id ? 1 : 2, sym: SYM, myTurn: mine, opp: oppName, deadline: mine ? m.tEnd : 0 };
+      return { screen: 'duelboard', kind, key: 'bd' + H.gd.ms.indexOf(m) + '-' + m.cells.filter(Boolean).length, cells: m.cells, me: m.a === p.id ? 1 : 2, sym: SYM, myTurn: mine, opp: oppName, deadline: mine ? m.tEnd : 0 };
     },
     onAct(p, m) { if (H.phase === 'du-go' && m.a === 'move') { const mt = G.mOf(p.id); if (mt) G.move(mt, p.id, m.i | 0); } },
     duelsHTML() {
@@ -2220,7 +2241,7 @@ Object.assign(XS, {
     app.innerHTML = shell(`<div class="c-prompt pop">${esc(v.title)}</div><div class="colbtns">${SC.map((c, i) => `<button class="cbtn" data-c="${i}" style="--c:${c[1]}">${c[0]}</button>`).join('')}</div>`, true);
     app.querySelectorAll('.cbtn').forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); send({ t: 'act', a: 'color', c: +b.dataset.c }); app.querySelectorAll('.cbtn').forEach(x => x.disabled = true); }));
   },
-  board(v) {
+  duelboard(v) {
     const C4 = v.kind === 'c4', S = v.sym;
     const cells = C4 ? `<div class="c4cols">${[0, 1, 2, 3, 4, 5, 6].map(c => `<button data-i="${c}" ${!v.myTurn || v.cells[c] ? 'disabled' : ''}>⬇</button>`).join('')}</div><div class="pboard c4">${v.cells.map(x => `<div>${S[x]}</div>`).join('')}</div>`
       : `<div class="pboard ttt">${v.cells.map((x, i) => `<button data-i="${i}" ${!v.myTurn || x ? 'disabled' : ''}>${S[x]}</button>`).join('')}</div>`;
@@ -2241,6 +2262,610 @@ Object.assign(XS, {
     app.querySelectorAll('.pgrid button').forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); send({ t: 'act', a: 'hit', i: +b.dataset.i }); b.classList.add('f'); b.textContent = '🔨'; setTimeout(() => { b.classList.remove('f'); b.textContent = '🕳️'; }, 150); if (navigator.vibrate) navigator.vibrate(15); }));
   },
 });
+
+</script>
+<script>
+/* ================== CAOS PARTY v4 — MODO PRUEBA, BOTS, MÁS JUEGOS ================== */
+const pickR = a => a[rand(a.length)];
+function lev(a, b) {
+  if (a === b) return 0; const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) { const cur = [i]; for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); prev = cur; }
+  return prev[n];
+}
+/* parecido: ignora tildes, mayúsculas, plurales simples y 1 letra mal escrita en palabras largas */
+function close(a, b, tol) {
+  a = norm(a); b = norm(b); if (!a || !b) return false;
+  if (a === b) return true;
+  const st = s => s.replace(/(es|s)$/, '');
+  if (st(a) === st(b)) return true;
+  const L = Math.max(a.length, b.length);
+  return lev(a, b) <= (tol ?? (L >= 8 ? 2 : L >= 5 ? 1 : 0));
+}
+
+/* ---------- MÁS CONTENIDO ---------- */
+QUIPS.push(
+  'Lo que NO querés escuchar de tu dentista', 'El peor nombre para un perfume', 'Lo que hay en el bolso de una abuela tica',
+  'Una pésima frase para conquistar a alguien', 'Lo que dice tu mascota de vos a sus amigos', 'El peor trabajo del mundo',
+  'Lo que pasaría si los gatos gobernaran el mundo', 'La peor cosa para gritar en una biblioteca', 'Un reality show que nadie vería',
+  'La razón real por la que los dinosaurios se extinguieron', 'Lo que hace el profe los fines de semana', 'El peor sabor de chicle',
+  'Algo que nunca hay que decir en un funeral... de un pez', 'Un mensaje motivacional pésimo', 'Lo que dice el GPS cuando se enoja',
+  'El nombre de tu banda si fueras famoso', 'Lo que hay de verdad en el Área 51', 'El peor lugar para una primera cita',
+  'Algo que no deberías llevar a un paseo a la playa', 'Una regla nueva para el colegio', 'La peor excusa para no ir a una fiesta',
+  'Lo que pensás a las 3 a.m.', 'El superhéroe más inútil de Costa Rica', 'El título de la película de tu vida',
+  'Lo que encontrarías debajo de la cama de un adolescente', 'Un pésimo nombre para un gimnasio', 'Lo que le dirías a tu yo de 10 años',
+  'Un deporte olímpico que debería existir', 'Lo que dice tu celular cuando te quedás dormido viéndolo', 'El peor regalo para el Día de la Madre',
+);
+DRAWS.push(
+  'Un elefante en una tina', 'Un robot enamorado', 'Una hamburguesa voladora', 'Un pirata en el súper', 'Un gato con bigote de señor',
+  'Un tiburón con frenillos', 'Un helado derritiéndose al sol', 'Un perro astronauta', 'Una vaca en patines', 'Un mago sacando un pollo del sombrero',
+  'Una casa con piernas', 'Un sapo rey', 'Un cactus abrazando a alguien', 'Un bus lleno de gallinas', 'Un dragón haciendo tortillas',
+  'Una ballena en el cielo', 'Un mapache robando basura', 'Un abuelo DJ', 'Un huevo en la playa', 'Un caballo con lentes',
+);
+FACTS.push(
+  { q: 'El único mamífero que puede volar de verdad es el ___.', a: 'murciélago', alt: ['murcielagos'] },
+  { q: 'Las abejas le avisan a otras dónde hay comida haciendo un ___.', a: 'baile', alt: ['danza', 'bailecito'] },
+  { q: 'El animal terrestre más rápido del mundo es el ___.', a: 'guepardo', alt: ['chita', 'cheetah'] },
+  { q: 'El cuello de una jirafa tiene la misma cantidad de vértebras que el de un ___.', a: 'humano', alt: ['persona', 'ser humano'] },
+  { q: 'Los delfines duermen con la mitad del ___ despierta.', a: 'cerebro' },
+  { q: 'Los gatos no pueden sentir el sabor ___.', a: 'dulce', alt: ['azucar', 'a dulce'] },
+  { q: 'La sangre de los pulpos es de color ___.', a: 'azul' },
+  { q: 'La Torre Eiffel puede crecer unos centímetros en ___.', a: 'verano', alt: ['calor', 'el verano'] },
+  { q: 'Debajo del pelo blanco, la piel de los osos polares es de color ___.', a: 'negro', alt: ['negra'] },
+  { q: 'Los flamencos suelen dormir parados en una sola ___.', a: 'pata', alt: ['pierna'] },
+  { q: 'Las ranas pueden absorber agua a través de su ___.', a: 'piel' },
+  { q: 'El planeta más caliente del sistema solar es ___.', a: 'Venus' },
+);
+MAJOR.push(
+  { q: '¿Qué preferís?', a: 'Ser el más inteligente', b: 'Ser el más gracioso' },
+  { q: '¿Qué es peor?', a: 'Calcetines mojados', b: 'Arena en la cama' },
+  { q: '¿Qué preferís?', a: 'Nunca más usar redes', b: 'Nunca más ver series' },
+  { q: '¿Plan de viernes?', a: 'Fiesta', b: 'Cama y series' },
+  { q: '¿Qué preferís?', a: 'Viajar gratis siempre', b: 'Comer gratis siempre' },
+  { q: '¿Qué es mejor?', a: 'Videojuegos', b: 'Juegos de mesa' },
+  { q: '¿Qué preferís?', a: 'Tener un dragón', b: 'Ser un dragón' },
+  { q: '¿Cómo preferís el café?', a: 'Negro', b: 'Con leche' },
+  { q: '¿Qué preferís?', a: 'Vivir sin celular', b: 'Vivir sin carro' },
+  { q: '¿Qué es peor?', a: 'Que se te caiga el cel en la cara', b: 'Morderte el cachete' },
+  { q: '¿Qué preferís?', a: 'Ser famoso', b: 'Ser millonario en secreto' },
+  { q: '¿Mejor época?', a: 'Navidad', b: 'Vacaciones de medio año' },
+  { q: '¿Qué preferís?', a: 'Hablar con tu yo del futuro', b: 'Hablar con tu yo del pasado' },
+  { q: '¿Superpoder?', a: 'Detener el tiempo', b: 'Respirar bajo el agua' },
+  { q: '¿Qué preferís?', a: 'Gatos gigantes', b: 'Perros diminutos' },
+);
+LIKELY.push(
+  'se pierda en un centro comercial', 'gane un reality show', 'se haga vegano un día y al siguiente coma chicharrón', 'se quede dormido en el cine',
+  'responda los mensajes tres días después', 'invente una excusa increíble', 'se haga amigo de un desconocido en la fila', 'termine en la tele',
+  'adopte un animal raro', 'se le olvide dónde parqueó', 'haga un TikTok en un funeral... de su planta', 'sea el primero en llegar a la fiesta',
+  'sea el último en irse de la fiesta', 'rompa algo en una tienda', 'se aprenda todos los bailes de moda',
+);
+const TRIVIA = [
+  { q: '¿Cuál es la capital de Costa Rica?', o: ['San José', 'Alajuela', 'Cartago', 'Heredia'], c: '🇨🇷' },
+  { q: '¿Cuál es el ave nacional de Costa Rica?', o: ['Yigüirro', 'Quetzal', 'Tucán', 'Lapa roja'], c: '🇨🇷' },
+  { q: '¿Cuál es la flor nacional de Costa Rica?', o: ['Guaria morada', 'Rosa', 'Orquídea blanca', 'Girasol'], c: '🇨🇷' },
+  { q: '¿Cuál es la moneda de Costa Rica?', o: ['Colón', 'Peso', 'Quetzal', 'Lempira'], c: '🇨🇷' },
+  { q: '¿En qué año se independizó Costa Rica?', o: ['1821', '1810', '1848', '1900'], c: '🇨🇷' },
+  { q: '¿En qué año Costa Rica abolió el ejército?', o: ['1948', '1821', '1960', '1899'], c: '🇨🇷' },
+  { q: '¿Cuál es el árbol nacional de Costa Rica?', o: ['Guanacaste', 'Ceiba', 'Roble', 'Pino'], c: '🇨🇷' },
+  { q: '¿Cuál es el planeta más grande del sistema solar?', o: ['Júpiter', 'Saturno', 'Neptuno', 'La Tierra'], c: '🪐' },
+  { q: '¿A qué planeta le dicen "el planeta rojo"?', o: ['Marte', 'Venus', 'Mercurio', 'Júpiter'], c: '🪐' },
+  { q: '¿Cuál es el océano más grande?', o: ['Pacífico', 'Atlántico', 'Índico', 'Ártico'], c: '🌍' },
+  { q: '¿Cuál es la montaña más alta del mundo?', o: ['Everest', 'K2', 'Aconcagua', 'Kilimanjaro'], c: '🌍' },
+  { q: '¿Cuál es la capital de Japón?', o: ['Tokio', 'Kioto', 'Osaka', 'Seúl'], c: '🌍' },
+  { q: '¿Cuál es la moneda de Japón?', o: ['Yen', 'Won', 'Yuan', 'Rupia'], c: '🌍' },
+  { q: '¿Quién pintó la Mona Lisa?', o: ['Leonardo da Vinci', 'Picasso', 'Van Gogh', 'Miguel Ángel'], c: '🎨' },
+  { q: '¿Quién pintó "La noche estrellada"?', o: ['Van Gogh', 'Monet', 'Dalí', 'Frida Kahlo'], c: '🎨' },
+  { q: '¿Cuántos huesos tiene un adulto humano?', o: ['206', '150', '300', '412'], c: '🧬' },
+  { q: '¿Cuál es el símbolo químico del oro?', o: ['Au', 'Ag', 'Or', 'Go'], c: '🧪' },
+  { q: '¿Qué es H₂O?', o: ['Agua', 'Oxígeno', 'Sal', 'Hidrógeno puro'], c: '🧪' },
+  { q: '¿A cuántos grados hierve el agua a nivel del mar?', o: ['100 °C', '90 °C', '120 °C', '80 °C'], c: '🧪' },
+  { q: '¿Cuál es el animal más grande del planeta?', o: ['Ballena azul', 'Elefante', 'Tiburón ballena', 'Jirafa'], c: '🐾' },
+  { q: '¿Cuántas patas tiene una araña?', o: ['8', '6', '10', '12'], c: '🐾' },
+  { q: '¿Cuántos lados tiene un hexágono?', o: ['6', '5', '7', '8'], c: '➗' },
+  { q: '¿Cuál es el número primo más pequeño?', o: ['2', '1', '3', '0'], c: '➗' },
+  { q: '¿Cuánto es 1010 en binario pasado a decimal?', o: ['10', '8', '12', '1010'], c: '💻' },
+  { q: '¿Qué significa HTML?', o: ['HyperText Markup Language', 'High Tech Modern Language', 'Home Tool Markup Language', 'Hyper Transfer Main Link'], c: '💻' },
+  { q: '¿Quién creó el lenguaje Python?', o: ['Guido van Rossum', 'Linus Torvalds', 'Bill Gates', 'James Gosling'], c: '💻' },
+  { q: '¿Qué lenguaje se usa en el navegador para hacer páginas interactivas?', o: ['JavaScript', 'COBOL', 'Fortran', 'Pascal'], c: '💻' },
+  { q: '¿Quién creó Minecraft originalmente?', o: ['Markus "Notch" Persson', 'Shigeru Miyamoto', 'Hideo Kojima', 'Gabe Newell'], c: '🎮' },
+  { q: '¿Cómo se llama el hermano de Mario?', o: ['Luigi', 'Wario', 'Toad', 'Yoshi'], c: '🎮' },
+  { q: '¿Cuántos jugadores tiene un equipo de fútbol en la cancha?', o: ['11', '9', '10', '12'], c: '⚽' },
+  { q: '¿En qué año llegó el ser humano a la Luna?', o: ['1969', '1959', '1975', '1981'], c: '🚀' },
+  { q: '¿Cuántos colores tiene el arcoíris?', o: ['7', '5', '6', '8'], c: '🌈' },
+  { q: '¿Cuál es el satélite natural de la Tierra?', o: ['La Luna', 'Fobos', 'Titán', 'Europa'], c: '🚀' },
+  { q: '¿Cuál es el país más grande del mundo?', o: ['Rusia', 'Canadá', 'China', 'Estados Unidos'], c: '🌍' },
+  { q: '¿Qué gas necesitamos respirar para vivir?', o: ['Oxígeno', 'Helio', 'Nitrógeno', 'Dióxido de carbono'], c: '🧬' },
+  { q: '¿Cuál es el idioma más hablado como lengua materna?', o: ['Chino mandarín', 'Inglés', 'Español', 'Hindi'], c: '🌍' },
+  { q: '¿Cuántos minutos tiene un día?', o: ['1440', '1200', '2400', '960'], c: '➗' },
+  { q: '¿Qué instrumento tiene teclas blancas y negras?', o: ['Piano', 'Guitarra', 'Violín', 'Trompeta'], c: '🎵' },
+];
+const ANAGRAMS = ['PLATANO', 'GUITARRA', 'VOLCAN', 'TORTUGA', 'CHOCOLATE', 'PERRO', 'COMPUTADORA', 'PLAYA', 'TELEFONO', 'MARIPOSA', 'ELEFANTE', 'ESCUELA',
+  'CAMISETA', 'VENTANA', 'PELOTA', 'CABALLO', 'MONTAÑA', 'HELADO', 'CANGREJO', 'TIBURON', 'BICICLETA', 'TECLADO', 'CAMION', 'ZAPATO', 'DINOSAURIO',
+  'PIZZA', 'GALLINA', 'ESTRELLA', 'COCINA', 'LIBRO', 'ARCOIRIS', 'NARANJA', 'PINGUINO', 'MURCIELAGO', 'AGUACATE', 'SANDIA', 'FUTBOL', 'CARRO'];
+const PICT = ['Gato', 'Casa', 'Sol', 'Pizza', 'Avión', 'Pescado', 'Árbol', 'Carro', 'Guitarra', 'Helado', 'Volcán', 'Fantasma', 'Robot', 'Corona', 'Cohete',
+  'Banana', 'Tortuga', 'Paraguas', 'Reloj', 'Castillo', 'Dinosaurio', 'Teléfono', 'Pirata', 'Arcoíris', 'Zapato', 'Cámara', 'Tiburón', 'Cactus',
+  'Hamburguesa', 'Bicicleta', 'Mariposa', 'Corazón', 'Luna', 'Estrella', 'Payaso', 'Perezoso', 'Piña', 'Torta', 'Mono', 'Lentes'];
+const BOT_NAMES = ['Robertito', 'BotChepe', 'MaeBot', 'Panchita', 'R2-Tico', 'Bitzy', 'Chunche', 'Pixelito'];
+const BOT_QUIPS = ['Un pollo con lentes de sol', 'Mi abuela en patineta', 'El WiFi de la U', 'Tres gatos en una gabardina', 'Gallo pinto con helado',
+  'Llorar en el bus', 'Un mono con tarjeta de crédito', 'Bailar reguetón en la biblioteca', 'Un sapo con corbata', 'Pura vida, mae',
+  'Dormir 3 días seguidos', 'Un perezoso con prisa', 'Mi ex', 'El profe de mate', 'Comer arroz con pinzas'];
+const BOT_LIES = ['pies', 'tres', 'rodillas', 'cola', 'orejas', 'verde', 'dos', 'espalda', 'estómago', 'plumas', 'cinco', 'amarillo', 'invierno', 'lengua', 'nariz'];
+
+/* ---------- algoritmos mejorados en juegos que ya existían ---------- */
+GAMES.liar.isTruth = function (t) { const f = H.gd.fact; return [f.a, ...(f.alt || [])].some(c => close(t, c) || (norm(c).length > 3 && norm(t).includes(norm(c)) && norm(t).length <= norm(c).length + 6)); };
+GAMES.liar.toPick = function () {
+  if (H.phase !== 'l-write') return;
+  const gd = H.gd, groups = [];
+  for (const [pid, t] of Object.entries(gd.lies)) { let g = groups.find(x => close(x.text, t)); if (!g) groups.push(g = { text: t, authors: [], truth: false }); g.authors.push(pid); }
+  gd.opts = shuffle([...groups, { text: cap(gd.fact.a), authors: [], truth: true }]); gd.picks = {};
+  setPhase('l-pick', 30000, () => GAMES.liar.reveal(), 1500);
+};
+GAMES.basta.score = function () {
+  if (!['b-write', 'b-stop'].includes(H.phase)) return;
+  const gd = H.gd, L = norm(gd.letter);
+  gd.tab = {}; gd.tot = {}; gd.ids.forEach(id => { gd.tab[id] = []; gd.tot[id] = 0; });
+  gd.cats.forEach((_, c) => {
+    const ok = {};
+    gd.ids.forEach(id => { const a = norm((gd.ans[id] || [])[c] || ''); ok[id] = a.length >= 2 && a[0] === L ? a : null; });
+    gd.ids.forEach(id => {
+      const a = (gd.ans[id] || [])[c] || '', k = ok[id];
+      const rep = k && gd.ids.some(o => o !== id && ok[o] && close(ok[o], k));
+      const pts = !k ? 0 : rep ? 50 : 100; gd.tab[id].push({ a, pts }); gd.tot[id] += pts;
+    });
+  });
+  setPhase('b-res', 6000 + gd.ids.length * 900, () => finishGame(gd.tot), 0, false); SFX.win();
+};
+
+/* ================== JUEGOS NUEVOS v4 ================== */
+Object.assign(GAMES, {
+
+  /* ❓ TRIVIA TURBO */
+  trivia: {
+    name: 'Trivia Turbo', emoji: '❓', color: '#6366f1', N: 6,
+    desc: 'Preguntas de cultura general (¡y de Costa Rica! 🇨🇷). Respondan en el cel: entre más rápido acierten, más puntos. 6 preguntas.',
+    start() { const ids = onlineIds(); H.gd = { ids, i: 0, pts: Object.fromEntries(ids.map(i => [i, 0])), ok: Object.fromEntries(ids.map(i => [i, 0])) }; this.next(); },
+    next() {
+      const gd = H.gd; gd.i++; gd.q = pickU(TRIVIA, 'tr'); gd.ord = shuffle([0, 1, 2, 3]); gd.ans = {}; gd.t0 = Date.now();
+      setPhase('tv-q', 13000, () => GAMES.trivia.reveal(), 700);
+      A({ targets: '.qopt', translateX: [-80, 0], opacity: [0, 1], delay: anime_stagger(90), duration: 500, easing: 'easeOutBack' });
+    },
+    isDone(id) { return H.phase === 'tv-q' && H.gd.ans[id] != null; },
+    view(p) {
+      const gd = H.gd;
+      if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
+      if (H.phase === 'tv-q') return gd.ans[p.id] ? done('¡Respuesta enviada! 🤞') : { screen: 'quiz', key: 'tq' + H.token, title: gd.q.q, opts: gd.ord.map(j => gd.q.o[j]), deadline: H.deadline };
+      return watch();
+    },
+    onAct(p, m) {
+      const gd = H.gd;
+      if (H.phase !== 'tv-q' || m.a !== 'quiz' || !inGame(p) || gd.ans[p.id]) return;
+      const i = m.i | 0; if (i < 0 || i > 3) return;
+      const ok = gd.ord[i] === 0;
+      gd.ans[p.id] = { i, ok };
+      if (ok) { gd.ok[p.id]++; gd.pts[p.id] += 100 + Math.max(0, Math.round(100 * (1 - (Date.now() - gd.t0) / 13000))); }
+      SFX.pop(); checkAll(id => gd.ans[id] != null, () => GAMES.trivia.reveal());
+    },
+    reveal() { if (H.phase !== 'tv-q') return; const gd = H.gd; setPhase('tv-a', 3500, () => gd.i < GAMES.trivia.N ? GAMES.trivia.next() : GAMES.trivia.end(), 0, false); SFX.win(); },
+    end() {
+      const gd = H.gd, g = rankGains(gd.ids, id => gd.pts[id], true, id => gd.pts[id] > 0);
+      gd.rows = gd.ids.slice().sort((a, b) => gd.pts[b] - gd.pts[a]).map(id => ({ id, val: `${gd.ok[id]}/${GAMES.trivia.N} correctas`, gain: g[id] || 0 }));
+      setPhase('tv-res', 5500, () => finishGame(g), 0, false); confetti(70);
+    },
+    render(ph) {
+      const gd = H.gd, L = ['A', 'B', 'C', 'D'], CC = ['#3b82f6', '#ff4d8d', '#22c55e', '#f59e0b'];
+      if (ph === 'tv-res') return `<h1 class="title-pop">❓ Los sabelotodo</h1>${resultsList(gd.rows)}`;
+      const reveal = ph === 'tv-a';
+      return `<div class="round-lbl">${gd.q.c} Pregunta ${gd.i} de ${this.N}</div><div class="prompt-card">${esc(gd.q.q)}</div>
+        <div class="qgrid">${gd.ord.map((j, i) => { const who_ = reveal ? gd.ids.filter(id => gd.ans[id] && gd.ans[id].i === i).map(id => pl(id)?.emoji).join('') : ''; return `<div class="qopt ${reveal ? (j === 0 ? 'right' : 'wrong') : ''}" style="--c:${CC[i]}"><b>${L[i]}</b><span>${esc(gd.q.o[j])}</span><em>${who_}</em></div>`; }).join('')}</div>`;
+    }
+  },
+
+  /* 🔤 PALABRA REVUELTA */
+  anagram: {
+    name: 'Palabra Revuelta', emoji: '🔤', color: '#0891b2', N: 3,
+    desc: 'En la tele salen las letras de una palabra todas revueltas 🌀. ¡Escriban la palabra en el cel! El más rápido gana más. Pueden intentar varias veces.',
+    start() { const ids = onlineIds(); H.gd = { ids, i: 0, pts: {} }; this.next(); },
+    next() {
+      const gd = H.gd; gd.i++; gd.word = pickU(ANAGRAMS, 'an');
+      let s; do { s = shuffle([...gd.word]).join(''); } while (s === gd.word && gd.word.length > 2);
+      gd.scr = s; gd.sol = []; gd.hint = 0; gd.tries = {};
+      setPhase('an-go', 30000, () => GAMES.anagram.reveal(), 500);
+      const tok = H.token;
+      setTimeout(() => { if (tok === H.token) { gd.hint = 1; const h = $('#anh'); if (h) h.innerHTML = `💡 Empieza con <b>${gd.word[0]}</b>`; } }, 14000);
+      A({ targets: '.tile', translateY: [-120, 0], rotate: () => window.anime ? anime.random(-30, 30) : 0, opacity: [0, 1], delay: anime_stagger(70), duration: 700, easing: 'easeOutBounce' });
+    },
+    isDone(id) { return H.phase === 'an-go' && H.gd.sol.includes(id); },
+    view(p) {
+      const gd = H.gd;
+      if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
+      if (H.phase === 'an-go') return gd.sol.includes(p.id) ? { screen: 'msg', big: '🎉', title: `¡Correcto! Llegaste de #${gd.sol.indexOf(p.id) + 1}`, text: 'Mirá a los demás sufrir 😂' } : { screen: 'guess', key: 'an' + H.token, title: `🔤 ${gd.scr.split('').join(' ')}`, hint: 'Ordená las letras y escribí la palabra', deadline: H.deadline };
+      return watch();
+    },
+    onAct(p, m) {
+      const gd = H.gd;
+      if (H.phase !== 'an-go' || m.a !== 'guess' || !inGame(p) || gd.sol.includes(p.id)) return;
+      if (norm(m.text) === norm(gd.word)) {
+        gd.sol.push(p.id); gd.pts[p.id] = (gd.pts[p.id] || 0) + ([300, 220, 160, 120][gd.sol.length - 1] || 80);
+        SFX.win(); const f = $('#anf'); if (f) f.innerHTML += `<span class="schip pop" style="--c:${p.color}">${medal(gd.sol.length - 1)} ${p.emoji} ${esc(p.name)}</span>`;
+        checkAll(id => gd.sol.includes(id), () => GAMES.anagram.reveal());
+      } else { try { p.conn && p.conn.send({ t: 'toast', text: close(m.text, gd.word, 2) ? '🔥 ¡Casi! Revisá las letras' : '❌ Nop, intentá otra vez' }); } catch (e) {} }
+    },
+    reveal() { if (H.phase !== 'an-go') return; const gd = H.gd; setPhase('an-ans', 3500, () => gd.i < GAMES.anagram.N ? GAMES.anagram.next() : finishGame(gd.pts), 0, false); },
+    render(ph) {
+      const gd = H.gd, tiles = w => `<div class="tiles">${[...w].map(c => `<span class="tile">${c}</span>`).join('')}</div>`;
+      if (ph === 'an-go') return `<div class="round-lbl">Palabra ${gd.i} de ${this.N}</div><h2 class="title-pop">🔤 ¡Ordenen las letras!</h2>${tiles(gd.scr)}<div class="sub" id="anh">${gd.hint ? `💡 Empieza con <b>${gd.word[0]}</b>` : '📱 Escriban la palabra en el cel'}</div><div class="mscore" id="anf">${gd.sol.map((id, i) => `<span class="schip" style="--c:${pl(id)?.color}">${medal(i)} ${who(id)}</span>`).join('')}</div>`;
+      return `<h2 class="title-pop">La palabra era…</h2>${tiles(gd.word)}<p class="sub">${gd.sol.length ? 'La sacaron: ' + gd.sol.map(who).join(', ') : 'Nadie la sacó 😅'}</p>`;
+    }
+  },
+
+  /* ✏️ DIBUJA Y ADIVINA */
+  pict: {
+    name: 'Dibuja y Adivina', emoji: '✏️', color: '#d946ef',
+    desc: 'A uno le toca dibujar una palabra secreta en su cel y el dibujo sale EN VIVO en la tele 📺. Los demás escriben qué creen que es. ¡Rápido!',
+    start() {
+      const ids = onlineIds();
+      H.gd = { ids, drawers: shuffle(ids).slice(0, Math.min(ids.length, 3)), r: 0, pts: {} };
+      this.sub();
+    },
+    sub() {
+      const gd = H.gd; gd.drawer = gd.drawers[gd.r]; gd.r++;
+      gd.word = pickU(PICT, 'pi'); gd.img = null; gd.sol = []; gd.feed = []; gd.hint = 0;
+      setPhase('pc-go', 75000, () => GAMES.pict.subEnd());
+      const tok = H.token;
+      setTimeout(() => { if (tok === H.token) { gd.hint = 1; GAMES.pict.paintHint(); } }, 35000);
+      setTimeout(() => { if (tok === H.token) { gd.hint = 2; GAMES.pict.paintHint(); } }, 55000);
+    },
+    hintTxt() { const gd = H.gd, w = gd.word; return [...w].map((c, i) => c === ' ' ? '&nbsp;' : (gd.hint >= 1 && i === 0) || (gd.hint >= 2 && i === w.length - 1) ? c : '_').join(' '); },
+    paintHint() { const h = $('#phint'); if (h) h.innerHTML = this.hintTxt() + ` <small>(${H.gd.word.length} letras)</small>`; },
+    paintFeed() { const f = $('#pfeed'); if (f) f.innerHTML = H.gd.feed.slice(-7).map(x => `<div class="fd ${x.ok ? 'ok' : ''}">${x.html}</div>`).join(''); },
+    isDone(id) { return H.phase === 'pc-go' && (H.gd.sol.includes(id) || id === H.gd.drawer); },
+    view(p) {
+      const gd = H.gd;
+      if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
+      if (H.phase !== 'pc-go') return watch();
+      if (p.id === gd.drawer) return { screen: 'pdraw', key: 'pd' + H.token, word: gd.word, deadline: H.deadline };
+      if (gd.sol.includes(p.id)) return { screen: 'msg', big: '🎉', title: '¡Adivinaste!', text: `Era "${gd.word}"` };
+      return { screen: 'guess', key: 'pg' + H.token, title: `✏️ ¿Qué está dibujando ${pl(gd.drawer)?.emoji} ${pl(gd.drawer)?.name}?`, hint: 'Mirá la tele y escribí tu respuesta', deadline: H.deadline };
+    },
+    onAct(p, m) {
+      const gd = H.gd; if (H.phase !== 'pc-go' || !inGame(p)) return;
+      if (m.a === 'live' && p.id === gd.drawer && typeof m.img === 'string' && m.img.length < 500000 && /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(m.img)) {
+        gd.img = m.img; const im = $('#pimg'); if (im) im.src = m.img; return;
+      }
+      if (m.a === 'guess' && p.id !== gd.drawer && !gd.sol.includes(p.id)) {
+        const t = clean(m.text, 30); if (!t) return;
+        if (close(t, gd.word)) {
+          gd.sol.push(p.id);
+          gd.pts[p.id] = (gd.pts[p.id] || 0) + ([300, 230, 180, 140][gd.sol.length - 1] || 100);
+          gd.pts[gd.drawer] = (gd.pts[gd.drawer] || 0) + 90;
+          gd.feed.push({ ok: true, html: `✅ ${who(p.id)} ¡lo adivinó!` }); SFX.win();
+          this.paintFeed(); checkAll(id => id === gd.drawer || gd.sol.includes(id), () => GAMES.pict.subEnd());
+        } else {
+          gd.feed.push({ html: `${p.emoji} ${esc(t)}` }); this.paintFeed();
+          try { p.conn && p.conn.send({ t: 'toast', text: close(t, gd.word, 2) ? '🔥 ¡Casi casi!' : '❌ No es eso' }); } catch (e) {}
+        }
+      }
+    },
+    subEnd() {
+      if (H.phase !== 'pc-go') return;
+      const gd = H.gd;
+      setPhase('pc-res', 4500, () => gd.r < gd.drawers.length ? GAMES.pict.sub() : finishGame(gd.pts), 0, false); SFX.win();
+    },
+    render(ph) {
+      const gd = H.gd, img = `<img id="pimg" class="pimg" ${gd.img ? `src="${gd.img}"` : ''} alt="">`;
+      if (ph === 'pc-go') return `<div class="round-lbl">Dibujante ${gd.r} de ${gd.drawers.length}: ${who(gd.drawer)}</div>
+        <div class="pwrap"><div class="pboxx">${img}</div><div class="pside"><div class="phint" id="phint">${this.hintTxt()} <small>(${gd.word.length} letras)</small></div><div class="pfeed" id="pfeed"></div></div></div>`;
+      return `<h1 class="title-pop">Era: <span style="color:var(--yellow)">${esc(gd.word)}</span></h1><div class="pboxx" style="max-width:420px">${img}</div><p class="sub">${gd.sol.length ? 'Adivinaron: ' + gd.sol.map(who).join(', ') : 'Nadie lo adivinó 🙈'}</p>`;
+    }
+  },
+
+  /* 🐍 SERPIENTES DE LUZ */
+  snake: {
+    name: 'Serpientes de Luz', emoji: '🐍', color: '#10b981', GW: 100, GH: 60,
+    desc: 'Cada uno maneja una serpiente de luz que deja un rastro ✨. Si chocás contra una pared o contra un rastro, perdés. ¡El último vivo gana!',
+    start() {
+      const ids = onlineIds(), GW = this.GW, GH = this.GH, ps = {};
+      const spots = [[10, 10, 1, 0], [89, 49, 0, -1], [89, 10, -1, 0], [10, 49, 0, -1], [50, 6, 0, 1], [50, 53, 0, -1], [6, 30, 1, 0], [93, 30, -1, 0]];
+      ids.forEach((id, i) => { const [x, y, dx, dy] = spots[i % 8]; ps[id] = { x, y, dx, dy, alive: true, k: i }; });
+      const tc = document.createElement('canvas'); tc.width = 1000; tc.height = 600;
+      H.inp = {}; H.gd = { ids, ps, grid: new Uint8Array(GW * GH), out: [], acc: 0, tc, sid: rid(), t: 0 };
+      ids.forEach(id => this.mark(id));
+      setPhase('sn-ready', 3500, () => { SFX.go(); GAMES.snake.go(); }, 0, false);
+      rtLoop(null, GAMES.snake.draw);
+    },
+    mark(id) { const gd = H.gd, p = gd.ps[id]; gd.grid[p.y * this.GW + p.x] = p.k + 1; const c = gd.tc.getContext('2d'); c.fillStyle = pl(id)?.color || '#888'; c.fillRect(p.x * 10, p.y * 10, 10, 10); },
+    go() { setPhase('sn-go', 75000, () => GAMES.snake.end()); rtLoop(dt => GAMES.snake.step(dt), GAMES.snake.draw); },
+    view(p) {
+      if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
+      const s = H.gd.ps[p.id];
+      if (H.phase === 'sn-ready' || H.phase === 'sn-go') return s.alive ? joyView(p, '🕹️ Girá tu serpiente · ¡No choqués!', '') : { screen: 'msg', big: '💥', title: '¡Chocaste!', text: 'Mirá quién sobrevive 👀' };
+      return watch();
+    },
+    isDone(id) { return H.phase === 'sn-go' && !H.gd.ps[id].alive; },
+    onAct(p, m) { if (H.phase === 'sn-ready' || H.phase === 'sn-go') joyAct(p, m); },
+    step(dt) {
+      const gd = H.gd, GW = this.GW, GH = this.GH; gd.acc += dt; gd.t += dt;
+      const spd = Math.max(.045, .08 - gd.t * .0004);
+      while (gd.acc >= spd) {
+        gd.acc -= spd;
+        const alive = gd.ids.filter(id => gd.ps[id].alive), next = {};
+        for (const id of alive) {
+          const p = gd.ps[id], i = inp(id);
+          if (Math.max(Math.abs(i.x), Math.abs(i.y)) > .4) {
+            let dx = 0, dy = 0; if (Math.abs(i.x) > Math.abs(i.y)) dx = Math.sign(i.x); else dy = Math.sign(i.y);
+            if (!(dx === -p.dx && dy === -p.dy)) { p.dx = dx; p.dy = dy; }
+          }
+          next[id] = [p.x + p.dx, p.y + p.dy];
+        }
+        const dead = [];
+        for (const id of alive) {
+          const [x, y] = next[id];
+          if (x < 0 || y < 0 || x >= GW || y >= GH || gd.grid[y * GW + x]) dead.push(id);
+          else if (alive.some(o => o !== id && next[o][0] === x && next[o][1] === y)) dead.push(id);
+        }
+        for (const id of alive) { if (dead.includes(id)) continue; const p = gd.ps[id]; [p.x, p.y] = next[id]; this.mark(id); }
+        if (dead.length) {
+          dead.forEach(id => { gd.ps[id].alive = false; gd.out.push(id); });
+          SFX.bad(); shakeScreen(); sync(); updateStrip();
+          const left = gd.ids.filter(id => gd.ps[id].alive).length;
+          if ((gd.ids.length > 1 && left <= 1) || left === 0) { const tok = H.token; setTimeout(() => { if (tok === H.token) GAMES.snake.end(); }, 1200); gd.acc = -99; return; }
+        }
+      }
+    },
+    draw(ctx) {
+      const gd = H.gd;
+      ctx.fillStyle = '#050816'; ctx.fillRect(0, 0, 1000, 600);
+      ctx.strokeStyle = '#ffffff0d'; ctx.lineWidth = 1; ctx.beginPath();
+      for (let x = 0; x <= 1000; x += 50) { ctx.moveTo(x, 0); ctx.lineTo(x, 600); } for (let y = 0; y <= 600; y += 50) { ctx.moveTo(0, y); ctx.lineTo(1000, y); } ctx.stroke();
+      ctx.drawImage(gd.tc, 0, 0);
+      for (const id of gd.ids) {
+        const p = gd.ps[id], pp = pl(id), x = p.x * 10 + 5, y = p.y * 10 + 5;
+        if (p.alive) { ctx.shadowColor = pp?.color || '#fff'; ctx.shadowBlur = 18; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fill(); ctx.shadowBlur = 0; emo(ctx, pp?.emoji || '?', x, y - 22, 26); }
+        else emo(ctx, '💥', x, y, 30);
+      }
+      ctx.lineWidth = 6; ctx.strokeStyle = '#ffffff44'; ctx.strokeRect(3, 3, 994, 594);
+    },
+    end() {
+      if (H.phase !== 'sn-go') return;
+      const gd = H.gd, sc = id => gd.ps[id].alive ? 999 : gd.out.indexOf(id);
+      const g = rankGains(gd.ids, sc, true);
+      gd.rows = gd.ids.slice().sort((a, b) => sc(b) - sc(a)).map(id => ({ id, val: gd.ps[id].alive ? '🐍 Sobrevivió' : '💥 Chocó', gain: g[id] || 0 }));
+      setPhase('sn-res', 5500, () => finishGame(g), 0, false); confetti(80); SFX.win();
+    },
+    render(ph) {
+      if (ph === 'sn-ready') return canvasHTML(true, '🐍 ¡No choquen!');
+      if (ph === 'sn-go') return canvasHTML(false);
+      return `<h1 class="title-pop">🐍 Los sobrevivientes</h1>${resultsList(H.gd.rows)}`;
+    }
+  },
+
+  /* 🪢 SALTA LA CUERDA */
+  jump: {
+    name: 'Salta la Cuerda', emoji: '🪢', color: '#f97316',
+    desc: 'Una cuerda gigante gira y cada vez va más rápido 😵. Toquen ¡SALTÁ! en el cel justo cuando la cuerda pase por los pies. ¡El último en pie gana!',
+    start() {
+      const ids = onlineIds(), ps = {}, n = ids.length;
+      ids.forEach((id, i) => ps[id] = { x: n === 1 ? 500 : 200 + i * (600 / (n - 1)), airT: -9, alive: true, jumps: 0 });
+      H.gd = { ids, ps, ph: .35, t: 0, period: 1.8, out: [], sid: rid() };
+      setPhase('jp-ready', 3500, () => { SFX.go(); GAMES.jump.go(); }, 0, false);
+      rtLoop(null, GAMES.jump.draw);
+    },
+    go() { setPhase('jp-go', 70000, () => GAMES.jump.end()); rtLoop(dt => GAMES.jump.step(dt), GAMES.jump.draw); },
+    view(p) {
+      if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
+      const s = H.gd.ps[p.id];
+      if (H.phase === 'jp-ready' || H.phase === 'jp-go') return s.alive ? { screen: 'jump', key: 'jp' + H.gd.sid } : { screen: 'msg', big: '🤕', title: '¡Te enredaste!', text: `Aguantaste ${s.jumps} saltos` };
+      return watch();
+    },
+    isDone(id) { return H.phase === 'jp-go' && !H.gd.ps[id].alive; },
+    onAct(p, m) {
+      const gd = H.gd; if (H.phase !== 'jp-go' || m.a !== 'jump' || !inGame(p)) return;
+      const s = gd.ps[p.id]; if (!s.alive || gd.t - s.airT < .6) return;
+      s.airT = gd.t; beep(500, .06, 'triangle', .05);
+    },
+    step(dt) {
+      const gd = H.gd; gd.t += dt;
+      gd.period = Math.max(.62, 1.8 - gd.t * .028);
+      const prev = gd.ph; gd.ph += dt / gd.period;
+      if (Math.floor(prev) < Math.floor(gd.ph)) {
+        const hit = [];
+        for (const id of gd.ids) { const s = gd.ps[id]; if (!s.alive) continue; const a = gd.t - s.airT; if (a >= 0 && a <= .55) s.jumps++; else hit.push(id); }
+        beep(240, .07, 'sine', .05);
+        if (hit.length) { hit.forEach(id => { gd.ps[id].alive = false; gd.out.push(id); }); SFX.bad(); shakeScreen(); sync(); updateStrip(); }
+        const left = gd.ids.filter(id => gd.ps[id].alive).length;
+        if (!gd.ending && ((gd.ids.length > 1 && left <= 1) || left === 0)) { gd.ending = true; const tok = H.token; setTimeout(() => { if (tok === H.token) GAMES.jump.end(); }, 1200); }
+      }
+    },
+    draw(ctx) {
+      const gd = H.gd, a = gd.ph * Math.PI * 2, ground = 520;
+      const g = ctx.createLinearGradient(0, 0, 0, 600); g.addColorStop(0, '#38bdf8'); g.addColorStop(1, '#a5f3fc');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, 1000, 600);
+      ctx.fillStyle = '#16a34a'; ctx.fillRect(0, ground, 1000, 80);
+      const ry = 290 - Math.cos(a) * 250, front = Math.sin(a) < 0;
+      const rope = () => { ctx.strokeStyle = '#7c2d12'; ctx.lineWidth = 9; ctx.beginPath(); ctx.moveTo(70, 300); ctx.quadraticCurveTo(500, ry * 2 - 300, 930, 300); ctx.stroke(); };
+      if (!front) rope();
+      for (const id of gd.ids) {
+        const s = gd.ps[id], pp = pl(id), air = gd.t - s.airT;
+        const up = s.alive && air >= 0 && air <= .55 ? Math.sin(air / .55 * Math.PI) * 110 : 0;
+        ctx.fillStyle = '#0003'; ctx.beginPath(); ctx.ellipse(s.x, ground + 6, 30 - up / 8, 8, 0, 0, 7); ctx.fill();
+        ctx.globalAlpha = s.alive ? 1 : .35; emo(ctx, s.alive ? (pp?.emoji || '?') : '🤕', s.x, ground - 34 - up, 60); ctx.globalAlpha = 1;
+        nameTag(ctx, `${pp?.name || ''} · ${s.jumps}`, s.x, ground + 40, 15);
+      }
+      if (front) rope();
+      emo(ctx, '🧍', 50, 330, 70); emo(ctx, '🧍', 950, 330, 70);
+      nameTag(ctx, `Velocidad x${(1.8 / gd.period).toFixed(1)}`, 110, 30, 20);
+    },
+    end() {
+      if (H.phase !== 'jp-go') return;
+      const gd = H.gd, sc = id => (gd.ps[id].alive ? 1000 : gd.out.indexOf(id) * 10) + gd.ps[id].jumps / 1000;
+      const g = rankGains(gd.ids, sc, true);
+      gd.rows = gd.ids.slice().sort((a, b) => sc(b) - sc(a)).map(id => ({ id, val: `🪢 ${gd.ps[id].jumps} saltos`, gain: g[id] || 0 }));
+      setPhase('jp-res', 5500, () => finishGame(g), 0, false); confetti(70); SFX.win();
+    },
+    render(ph) {
+      if (ph === 'jp-ready') return canvasHTML(true, '🪢 ¡Salten cuando la cuerda pase por abajo!');
+      if (ph === 'jp-go') return canvasHTML(false);
+      return `<h1 class="title-pop">🪢 Los mejores saltadores</h1>${resultsList(H.gd.rows)}`;
+    }
+  },
+});
+function anime_stagger(n) { return window.anime ? anime.stagger(n) : 0; }
+
+/* ---------- pantallas nuevas del cel ---------- */
+Object.assign(XS, {
+  quiz(v) {
+    const L = ['A', 'B', 'C', 'D'], CC = ['#3b82f6', '#ff4d8d', '#22c55e', '#f59e0b'];
+    app.innerHTML = shell(`<div class="c-prompt pop">${esc(v.title)}</div><div class="opts">${v.opts.map((o, i) => `<button class="opt" data-i="${i}" style="--c:${CC[i]};animation-delay:${i * .06}s"><b>${L[i]}</b> · ${esc(o)}</button>`).join('')}</div>`, true);
+    app.querySelectorAll('.opt').forEach(b => b.onclick = () => { send({ t: 'act', a: 'quiz', i: +b.dataset.i }); app.querySelectorAll('.opt').forEach(x => x.disabled = true); b.classList.add('picked'); SFX.pop(); });
+  },
+  guess(v) {
+    app.innerHTML = shell(`<div class="c-prompt pop">${esc(v.title)}</div>${v.hint ? `<div class="c-hint">${esc(v.hint)}</div>` : ''}<input id="gs" maxlength="30" autocomplete="off" autocapitalize="characters" placeholder="Tu respuesta…"><button class="btn big pink" id="bG">Enviar 🚀</button>`, true);
+    const gs = $('#gs'), go = () => { const t = gs.value.trim(); if (!t) return; send({ t: 'act', a: 'guess', text: t }); gs.value = ''; gs.focus(); };
+    $('#bG').onclick = go; gs.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
+    setTimeout(() => gs.focus(), 200);
+  },
+  pdraw(v) {
+    app.innerHTML = shell(`<div class="c-prompt small pop">✏️ Dibujá: <b>${esc(v.word)}</b> <small>(¡sin letras!)</small></div>
+      <canvas id="cv" width="320" height="320"></canvas>
+      <div class="pal">${PAL.map((c, i) => `<button class="sw ${i === 0 ? 'sel' : ''}" data-c="${c}" style="background:${c}"></button>`).join('')}</div>
+      <div class="tools"><button class="btn small gray" data-s="4">✏️</button><button class="btn small gray sel" data-s="10">🖌️</button><button class="btn small gray" data-s="22">🧽</button><button class="btn small gray" id="bUndo">↩️</button><button class="btn small gray" id="bClr">🗑️</button></div>
+      <p class="hint">📺 Tu dibujo sale en vivo en la tele</p>`, true);
+    const c = $('#cv'), g = c.getContext('2d');
+    g.fillStyle = '#fff'; g.fillRect(0, 0, 320, 320); g.lineCap = 'round'; g.lineJoin = 'round';
+    let col = PAL[0], size = 10, drawing = false, last = null, hist = [], dirty = true;
+    const pos = e => { const r = c.getBoundingClientRect(); return { x: (e.clientX - r.left) * 320 / r.width, y: (e.clientY - r.top) * 320 / r.height }; };
+    c.addEventListener('pointerdown', e => { e.preventDefault(); try { c.setPointerCapture(e.pointerId); } catch (er) {} hist.push(g.getImageData(0, 0, 320, 320)); if (hist.length > 25) hist.shift(); drawing = true; last = pos(e); g.fillStyle = col; g.beginPath(); g.arc(last.x, last.y, size / 2, 0, 7); g.fill(); dirty = true; });
+    c.addEventListener('pointermove', e => { if (!drawing) return; e.preventDefault(); const p = pos(e); g.strokeStyle = col; g.lineWidth = size; g.beginPath(); g.moveTo(last.x, last.y); g.lineTo(p.x, p.y); g.stroke(); last = p; dirty = true; });
+    const stop = () => { drawing = false; }; c.addEventListener('pointerup', stop); c.addEventListener('pointercancel', stop);
+    app.querySelectorAll('.sw').forEach(b => b.onclick = () => { col = b.dataset.c; app.querySelectorAll('.sw').forEach(x => x.classList.toggle('sel', x === b)); });
+    app.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { size = +b.dataset.s; app.querySelectorAll('[data-s]').forEach(x => x.classList.toggle('sel', x === b)); });
+    $('#bUndo').onclick = () => { const h = hist.pop(); if (h) { g.putImageData(h, 0, 0); dirty = true; } };
+    $('#bClr').onclick = () => { hist.push(g.getImageData(0, 0, 320, 320)); g.fillStyle = '#fff'; g.fillRect(0, 0, 320, 320); dirty = true; };
+    P.timers.push(setInterval(() => { if (!dirty) return; dirty = false; send({ t: 'act', a: 'live', img: c.toDataURL('image/jpeg', .55) }); }, 650));
+  },
+  jump(v) {
+    app.innerHTML = shell(`<div class="c-hint">📺 Mirá la cuerda en la tele y saltá cuando pase por abajo</div><button class="tapbtn" id="jb" style="background:radial-gradient(circle at 35% 30%,#fdba74,#f97316 55%,#c2410c);box-shadow:0 14px 0 #7c2d12">⬆️<br>¡SALTÁ!</button>`);
+    const jb = $('#jb');
+    jb.addEventListener('pointerdown', e => { e.preventDefault(); send({ t: 'act', a: 'jump' }); jb.classList.remove('hit'); void jb.offsetWidth; jb.classList.add('hit'); if (navigator.vibrate) navigator.vibrate(20); });
+    jb.addEventListener('contextmenu', e => e.preventDefault());
+  },
+});
+
+/* ================== BOTS 🤖 ================== */
+function botDoodle() {
+  try {
+    const c = document.createElement('canvas'); c.width = 320; c.height = 320; const g = c.getContext('2d');
+    g.fillStyle = '#fff'; g.fillRect(0, 0, 320, 320); g.lineCap = 'round';
+    for (let k = 0; k < 6; k++) { g.strokeStyle = pickR(PAL.slice(0, 9)); g.lineWidth = 4 + rand(12); g.beginPath(); g.moveTo(rand(320), rand(320)); for (let j = 0; j < 4; j++) g.quadraticCurveTo(rand(320), rand(320), rand(320), rand(320)); g.stroke(); }
+    g.fillStyle = pickR(PAL.slice(1, 8)); g.beginPath(); g.arc(80 + rand(160), 80 + rand(160), 20 + rand(40), 0, 7); g.fill();
+    const u = c.toDataURL('image/jpeg', .6);
+    return /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(u) ? u : 'data:image/jpeg;base64,AAAA';
+  } catch (e) { return 'data:image/jpeg;base64,AAAA'; }
+}
+const botWord = L => cap((L + pickR(['ana', 'ito', 'ero', 'olo', 'ama', 'uca', 'eta', 'ino', 'osa'])).toLowerCase());
+function addBot() {
+  if (H.players.size >= 8) { toast('La sala ya está llena (8) 😅'); return; }
+  const used = [...H.players.values()];
+  const name = BOT_NAMES.find(n => !used.some(p => p.name === '🤖' + n)) || 'Bot' + rand(99);
+  const id = 'bot' + rid();
+  H.players.set(id, { id, name: '🤖' + name, emoji: pickR(EMOJIS), color: COLORS.find(c => !used.some(p => p.color === c)) || COLORS[rand(8)], score: 0, prev: 0, gain: 0, online: true, conn: null, isBot: true });
+  SFX.join(); renderHost(); startBots();
+}
+function rmBot() { const b = [...H.players.values()].reverse().find(p => p.isBot); if (b) { H.players.delete(b.id); renderHost(); } }
+let botIv = null;
+function startBots() { if (botIv) return; botIv = setInterval(() => { for (const p of H.players.values()) if (p.isBot) try { botBrain(p); } catch (e) { console.warn('bot', e); } }, 220); }
+function botBrain(p) {
+  if (!H.game || !H.game.onAct || ['lobby', 'intro', 'board', 'final'].includes(H.phase)) return;
+  const v = ctrlView(p), now = Date.now(), k = JSON.stringify(v);
+  if (!p.mem || p.mem.k !== k) p.mem = { k, t0: now, wait: 900 + rand(2600), done: false, n: 0, dir: [0, 0], dt: 0, b: 0 };
+  const M = p.mem, act = m => { if (H.game && H.game.onAct) H.game.onAct(p, m); }, el = now - M.t0, ready = el > M.wait;
+  switch (v.screen) {
+    case 'tap': M.n += 1 + rand(3); act({ a: 'taps', n: M.n }); break;
+    case 'mash': M.n += 1 + rand(2); act({ a: 'steps', n: M.n }); break;
+    case 'reflex': if (!M.done && el > v.delay + 230 + rand(300)) { M.done = true; act(Math.random() < .08 ? { a: 'rx', early: true } : { a: 'rx', ms: 220 + rand(260) }); } break;
+    case 'write': if (!M.done && el > 3000 + rand(5000)) { M.done = true; act({ a: 'text', text: H.game === GAMES.liar ? pickR(BOT_LIES) : pickR(BOT_QUIPS) }); } break;
+    case 'choose': if (!M.done && ready && v.options.length) {
+      M.done = true; let o = pickR(v.options);
+      if (H.game === GAMES.potato && Math.random() < .75) o = v.options.find(x => +x.id === H.gd.q.ans) || o;
+      if (H.game === GAMES.liar && Math.random() < .4) { const ti = H.gd.opts.findIndex(x => x.truth); o = v.options.find(x => +x.id === ti) || o; }
+      act({ a: 'choose', id: o.id });
+    } break;
+    case 'draw': if (!M.done && el > 5000 + rand(6000)) { M.done = true; act({ a: 'draw', img: botDoodle() }); } break;
+    case 'pdraw': if (!M.done && el > 1500) { M.done = true; act({ a: 'live', img: botDoodle() }); } break;
+    case 'simon': if (!M.done && el > 1500 + rand(1500)) { M.done = true; const s = H.gd.seq.slice(); if (Math.random() < .18) s[rand(s.length)] = (s[0] + 1 + rand(3)) % 4; act({ a: 'seq', s }); } break;
+    case 'number': if (!M.done && ready) { M.done = true; act({ a: 'num', n: Math.max(0, H.gd.n + rand(7) - 3) }); } break;
+    case 'colors': if (!M.done && el > 700 + rand(1700)) { M.done = true; const c = H.gd.cur, r = c.rule === 'ink' ? c.ink : c.w; act({ a: 'color', c: Math.random() < .72 ? r : rand(6) }); } break;
+    case 'quiz': if (!M.done && el > 1500 + rand(5000)) { M.done = true; act({ a: 'quiz', i: Math.random() < .55 ? H.gd.ord.indexOf(0) : rand(4) }); } break;
+    case 'guess': if (el > 2500 && Math.random() < .06) {
+      const w = H.game === GAMES.anagram ? H.gd.word : H.gd.word;
+      act({ a: 'guess', text: Math.random() < Math.min(.7, el / 40000) ? w : pickR(H.game === GAMES.anagram ? ANAGRAMS : PICT) });
+    } break;
+    case 'duelboard': if (v.myTurn && !M.done && el > 900 + rand(1500)) {
+      M.done = true; const C4 = v.kind === 'c4';
+      const val = C4 ? [0, 1, 2, 3, 4, 5, 6].filter(c => !v.cells[c]) : v.cells.map((x, i) => x ? -1 : i).filter(i => i >= 0);
+      if (val.length) act({ a: 'move', i: pickR(val) });
+    } break;
+    case 'form': if (!M.done && (H.phase === 'b-stop' || el > 10000 + M.wait * 8)) { M.done = true; act({ a: 'basta', ans: v.cats.map(() => botWord(v.letter)) }); } break;
+    case 'grid9': if (Math.random() < .3) { const hs = H.gd.holes.map((h, i) => h && !h.hit && h.type !== 'bomb' ? i : -1).filter(i => i >= 0); if (hs.length) act({ a: 'hit', i: pickR(hs) }); } break;
+    case 'jump': { const gd = H.gd, toBottom = (1 - (gd.ph % 1)) * gd.period; if (toBottom < .2 && toBottom > .02 && M.cyc !== Math.floor(gd.ph)) { M.cyc = Math.floor(gd.ph); if (Math.random() < .93) act({ a: 'jump' }); } } break;
+    case 'joy': botJoy(p, M, act); break;
+  }
+}
+function botJoy(p, M, act) {
+  const gd = H.gd, g = H.game; let x = 0, y = 0;
+  const toward = (tx, ty, sx, sy, noise = .35) => { const d = Math.hypot(tx - sx, ty - sy) || 1; return [(tx - sx) / d + (Math.random() - .5) * noise, (ty - sy) / d + (Math.random() - .5) * noise]; };
+  if (g === GAMES.maze) {
+    const s = gd.ps[p.id], W = GAMES.maze.W, D = [[1, 0, 2], [-1, 0, 8], [0, 1, 4], [0, -1, 1]];
+    if (Math.random() < .8) { let best = null; for (const [dx, dy, b] of D) { if (gd.g[s.c] & b) continue; const n = s.c + dy * W + dx; if (!best || gd.dist[n] < best[2]) best = [dx, dy, gd.dist[n]]; } if (best) [x, y] = best; }
+    else [x, y] = pickR(D);
+  } else if (g === GAMES.find) {
+    const s = gd.ps[p.id], t = gd.target;
+    if (!M.aim || Math.random() < .02) M.aim = [t.x + (Math.random() - .5) * 300, t.y + (Math.random() - .5) * 200];
+    if (M.t2 === undefined) M.t2 = Date.now();
+    if (Date.now() - M.t2 > 6000) M.aim = [t.x, t.y];
+    [x, y] = toward(M.aim[0], M.aim[1], s.x, s.y, .2);
+    if (Math.hypot(s.x - M.aim[0], s.y - M.aim[1]) < 20) { M.b++; M.aim = null; M.t2 = Date.now() - 3000; }
+  } else if (g === GAMES.coins) {
+    const s = gd.ps[p.id], it = gd.items.filter(i => i.type !== 'bomb' && i.y < 500).sort((a, b) => Math.abs(a.x - s.x) - Math.abs(b.x - s.x))[0];
+    x = it ? Math.max(-1, Math.min(1, (it.x - s.x) / 60)) : 0;
+  } else if (g === GAMES.snake) {
+    const s = gd.ps[p.id]; if (!s.alive) return;
+    const free = (dx, dy) => { const nx = s.x + dx, ny = s.y + dy; return nx >= 0 && ny >= 0 && nx < GAMES.snake.GW && ny < GAMES.snake.GH && !gd.grid[ny * GAMES.snake.GW + nx]; };
+    const look = (dx, dy) => { let n = 0; for (let k = 1; k <= 8 && free(dx * k, dy * k); k++) n++; return n; };
+    const opts = [[s.dx, s.dy], [s.dy, -s.dx], [-s.dy, s.dx]].map(d => [d, look(d[0], d[1])]);
+    let pick = opts[0]; if (pick[1] < 4 || Math.random() < .04) pick = opts.sort((a, b) => b[1] - a[1] + (Math.random() - .5))[0];
+    [x, y] = pick[0];
+  } else if (g === GAMES.sumo) {
+    const s = gd.bs[p.id]; if (!s.alive) return;
+    const others = gd.ids.filter(id => id !== p.id && gd.bs[id].alive);
+    if (Math.hypot(s.x - 500, s.y - 300) > gd.R * .6 || !others.length) [x, y] = toward(500, 300, s.x, s.y);
+    else { const o = gd.bs[pickR(others)]; [x, y] = toward(o.x, o.y, s.x, s.y, .6); if (Math.random() < .05) M.b++; }
+  } else {
+    M.dt -= .22; if (M.dt <= 0) { M.dt = .6 + Math.random() * 1.4; const a = Math.random() * 6.28; M.dir = [Math.cos(a), Math.sin(a)]; }
+    [x, y] = M.dir; if (Math.random() < .03) M.b++;
+  }
+  act({ a: 'joy', x: Math.max(-1, Math.min(1, x)), y: Math.max(-1, Math.min(1, y)), b: M.b });
+}
+
+/* ================== LOBBY: MODO PRUEBA ================== */
+function lobbyExtra() {
+  const bots = [...H.players.values()].filter(p => p.isBot).length;
+  return `<div class="settings"><button class="btn small purple" data-act="addbot">🤖 + Bot</button><button class="btn small gray" data-act="rmbot" ${bots ? '' : 'disabled'}>🤖 − Bot</button><button class="btn small orange" data-act="testmenu">🧪 ${H.testMenu ? 'Ocultar juegos' : 'Probar un juego'}</button></div>
+    ${H.testMenu ? `<div class="hint">Tocá un juego para probarlo solo (sirve con 1 jugador + bots)</div><div class="tgrid">${Object.entries(GAMES).map(([k, g]) => `<button class="btn small gray" data-act="test" data-k="${k}">${g.emoji} ${esc(g.name)}</button>`).join('')}</div>` : ''}`;
+}
+function onHostClick2(a, b) {
+  if (a === 'addbot') { addBot(); return true; }
+  if (a === 'rmbot') { rmBot(); return true; }
+  if (a === 'testmenu') { H.testMenu = !H.testMenu; renderHost(); return true; }
+  if (a === 'test') {
+    if (onlineIds().length < 1) { toast('Metete con un cel o agregá un bot 🤖'); return true; }
+    for (const p of H.players.values()) { p.score = 0; p.prev = 0; p.gain = 0; }
+    H.testMode = true; H.order = [b.dataset.k]; H.roundIdx = 0; nextRound(); return true;
+  }
+  if (a === 'next' && H.testMode && H.phase === 'board') { H.testMode = false; resetGame(); return true; }
+  if (a === 'start') H.testMode = false;
+  return false;
+}
 
 boot();
 </script>
