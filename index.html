@@ -309,6 +309,75 @@ textarea{min-height:110px;resize:none}
 .pfeed{display:flex;flex-direction:column;gap:6px;text-align:left}
 .fd{background:#ffffff16;border-radius:12px;padding:8px 12px;font-size:20px;animation:pop .3s both}
 .fd.ok{background:#16a34a}
+/* ---------- v5: responsive y controles cómodos ---------- */
+#bg3d{position:fixed;inset:0;z-index:0;pointer-events:none;transition:opacity .6s}
+body{overscroll-behavior:none}
+button{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.screen{justify-content:flex-start;padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom))}
+.screen>:first-child{margin-top:auto}.screen>:last-child{margin-bottom:auto}
+.emojis{grid-template-columns:repeat(auto-fill,minmax(48px,1fr));max-width:480px;gap:8px}
+.emo{font-size:30px;padding:8px 0;aspect-ratio:1}
+.ctrl{min-height:100dvh;height:100dvh}
+.c-top{padding:max(10px,env(safe-area-inset-top)) 16px 10px}
+.c-body{overflow-y:auto;justify-content:flex-start;padding:16px 16px max(16px,env(safe-area-inset-bottom))}
+.c-body>:first-child{margin-top:auto}.c-body>:last-child{margin-bottom:auto}
+.topbar{flex-wrap:wrap}
+/* joystick flotante */
+.ctrl.joy .c-body{padding:0;position:relative;display:block;overflow:hidden}
+.jhint{position:absolute;top:10px;left:0;right:0;text-align:center;font-size:15px;opacity:.75;pointer-events:none;z-index:2;padding:0 12px}
+.jarea{position:absolute;inset:0;touch-action:none}
+.jarea.hasbtn{right:0}
+.jbase{--js:min(48vw,40vh,240px);position:absolute;width:var(--js);height:var(--js);transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#ffffff2a,#ffffff08 70%);border:5px solid #ffffff55;left:50%;top:55%;box-shadow:inset 0 0 30px #0006}
+.jarea.hasbtn .jbase{left:32%;top:62%}
+.jbase.idle{opacity:.55}
+.jbase .knob{left:50%;top:50%;width:44%;height:44%;margin:-22% 0 0 -22%}
+.ctrl.joy .actbtn{position:absolute;right:max(5vw,14px);bottom:max(5vh,18px);width:min(34vw,28vh,170px);z-index:3}
+.actbtn .albl{position:relative;z-index:1}
+.cdov{position:absolute;inset:0;border-radius:50%;display:none;align-items:center;justify-content:center;font-family:'Lilita One';font-size:clamp(22px,6vw,34px);color:#fff;background:conic-gradient(#000b var(--p,100%),#0005 0);z-index:2;text-shadow:0 2px 0 #000}
+.actbtn.cool .cdov{display:flex}
+.actbtn.cool{filter:grayscale(.8)}
+/* conecta 4 tocando el hoyo */
+.pboard.c4 .c4c{aspect-ratio:1;border-radius:50%;border:0;background:#0b1f5c;font-size:min(7vw,30px);padding:0;display:flex;align-items:center;justify-content:center}
+.pboard.c4 .c4c.hl{background:#1e40af;box-shadow:inset 0 0 0 3px #facc15}
+.pboard.c4 .c4c:disabled{opacity:1}
+/* topos en el cel */
+.pgrid button{position:relative;transition:transform .08s}
+.pgrid button span{font-size:clamp(34px,11vw,56px);display:inline-block}
+.pgrid button.up span{animation:moleUp .18s ease-out}
+.pgrid button.gold{box-shadow:0 0 0 4px #facc15,0 6px 0 #0006}
+.pgrid button.bomb{box-shadow:0 0 0 4px #ef4444,0 6px 0 #0006}
+.pgrid button.f{transform:scale(.9)}
+.pgrid.locked{filter:grayscale(1) brightness(.6)}
+@keyframes moleUp{from{transform:translateY(60%) scale(.5)}to{transform:none}}
+/* basta: jueces */
+.jlist{width:100%;max-width:480px;display:flex;flex-direction:column;gap:6px}
+.jcat{font-size:15px;opacity:.75;margin-top:8px;text-align:left}
+.jrow{display:flex;justify-content:space-between;align-items:center;border:0;border-radius:14px;padding:12px 14px;font-size:20px;color:#fff;background:#ffffff1c;font-family:inherit;font-weight:800}
+.jrow.no{background:#b91c1c;text-decoration:line-through}
+/* salto */
+.jwrap{position:relative;display:flex;align-items:center;justify-content:center}
+.beat{position:absolute;left:50%;top:50%;width:min(78vw,340px);aspect-ratio:1;border-radius:50%;border:8px solid #facc15;transform:translate(-50%,-50%) scale(1.9);opacity:0;pointer-events:none}
+/* horizontal (cel acostado) */
+@media (orientation:landscape) and (max-height:520px){
+  .c-top{padding:6px 14px;font-size:16px}
+  .c-body{flex-direction:row;flex-wrap:wrap;justify-content:center;align-content:center;gap:10px}
+  .c-body>:first-child,.c-body>:last-child{margin:0}
+  .c-prompt{max-width:44vw;font-size:18px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;max-width:52vw}
+  .opts.ab{grid-template-columns:1fr 1fr}
+  .colbtns{grid-template-columns:repeat(3,1fr);max-width:60vw}
+  .tapbtn{width:min(60vh,300px)}
+  .spads,.pgrid{width:min(70vh,360px)}
+  .pboard.ttt,.pboard.c4{width:min(70vh,420px)}
+  .mash{max-height:70vh}
+  .ctrl.joy .c-body{display:block}
+  .jarea.hasbtn .jbase{left:26%;top:56%}
+  .jbase{--js:min(56vh,230px)}
+  .ctrl.joy .actbtn{top:50%;bottom:auto;transform:translateY(-50%);right:6vw;width:min(40vh,160px)}
+  .ctrl.joy .actbtn.hit{animation:none}
+  textarea{min-height:70px}
+}
+@media (max-width:380px){.btn.big{font-size:20px;padding:14px 20px}.c-prompt{font-size:19px}.big{font-size:70px}}
 </style>
 </head>
 <body>
@@ -527,6 +596,7 @@ function startHost() {
     conn.on('error', () => onHostClose(conn));
   });
   app.onclick = onHostClick;
+  if (typeof bg3D === 'function') bg3D();
   setInterval(hostTick, 150);
 }
 
@@ -1068,6 +1138,7 @@ function onPlayerMsg(m) {
   if (m.t === 'welcome') { P.color = m.color; P.name = m.name; P.emoji = m.emoji; document.documentElement.style.setProperty('--me', m.color); }
   else if (m.t === 'full') { P.conn = null; showError('La sala está llena (máximo 8) 😢', null); }
   else if (m.t === 'cut') { if (P.onCut) P.onCut(m.ms, m.by); }
+  else if (m.t === 'live') { if (P.onLive) P.onLive(m); }
   else if (m.t === 'toast') { toast(m.text); if (navigator.vibrate) navigator.vibrate([60, 40, 60]); if (P.unlock) P.unlock(); }
   else if (m.t === 'view' && m.v) {
     const s = JSON.stringify(m.v); if (s === P.viewStr) return;
@@ -1075,7 +1146,7 @@ function onPlayerMsg(m) {
     renderCtrl(m.v);
   }
 }
-function clearTimers() { P.timers.forEach(t => { clearTimeout(t); clearInterval(t); }); P.timers = []; P.unlock = null; P.onCut = null; }
+function clearTimers() { P.timers.forEach(t => { clearTimeout(t); clearInterval(t); }); P.timers = []; P.unlock = null; P.onCut = null; P.onLive = null; }
 function shell(inner, timer) {
   return `<div class="ctrl"><div class="c-top"><span>${P.emoji} ${esc(P.name)}</span><span>⭐ ${P.score}</span></div>${timer ? '<div class="ctimer"><div id="ctf"></div></div>' : ''}<div class="c-body">${inner}</div></div>`;
 }
@@ -1239,7 +1310,7 @@ function hostFx(ph) {
   if (ph === 'board') A({ targets: '.tlane .tpos', scale: [0, 1], delay: anime.stagger(90, { start: 300 }), duration: 600, easing: 'easeOutElastic(1,.5)' });
   if (ph === 'final') A({ targets: '.pemo', rotate: [-20, 20], direction: 'alternate', loop: true, duration: 500, easing: 'easeInOutSine', delay: anime.stagger(120) });
 }
-const joyView = (p, hint, btn) => ({ screen: 'joy', key: 'joy' + H.gd.sid, hint, btn: btn || '' });
+const joyView = (p, hint, btn, cd) => ({ screen: 'joy', key: 'joy' + H.gd.sid, hint, btn: btn || '', cd: cd || 0 });
 
 /* ================== NUEVOS MINIJUEGOS ================== */
 Object.assign(GAMES, {
@@ -1259,7 +1330,7 @@ Object.assign(GAMES, {
     view(p) {
       if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
       const b = H.gd.bs[p.id];
-      if (H.phase === 'sumo-ready' || H.phase === 'sumo-go') return b.alive ? joyView(p, '🕹️ Mové tu bola · Botón = DASH', '💨 DASH') : { screen: 'msg', big: '💀', title: '¡Te caíste al espacio!', text: 'Mirá la tele y burlate de los demás 😂' };
+      if (H.phase === 'sumo-ready' || H.phase === 'sumo-go') return b.alive ? joyView(p, '🕹️ Tocá a la izquierda y arrastrá · Botón = DASH', '💨 DASH', 1.1) : { screen: 'msg', big: '💀', title: '¡Te caíste al espacio!', text: 'Mirá la tele y burlate de los demás 😂' };
       return watch();
     },
     onAct(p, m) { if (H.phase === 'sumo-ready' || H.phase === 'sumo-go') joyAct(p, m); },
@@ -1277,7 +1348,7 @@ Object.assign(GAMES, {
           if (b.cd <= 0) {
             let dx = i.x, dy = i.y, m = Math.hypot(dx, dy);
             if (m < .2) { dx = b.vx; dy = b.vy; m = Math.hypot(dx, dy); }
-            if (m > 0) { b.vx += dx / m * 560; b.vy += dy / m * 560; b.cd = 1.1; b.dash = .3; beep(220, .12, 'sawtooth', .05); }
+            if (m > 0) { b.vx += dx / m * 560; b.vy += dy / m * 560; b.cd = 1.0; b.dash = .3; beep(220, .12, 'sawtooth', .05); }
           }
         }
         const damp = Math.pow(.22, dt); b.vx *= damp; b.vy *= damp;
@@ -1433,7 +1504,7 @@ Object.assign(GAMES, {
     go() { setPhase('paint-go', 35000, () => GAMES.paint.end()); rtLoop(dt => GAMES.paint.step(dt), GAMES.paint.draw); },
     view(p) {
       if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
-      if (H.phase === 'paint-ready' || H.phase === 'paint-go') return joyView(p, '🕹️ Corré y pintá · Botón = BOMBA', '💥 BOMBA');
+      if (H.phase === 'paint-ready' || H.phase === 'paint-go') return joyView(p, '🕹️ Arrastrá para correr · Botón = BOMBA', '💥 BOMBA', 4);
       return watch();
     },
     onAct(p, m) { if (H.phase === 'paint-ready' || H.phase === 'paint-go') joyAct(p, m); },
@@ -1454,7 +1525,7 @@ Object.assign(GAMES, {
         if (i.b > p.lb) {
           p.lb = i.b;
           if (p.cd <= 0) {
-            p.cd = 4; const cx = Math.floor(p.x / 40), cy = Math.floor(p.y / 40);
+            p.cd = 3.9; const cx = Math.floor(p.x / 40), cy = Math.floor(p.y / 40);
             for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (dx * dx + dy * dy <= 5) this.paintCell(id, cx + dx, cy + dy);
             gd.blasts.push({ x: p.x, y: p.y, t: 0, c: pl(id)?.color }); beep(160, .25, 'sawtooth', .07); beep(90, .3, 'square', .05, .05);
           }
@@ -2079,7 +2150,7 @@ Object.assign(GAMES, {
             gd.found.push(id); const pts = [300, 200, 120, 80][gd.found.length - 1] || 50;
             gd.pts[id] = (gd.pts[id] || 0) + pts; SFX.win(); sync(); updateStrip();
             if (onlineIn(gd.ids).every(x => gd.found.includes(x))) { const tok = H.token; setTimeout(() => { if (tok === H.token) GAMES.find.subEnd(); }, 900); }
-          } else { p.stun = 1.5; p.miss++; SFX.bad(); }
+          } else { p.stun = 1.5; p.miss++; SFX.bad(); tell(id, { t: 'live', kind: 'lock', ms: 1500 }); }
         }
       }
     },
@@ -2201,6 +2272,7 @@ Object.assign(GAMES, {
       const el = $('#mh' + i); if (!el) return; const h = H.gd.holes[i];
       el.innerHTML = h ? `<span>${h.hit ? (h.type === 'bomb' ? '💥' : '😵') : h.type === 'gold' ? '⭐' : h.type === 'bomb' ? '💣' : '🐹'}</span>${h.hit ? `<span class="hb">${pl(h.hit)?.emoji || ''}</span>` : ''}` : '';
       if (h && popIn) A({ targets: el.firstChild, translateY: [40, 0], scale: [.3, 1], duration: 300, easing: 'easeOutBack' });
+      if (GAMES.mole.sync9) GAMES.mole.sync9();
     },
     view(p) {
       if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
@@ -2218,7 +2290,7 @@ Object.assign(GAMES, {
         const d = h.type === 'gold' ? 3 : h.type === 'bomb' ? -2 : 1; gd.sc[p.id] = Math.max(0, gd.sc[p.id] + d);
         if (d > 0) beep(h.type === 'gold' ? 1400 : 700, .08, 'square', .07); else SFX.bad();
         this.cell(i); this.board();
-      } else gd.lock[p.id] = now + 650;
+      } else { gd.lock[p.id] = now + 650; tell(p.id, { t: 'live', kind: 'lock', ms: 650 }); }
     },
     board() { const b = $('#msc'); if (b) b.innerHTML = H.gd.ids.slice().sort((a, c) => H.gd.sc[c] - H.gd.sc[a]).map(id => `<span class="schip" style="--c:${pl(id)?.color}">${pl(id)?.emoji} ${H.gd.sc[id]}</span>`).join(''); },
     end() {
@@ -2752,16 +2824,6 @@ Object.assign(XS, {
 });
 
 /* ================== BOTS 🤖 ================== */
-function botDoodle() {
-  try {
-    const c = document.createElement('canvas'); c.width = 320; c.height = 320; const g = c.getContext('2d');
-    g.fillStyle = '#fff'; g.fillRect(0, 0, 320, 320); g.lineCap = 'round';
-    for (let k = 0; k < 6; k++) { g.strokeStyle = pickR(PAL.slice(0, 9)); g.lineWidth = 4 + rand(12); g.beginPath(); g.moveTo(rand(320), rand(320)); for (let j = 0; j < 4; j++) g.quadraticCurveTo(rand(320), rand(320), rand(320), rand(320)); g.stroke(); }
-    g.fillStyle = pickR(PAL.slice(1, 8)); g.beginPath(); g.arc(80 + rand(160), 80 + rand(160), 20 + rand(40), 0, 7); g.fill();
-    const u = c.toDataURL('image/jpeg', .6);
-    return /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(u) ? u : 'data:image/jpeg;base64,AAAA';
-  } catch (e) { return 'data:image/jpeg;base64,AAAA'; }
-}
 const botWord = L => cap((L + pickR(['ana', 'ito', 'ero', 'olo', 'ama', 'uca', 'eta', 'ino', 'osa'])).toLowerCase());
 function addBot() {
   if (H.players.size >= 8) { toast('La sala ya está llena (8) 😅'); return; }
@@ -2790,8 +2852,8 @@ function botBrain(p) {
       if (H.game === GAMES.liar && Math.random() < .4) { const ti = H.gd.opts.findIndex(x => x.truth); o = v.options.find(x => +x.id === ti) || o; }
       act({ a: 'choose', id: o.id });
     } break;
-    case 'draw': if (!M.done && el > 5000 + rand(6000)) { M.done = true; act({ a: 'draw', img: botDoodle() }); } break;
-    case 'pdraw': if (!M.done && el > 1500) { M.done = true; act({ a: 'live', img: botDoodle() }); } break;
+    case 'draw': if (!M.done && el > 5000 + rand(6000)) { M.done = true; act({ a: 'draw', img: botDoodle(v.prompt) }); } break;
+    case 'pdraw': if (!M.done && el > 1500) { M.done = true; act({ a: 'live', img: botDoodle(v.word) }); } break;
     case 'simon': if (!M.done && el > 1500 + rand(1500)) { M.done = true; const s = H.gd.seq.slice(); if (Math.random() < .18) s[rand(s.length)] = (s[0] + 1 + rand(3)) % 4; act({ a: 'seq', s }); } break;
     case 'number': if (!M.done && ready) { M.done = true; act({ a: 'num', n: Math.max(0, H.gd.n + rand(7) - 3) }); } break;
     case 'colors': if (!M.done && el > 700 + rand(1700)) { M.done = true; const c = H.gd.cur, r = c.rule === 'ink' ? c.ink : c.w; act({ a: 'color', c: Math.random() < .72 ? r : rand(6) }); } break;
@@ -2807,7 +2869,8 @@ function botBrain(p) {
     } break;
     case 'form': if (!M.done && (H.phase === 'b-stop' || el > 10000 + M.wait * 8)) { M.done = true; act({ a: 'basta', ans: v.cats.map(() => botWord(v.letter)) }); } break;
     case 'grid9': if (Math.random() < .3) { const hs = H.gd.holes.map((h, i) => h && !h.hit && h.type !== 'bomb' ? i : -1).filter(i => i >= 0); if (hs.length) act({ a: 'hit', i: pickR(hs) }); } break;
-    case 'jump': { const gd = H.gd, toBottom = (1 - (gd.ph % 1)) * gd.period; if (toBottom < .2 && toBottom > .02 && M.cyc !== Math.floor(gd.ph)) { M.cyc = Math.floor(gd.ph); if (Math.random() < .93) act({ a: 'jump' }); } } break;
+    case 'jump': { const gd = H.gd, toBottom = ((1.5 - (gd.ph % 1)) % 1) * gd.period, cy = Math.floor(gd.ph + .5); if (toBottom < .25 && toBottom > .03 && M.cyc !== cy) { M.cyc = cy; if (Math.random() < .93) act({ a: 'jump' }); } } break;
+    case 'judge': if (!M.done && el > 3000 + rand(6000)) { M.done = true; act({ a: 'judge', rej: v.items.filter(() => Math.random() < .12).map(x => x.i) }); } break;
     case 'joy': botJoy(p, M, act); break;
   }
 }
@@ -2815,7 +2878,7 @@ function botJoy(p, M, act) {
   const gd = H.gd, g = H.game; let x = 0, y = 0;
   const toward = (tx, ty, sx, sy, noise = .35) => { const d = Math.hypot(tx - sx, ty - sy) || 1; return [(tx - sx) / d + (Math.random() - .5) * noise, (ty - sy) / d + (Math.random() - .5) * noise]; };
   if (g === GAMES.maze) {
-    const s = gd.ps[p.id], W = GAMES.maze.W, D = [[1, 0, 2], [-1, 0, 8], [0, 1, 4], [0, -1, 1]];
+    const s = gd.ps[p.id], W = gd.W, D = [[1, 0, 2], [-1, 0, 8], [0, 1, 4], [0, -1, 1]];
     if (Math.random() < .8) { let best = null; for (const [dx, dy, b] of D) { if (gd.g[s.c] & b) continue; const n = s.c + dy * W + dx; if (!best || gd.dist[n] < best[2]) best = [dx, dy, gd.dist[n]]; } if (best) [x, y] = best; }
     else [x, y] = pickR(D);
   } else if (g === GAMES.find) {
@@ -2866,6 +2929,521 @@ function onHostClick2(a, b) {
   if (a === 'start') H.testMode = false;
   return false;
 }
+
+</script>
+<script>
+/* ================== CAOS PARTY v5 ================== */
+function tell(id, o) { const p = pl(id); if (p && p.online && p.conn && p.conn.open) try { p.conn.send(o); } catch (e) {} }
+function bcast(o, ids) { for (const id of (ids || H.gd.ids || [])) tell(id, o); }
+EMOJIS.push('🐨', '🐯', '🦁', '🐮', '🐰', '🐻', '🐲', '🦉', '🦋', '🐝', '🤠', '😎', '🍔', '🍩', '🐧', '🦩');
+
+/* ---------- 3D de fondo en la tele (three.js) ---------- */
+async function bg3D() {
+  if (window.__bg3d) return; window.__bg3d = 1;
+  try {
+    const T = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
+    const r = new T.WebGLRenderer({ antialias: true, alpha: true });
+    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    const cvs = r.domElement; cvs.id = 'bg3d'; document.body.prepend(cvs);
+    const sc = new T.Scene(), cam = new T.PerspectiveCamera(60, 1, .1, 100); cam.position.z = 14;
+    sc.add(new T.AmbientLight(0xffffff, .7)); const dl = new T.DirectionalLight(0xffffff, 1.3); dl.position.set(5, 8, 10); sc.add(dl);
+    const pl2 = new T.PointLight(0xff4d8d, 30, 40); pl2.position.set(-8, -4, 6); sc.add(pl2);
+    const geos = [new T.IcosahedronGeometry(1, 0), new T.TorusGeometry(.8, .32, 12, 24), new T.OctahedronGeometry(1, 0), new T.TorusKnotGeometry(.6, .22, 64, 10), new T.DodecahedronGeometry(1, 0), new T.ConeGeometry(.8, 1.5, 5), new T.BoxGeometry(1.2, 1.2, 1.2)];
+    const objs = [];
+    for (let i = 0; i < 24; i++) {
+      const m = new T.Mesh(pickR(geos), new T.MeshStandardMaterial({ color: COLORS[i % 8], flatShading: true, roughness: .35, metalness: .15 }));
+      m.position.set((Math.random() - .5) * 28, (Math.random() - .5) * 17, (Math.random() - .5) * 10 - 4);
+      m.userData = { rx: (Math.random() - .5) * .02, ry: (Math.random() - .5) * .02, f: Math.random() * 6, sp: .3 + Math.random() * .6 };
+      const s = .4 + Math.random() * .9; m.scale.set(s, s, s); sc.add(m); objs.push(m);
+    }
+    const rs = () => { r.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); };
+    rs(); addEventListener('resize', rs);
+    let last = 0;
+    const loop = t => {
+      requestAnimationFrame(loop);
+      const busy = !!document.querySelector('#gc'); cvs.style.opacity = busy ? 0 : 1;
+      if (busy || t - last < 33) return; last = t;
+      objs.forEach(o => { o.rotation.x += o.userData.rx; o.rotation.y += o.userData.ry; o.position.y += Math.sin(t / 1000 * o.userData.sp + o.userData.f) * .006; });
+      cam.position.x = Math.sin(t / 7000) * 2; cam.position.y = Math.cos(t / 9000); cam.lookAt(0, 0, 0);
+      r.render(sc, cam);
+    };
+    requestAnimationFrame(loop);
+  } catch (e) { console.log('3D no disponible'); }
+}
+
+/* ---------- MÁS CONTENIDO (variado, no solo Costa Rica) ---------- */
+TRIVIA.push(
+  { q: '¿Cuál es la capital de Francia?', o: ['París', 'Lyon', 'Marsella', 'Niza'], c: '🌍' },
+  { q: '¿Cuál es la capital de Australia?', o: ['Canberra', 'Sídney', 'Melbourne', 'Perth'], c: '🌍' },
+  { q: '¿Cuál es la capital de Canadá?', o: ['Ottawa', 'Toronto', 'Vancouver', 'Montreal'], c: '🌍' },
+  { q: '¿Cuál es la capital de Brasil?', o: ['Brasilia', 'Río de Janeiro', 'São Paulo', 'Salvador'], c: '🌍' },
+  { q: '¿Cuál es la capital de Argentina?', o: ['Buenos Aires', 'Córdoba', 'Rosario', 'Mendoza'], c: '🌍' },
+  { q: '¿Cuál es la capital de España?', o: ['Madrid', 'Barcelona', 'Sevilla', 'Valencia'], c: '🌍' },
+  { q: '¿Cuál es la capital de Italia?', o: ['Roma', 'Milán', 'Venecia', 'Nápoles'], c: '🌍' },
+  { q: '¿Cuál es la capital de Egipto?', o: ['El Cairo', 'Alejandría', 'Luxor', 'Giza'], c: '🌍' },
+  { q: '¿Cuál es la capital de Corea del Sur?', o: ['Seúl', 'Busan', 'Pionyang', 'Incheon'], c: '🌍' },
+  { q: '¿Cuál es la capital de México?', o: ['Ciudad de México', 'Guadalajara', 'Monterrey', 'Cancún'], c: '🌍' },
+  { q: '¿Qué país tiene forma de bota?', o: ['Italia', 'Grecia', 'Portugal', 'Chile'], c: '🌍' },
+  { q: '¿Cuál es el desierto cálido más grande del mundo?', o: ['Sahara', 'Gobi', 'Atacama', 'Kalahari'], c: '🌍' },
+  { q: '¿Qué río pasa por Londres?', o: ['Támesis', 'Sena', 'Danubio', 'Rin'], c: '🌍' },
+  { q: '¿Qué río es el más famoso de Egipto?', o: ['Nilo', 'Congo', 'Níger', 'Éufrates'], c: '🌍' },
+  { q: '¿En qué país está Machu Picchu?', o: ['Perú', 'Bolivia', 'Ecuador', 'Chile'], c: '🌍' },
+  { q: '¿En qué país está Chichén Itzá?', o: ['México', 'Guatemala', 'Honduras', 'Belice'], c: '🌍' },
+  { q: '¿En qué ciudad está la Estatua de la Libertad?', o: ['Nueva York', 'Washington', 'Boston', 'Chicago'], c: '🌍' },
+  { q: '¿Qué país tiene una hoja de arce en su bandera?', o: ['Canadá', 'Suiza', 'Japón', 'Noruega'], c: '🌍' },
+  { q: '¿Qué idioma se habla oficialmente en Brasil?', o: ['Portugués', 'Español', 'Francés', 'Inglés'], c: '🌍' },
+  { q: '¿Cuál es el país más pequeño del mundo?', o: ['Ciudad del Vaticano', 'Mónaco', 'San Marino', 'Malta'], c: '🌍' },
+  { q: '¿Qué volcán destruyó la ciudad de Pompeya?', o: ['Vesubio', 'Etna', 'Fuji', 'Krakatoa'], c: '🌋' },
+  { q: '¿Cuál es el planeta más cercano al Sol?', o: ['Mercurio', 'Venus', 'Marte', 'La Tierra'], c: '🪐' },
+  { q: '¿Cuántos planetas tiene el sistema solar?', o: ['8', '9', '7', '10'], c: '🪐' },
+  { q: '¿Qué planeta es famoso por sus anillos?', o: ['Saturno', 'Marte', 'Mercurio', 'Venus'], c: '🪐' },
+  { q: '¿Cuál es la estrella más cercana a la Tierra?', o: ['El Sol', 'Sirio', 'Alfa Centauri', 'Polaris'], c: '🪐' },
+  { q: '¿Cómo se llama nuestra galaxia?', o: ['Vía Láctea', 'Andrómeda', 'Orión', 'Pegaso'], c: '🪐' },
+  { q: '¿Qué planeta tiene la famosa Gran Mancha Roja?', o: ['Júpiter', 'Marte', 'Neptuno', 'Urano'], c: '🪐' },
+  { q: '¿Qué órgano bombea la sangre?', o: ['Corazón', 'Hígado', 'Pulmón', 'Riñón'], c: '🧬' },
+  { q: '¿Cuál es el hueso más largo del cuerpo humano?', o: ['Fémur', 'Húmero', 'Tibia', 'Columna'], c: '🧬' },
+  { q: '¿Qué gas absorben las plantas para hacer la fotosíntesis?', o: ['Dióxido de carbono', 'Oxígeno', 'Helio', 'Metano'], c: '🧪' },
+  { q: '¿A qué temperatura se congela el agua?', o: ['0 °C', '10 °C', '-10 °C', '4 °C'], c: '🧪' },
+  { q: '¿Cuál es el símbolo químico del sodio?', o: ['Na', 'So', 'Sd', 'S'], c: '🧪' },
+  { q: '¿Cuál es el símbolo químico del hierro?', o: ['Fe', 'Hi', 'Ir', 'H'], c: '🧪' },
+  { q: '¿Quién propuso la teoría de la relatividad?', o: ['Albert Einstein', 'Isaac Newton', 'Galileo Galilei', 'Nikola Tesla'], c: '🧪' },
+  { q: '¿Quién formuló la ley de la gravitación universal?', o: ['Isaac Newton', 'Albert Einstein', 'Charles Darwin', 'Marie Curie'], c: '🧪' },
+  { q: '¿Cuál es el ave más rápida en picada?', o: ['Halcón peregrino', 'Águila', 'Colibrí', 'Avestruz'], c: '🐾' },
+  { q: '¿Qué mamífero pone huevos?', o: ['Ornitorrinco', 'Delfín', 'Murciélago', 'Canguro'], c: '🐾' },
+  { q: '¿Cuál es el animal más alto del mundo?', o: ['Jirafa', 'Elefante', 'Avestruz', 'Camello'], c: '🐾' },
+  { q: '¿Cuántas patas tiene un insecto?', o: ['6', '8', '4', '10'], c: '🐾' },
+  { q: '¿Qué es una ballena?', o: ['Un mamífero', 'Un pez', 'Un reptil', 'Un anfibio'], c: '🐾' },
+  { q: '¿Qué animal es conocido como "el rey de la selva"?', o: ['León', 'Tigre', 'Gorila', 'Elefante'], c: '🐾' },
+  { q: '¿Cómo se llama la cría del caballo?', o: ['Potro', 'Ternero', 'Cachorro', 'Cordero'], c: '🐾' },
+  { q: '¿Qué come principalmente un panda?', o: ['Bambú', 'Pescado', 'Frutas', 'Insectos'], c: '🐾' },
+  { q: '¿Qué ave no vuela y vive en la Antártida?', o: ['Pingüino', 'Avestruz', 'Gaviota', 'Frailecillo'], c: '🐾' },
+  { q: '¿En qué año llegó Cristóbal Colón a América?', o: ['1492', '1592', '1392', '1500'], c: '📜' },
+  { q: '¿En qué año cayó el Muro de Berlín?', o: ['1989', '1979', '1991', '1961'], c: '📜' },
+  { q: '¿Quién fue la primera persona en pisar la Luna?', o: ['Neil Armstrong', 'Buzz Aldrin', 'Yuri Gagarin', 'Michael Collins'], c: '🚀' },
+  { q: '¿Quién fue el primer presidente de Estados Unidos?', o: ['George Washington', 'Abraham Lincoln', 'Thomas Jefferson', 'John Adams'], c: '📜' },
+  { q: '¿Qué civilización construyó las pirámides de Giza?', o: ['Los egipcios', 'Los romanos', 'Los mayas', 'Los griegos'], c: '📜' },
+  { q: '¿En qué año terminó la Segunda Guerra Mundial?', o: ['1945', '1939', '1918', '1950'], c: '📜' },
+  { q: '¿Qué imperio construyó Machu Picchu?', o: ['Inca', 'Azteca', 'Maya', 'Romano'], c: '📜' },
+  { q: '¿Quién escribió "Don Quijote de la Mancha"?', o: ['Miguel de Cervantes', 'Lope de Vega', 'Federico García Lorca', 'Pablo Neruda'], c: '📚' },
+  { q: '¿Quién escribió "Cien años de soledad"?', o: ['Gabriel García Márquez', 'Mario Vargas Llosa', 'Julio Cortázar', 'Isabel Allende'], c: '📚' },
+  { q: '¿Quién escribió "Romeo y Julieta"?', o: ['William Shakespeare', 'Charles Dickens', 'Victor Hugo', 'Homero'], c: '📚' },
+  { q: '¿Quién pintó el techo de la Capilla Sixtina?', o: ['Miguel Ángel', 'Rafael', 'Leonardo da Vinci', 'Donatello'], c: '🎨' },
+  { q: '¿Qué empresa creó el iPhone?', o: ['Apple', 'Samsung', 'Google', 'Nokia'], c: '💻' },
+  { q: '¿Qué empresa creó el sistema operativo Windows?', o: ['Microsoft', 'Apple', 'IBM', 'Linux'], c: '💻' },
+  { q: '¿Qué significa CPU?', o: ['Unidad central de procesamiento', 'Computadora personal útil', 'Control de programas unidos', 'Centro de poder universal'], c: '💻' },
+  { q: '¿Cuántos bits tiene un byte?', o: ['8', '4', '16', '10'], c: '💻' },
+  { q: '¿Qué significa "WWW"?', o: ['World Wide Web', 'World Wireless Web', 'Web World Wide', 'Wide Web World'], c: '💻' },
+  { q: '¿Quién fundó Microsoft junto a Paul Allen?', o: ['Bill Gates', 'Steve Jobs', 'Mark Zuckerberg', 'Elon Musk'], c: '💻' },
+  { q: '¿Qué empresa fabrica la consola PlayStation?', o: ['Sony', 'Nintendo', 'Microsoft', 'Sega'], c: '🎮' },
+  { q: '¿Qué empresa fabrica la consola Xbox?', o: ['Microsoft', 'Sony', 'Nintendo', 'Valve'], c: '🎮' },
+  { q: '¿En qué juego caen bloques que hay que acomodar en líneas?', o: ['Tetris', 'Pac-Man', 'Pong', 'Snake'], c: '🎮' },
+  { q: '¿Qué personaje de videojuegos es un erizo azul muy rápido?', o: ['Sonic', 'Mario', 'Kirby', 'Crash'], c: '🎮' },
+  { q: '¿Cuál es el Pokémon eléctrico amarillo más famoso?', o: ['Pikachu', 'Charmander', 'Bulbasaur', 'Squirtle'], c: '🎮' },
+  { q: '¿Qué fantasmas persiguen a Pac-Man? ¿Cuántos son en el juego original?', o: ['4', '3', '5', '6'], c: '🎮' },
+  { q: '¿Cada cuántos años se juega el Mundial de fútbol masculino?', o: ['4', '2', '3', '5'], c: '⚽' },
+  { q: '¿Qué país ha ganado más Mundiales de fútbol masculino?', o: ['Brasil', 'Alemania', 'Italia', 'Argentina'], c: '⚽' },
+  { q: '¿Cuántos jugadores por equipo hay en la cancha en baloncesto?', o: ['5', '6', '7', '4'], c: '🏀' },
+  { q: '¿En qué deporte se usa un volante (o "pajarito")?', o: ['Bádminton', 'Tenis', 'Squash', 'Pádel'], c: '🏸' },
+  { q: '¿En qué ciudad fueron los primeros Juegos Olímpicos modernos?', o: ['Atenas', 'París', 'Londres', 'Roma'], c: '🏅' },
+  { q: '¿Cuántos anillos tiene el símbolo olímpico?', o: ['5', '4', '6', '7'], c: '🏅' },
+  { q: '¿En qué deporte se hace un "home run"?', o: ['Béisbol', 'Fútbol americano', 'Críquet', 'Hockey'], c: '⚾' },
+  { q: '¿Cuánto dura un partido de fútbol sin contar el tiempo añadido?', o: ['90 minutos', '60 minutos', '80 minutos', '120 minutos'], c: '⚽' },
+  { q: '¿Cuántas cuerdas tiene una guitarra normal?', o: ['6', '4', '5', '8'], c: '🎵' },
+  { q: '¿De qué país es originario el tango?', o: ['Argentina', 'España', 'Cuba', 'Brasil'], c: '🎵' },
+  { q: '¿De qué país es originaria la pizza?', o: ['Italia', 'Francia', 'Estados Unidos', 'Grecia'], c: '🍕' },
+  { q: '¿De qué país es originario el sushi?', o: ['Japón', 'China', 'Corea', 'Tailandia'], c: '🍣' },
+  { q: '¿De qué país son originarios los tacos?', o: ['México', 'España', 'Perú', 'Colombia'], c: '🌮' },
+  { q: '¿Con qué fruta se hace el guacamole?', o: ['Aguacate', 'Mango', 'Limón', 'Papaya'], c: '🥑' },
+  { q: '¿Cuál es el ingrediente principal del hummus?', o: ['Garbanzo', 'Lenteja', 'Frijol', 'Arroz'], c: '🍽️' },
+  { q: '¿Cuánto es 7 × 8?', o: ['56', '54', '64', '48'], c: '➗' },
+  { q: '¿Cuál es la raíz cuadrada de 81?', o: ['9', '8', '7', '18'], c: '➗' },
+  { q: '¿Cuánto es el 15% de 200?', o: ['30', '15', '20', '25'], c: '➗' },
+  { q: '¿Cuántos grados suman los ángulos de un triángulo?', o: ['180', '360', '90', '270'], c: '➗' },
+  { q: '¿Cuántos lados tiene un octágono?', o: ['8', '6', '10', '12'], c: '➗' },
+  { q: '¿Qué número es X en números romanos?', o: ['10', '5', '50', '100'], c: '➗' },
+  { q: '¿Cuántos segundos tiene una hora?', o: ['3600', '600', '6000', '360'], c: '➗' },
+  { q: '¿Cuántos días tiene un año bisiesto?', o: ['366', '365', '364', '360'], c: '📅' },
+  { q: '¿Cuál es el metal líquido a temperatura ambiente?', o: ['Mercurio', 'Plomo', 'Aluminio', 'Cobre'], c: '🧪' },
+  { q: '¿Qué color se obtiene al mezclar azul y amarillo?', o: ['Verde', 'Morado', 'Naranja', 'Café'], c: '🎨' },
+  { q: '¿Qué instrumento musical tiene 88 teclas?', o: ['Piano', 'Acordeón', 'Órgano de boca', 'Xilófono'], c: '🎵' },
+  { q: '¿Qué país regaló la Estatua de la Libertad a Estados Unidos?', o: ['Francia', 'Inglaterra', 'España', 'Italia'], c: '📜' },
+  { q: '¿Cuál es el océano que separa América de Europa?', o: ['Atlántico', 'Pacífico', 'Índico', 'Ártico'], c: '🌍' },
+);
+const qFix = (a, b) => { const i = QUIPS.indexOf(a); if (i >= 0) QUIPS[i] = b; };
+qFix('El peor nombre para una pulpería', 'El peor nombre para una tienda de barrio');
+qFix('El secreto mejor guardado de la soda de la U', 'El secreto mejor guardado de la cafetería de la escuela');
+qFix('El superhéroe más inútil de Costa Rica', 'El superhéroe más inútil del mundo');
+qFix('Lo que hay en el bolso de una abuela tica', 'Lo que hay en el bolso de una abuela');
+QUIPS.push('Lo que diría un alien al probar la pizza', 'La peor atracción de un parque de diversiones', 'Un nombre terrible para un crucero',
+  'Lo que gritaría un pirata en una entrevista de trabajo', 'El peor consejo de amor', 'Lo que hace un robot en sus vacaciones',
+  'Un emoji que debería existir', 'La peor cosa para encontrar en tu sopa', 'Lo que dice tu refri cuando lo abrís a medianoche',
+  'Una canción de cuna aterradora', 'El nombre de un dinosaurio poco conocido', 'Lo que piensa un pez dorado todo el día',
+  'La peor contraseña del mundo', 'Un mal lema para una aerolínea', 'Lo que haría un vampiro vegetariano');
+const dFix = (a, b) => { const i = DRAWS.indexOf(a); if (i >= 0) DRAWS[i] = b; };
+dFix('Un gallo pinto gigante atacando la ciudad', 'Un taco gigante atacando la ciudad'); dFix('Un unicornio en presa', 'Un unicornio en un embotellamiento');
+dFix('Un pingüino en Guanacaste', 'Un pingüino en la playa'); dFix('Un zombie en la soda', 'Un zombie en la cafetería');
+const mI = MAJOR.findIndex(m => m.a === 'Gallo pinto'); if (mI >= 0) MAJOR[mI] = { q: '¿Desayuno ideal?', a: 'Salado', b: 'Dulce' };
+FIND_THEMES.push(
+  { n: 'el zoológico', d: ['🐘', '🦒', '🦓', '🦏', '🐪', '🦛', '🐊'], t: '🦘', ts: ['🦘', '🐼', '🦥'] },
+  { n: 'la cocina', d: ['🍳', '🥄', '🍴', '🔪', '🥣', '🧂', '🫖'], t: '🧁', ts: ['🧁', '🥐', '🍪'] },
+  { n: 'el invierno', d: ['❄️', '⛄', '🧣', '🧤', '☃️', '🌨️'], t: '🔥', ts: ['🔥', '🍵', '🧦'] },
+  { n: 'los insectos', d: ['🐜', '🐞', '🐛', '🦗', '🪲', '🦟'], t: '🐝', ts: ['🐝', '🦋', '🕷️'] },
+  { n: 'los deportes', d: ['⚽', '🏀', '🏈', '⚾', '🎾', '🏐'], t: '🎱', ts: ['🎱', '🏓', '🥏'] },
+  { n: 'la música', d: ['🎸', '🎹', '🥁', '🎺', '🎻', '🎷'], t: '🎤', ts: ['🎤', '🪗', '🪘'] },
+  { n: 'los dulces', d: ['🍬', '🍭', '🍫', '🍩', '🍪', '🧁'], t: '🍦', ts: ['🍦', '🍰', '🍡'] },
+  { n: 'el océano profundo', d: ['🐋', '🐳', '🐬', '🦭', '🦈', '🐟'], t: '🧜', ts: ['🧜', '🐢', '🦞'] },
+);
+FIND_THEMES.forEach(t => { if (!t.ts) t.ts = [t.t]; });
+
+/* palabras revueltas: catálogo grande de palabras reales, por dificultad */
+ANAGRAMS.length = 0;
+ANAGRAMS.push(...`GATO PERRO CASA MESA SILLA PLAYA LIBRO NUBES FRESA LIMON MANGO PIANO RELOJ CIELO FUEGO TIGRE CEBRA PULPO RATON LLAVE BARCO AVION TREN HUEVO QUESO PAPEL LAPIZ GORRA BOTAS CAMPO ARBOL PIEDRA ARENA LUNAR SALSA PASTA SOPA CARNE POLLO PATO
+PIRATA DRAGON CASTILLO ESPEJO CAMION TOMATE PLATANO NARANJA CEREZA SANDIA MELON PEPINO GALLETA PASTEL HELADO CABALLO CONEJO CAMELLO TORTUGA SERPIENTE TIBURON BALLENA DELFIN MEDUSA ARDILLA PALOMA LORO TUCAN BUHO AGUILA HALCON
+VENTANA PUERTA COCINA JARDIN ESCALERA ALFOMBRA ALMOHADA SABANA CORTINA LAMPARA BOTELLA CUCHARA TENEDOR CUCHILLO SARTEN MOCHILA CUADERNO PIZARRA MALETA CARTERA BILLETE MONEDA REGALO GLOBO PELOTA MUÑECA JUGUETE COMETA TAMBOR GUITARRA TROMPETA VIOLIN
+DOCTOR PINTOR CARTERO BOMBERO POLICIA PILOTO CANTANTE ACTOR MAESTRO ALUMNO VECINO AMIGO ABUELO PRIMO HERMANO
+VOLCAN MONTAÑA DESIERTO SELVA BOSQUE CASCADA OCEANO ISLA COSTA PLANETA ESTRELLA COMETA GALAXIA COHETE SATELITE TORMENTA RELAMPAGO ARCOIRIS NEVADA
+TELEFONO TECLADO PANTALLA RATON CAMARA CARGADOR AURICULAR ALTAVOZ ROBOT CONSOLA VIDEOJUEGO INTERNET MENSAJE CORREO PROGRAMA
+ZAPATO CAMISA PANTALON VESTIDO CHAQUETA BUFANDA SOMBRERO GUANTES CALCETIN PIJAMA ANILLO COLLAR PULSERA
+CHOCOLATE CARAMELO PALOMITAS HAMBURGUESA AGUACATE ZANAHORIA CEBOLLA PIMIENTA CANELA MANZANA DURAZNO CIRUELA AJEDREZ DOMINO MARIPOSA HORMIGA ABEJA ARAÑA LIBELULA ESCARABAJO
+BICICLETA PATINETA MOTOCICLETA AUTOBUS HELICOPTERO SUBMARINO AMBULANCIA TRACTOR PARAGUAS LINTERNA BRUJULA TELESCOPIO MICROSCOPIO DINOSAURIO MURCIELAGO PINGUINO COCODRILO HIPOPOTAMO RINOCERONTE ELEFANTE JIRAFA CANGURO`.split(/\s+/).filter(Boolean));
+
+/* dibujos de los bots: dibujan algo que se entiende (con su emoji) */
+const PICT_EMO = { Gato: '🐱', Casa: '🏠', Sol: '☀️', Pizza: '🍕', Avión: '✈️', Pescado: '🐟', Árbol: '🌳', Carro: '🚗', Guitarra: '🎸', Helado: '🍦', Volcán: '🌋', Fantasma: '👻', Robot: '🤖', Corona: '👑', Cohete: '🚀', Banana: '🍌', Tortuga: '🐢', Paraguas: '☂️', Reloj: '⏰', Castillo: '🏰', Dinosaurio: '🦖', Teléfono: '📱', Pirata: '🏴‍☠️', Arcoíris: '🌈', Zapato: '👟', Cámara: '📷', Tiburón: '🦈', Cactus: '🌵', Hamburguesa: '🍔', Bicicleta: '🚲', Mariposa: '🦋', Corazón: '❤️', Luna: '🌙', Estrella: '⭐', Payaso: '🤡', Perezoso: '🦥', Piña: '🍍', Torta: '🎂', Mono: '🐒', Lentes: '👓',
+  Perro: '🐶', Elefante: '🐘', Jirafa: '🦒', Pulpo: '🐙', Caracol: '🐌', Abeja: '🐝', Araña: '🕷️', Serpiente: '🐍', Pingüino: '🐧', Búho: '🦉', Flor: '🌸', Hongo: '🍄', Montaña: '⛰️', Isla: '🏝️', Nube: '☁️', Rayo: '⚡', Fuego: '🔥', Barco: '⛵', Tren: '🚆', Helicóptero: '🚁', Globo: '🎈', Regalo: '🎁', Llave: '🔑', Candado: '🔒', Bombillo: '💡', Martillo: '🔨', Tijeras: '✂️', Libro: '📖', Lápiz: '✏️', Mochila: '🎒', Sombrero: '🎩', Camisa: '👕', Calcetín: '🧦', Anillo: '💍', Diamante: '💎', Dado: '🎲', Balón: '⚽', Trofeo: '🏆', Tambor: '🥁', Trompeta: '🎺', Micrófono: '🎤', Televisor: '📺', Computadora: '💻', Huevo: '🥚', Queso: '🧀', Zanahoria: '🥕', Uvas: '🍇', Sandía: '🍉', Fresa: '🍓', Galleta: '🍪', Taco: '🌮', Palomitas: '🍿', Ancla: '⚓', Brújula: '🧭', 'Muñeco de nieve': '⛄', Calabaza: '🎃', Escoba: '🧹', Imán: '🧲', Calavera: '💀', Extraterrestre: '👽', Unicornio: '🦄', Dragón: '🐉', Sirena: '🧜', Ballena: '🐋', Caballo: '🐴', Vaca: '🐄', Cerdo: '🐷', Pollo: '🐔', Oso: '🐻', León: '🦁', Rana: '🐸' };
+PICT.length = 0; PICT.push(...Object.keys(PICT_EMO));
+const KEY_EMO = { gato: '🐱', bus: '🚌', pina: '🍍', perezoso: '🦥', taco: '🌮', tiburon: '🦈', dinosaurio: '🦖', vaca: '🐄', pulpo: '🐙', wifi: '📶', abuela: '👵', mono: '🐒', fantasma: '👻', papa: '🥔', unicornio: '🦄', aguacate: '🥑', pollo: '🐔', tortuga: '🐢', pinguino: '🐧', zombie: '🧟', perro: '🐶', volcan: '🌋', caracol: '🐌', profe: '🧑‍🏫', sandia: '🍉', oso: '🐻', elefante: '🐘', robot: '🤖', hamburguesa: '🍔', pirata: '🏴‍☠️', helado: '🍦', astronauta: '🧑‍🚀', mago: '🧙', casa: '🏠', cactus: '🌵', sapo: '🐸', dragon: '🐉', ballena: '🐋', mapache: '🦝', huevo: '🥚', caballo: '🐴', gallina: '🐔', tiburones: '🦈', patineta: '🛹', bicicleta: '🚲', yoga: '🧘', jetpack: '🚀', cohete: '🚀', playa: '🏖️', luna: '🌙', queso: '🧀', robotico: '🤖', dj: '🎧', gimnasio: '🏋️', videojuegos: '🎮', lentes: '🕶️', sombrero: '🎩', corazon: '❤️' };
+function botDoodle(text) {
+  try {
+    const c = document.createElement('canvas'); c.width = 320; c.height = 320; const g = c.getContext('2d');
+    g.fillStyle = '#fff'; g.fillRect(0, 0, 320, 320);
+    const words = norm(text || '').split(' '), found = [];
+    if (text && PICT_EMO[text]) found.push(PICT_EMO[text]);
+    for (const w of words) { const e = KEY_EMO[w] || KEY_EMO[w.replace(/s$/, '')]; if (e && !found.includes(e)) found.push(e); }
+    g.lineCap = 'round'; g.strokeStyle = '#1118'; g.lineWidth = 4;
+    g.beginPath(); g.moveTo(20, 280); for (let x = 20; x <= 300; x += 20) g.lineTo(x, 280 + (Math.random() - .5) * 8); g.stroke();
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    if (found.length === 1) { g.font = '190px serif'; g.fillText(found[0], 160, 160); }
+    else if (found.length > 1) { g.font = '140px serif'; g.fillText(found[0], 105, 175); g.font = '110px serif'; g.fillText(found[1], 230, 120); }
+    else { g.strokeStyle = pickR(PAL.slice(1, 8)); g.lineWidth = 10; g.beginPath(); g.arc(160, 150, 70, 0, 7); g.stroke(); g.fillStyle = '#111'; g.beginPath(); g.arc(135, 135, 8, 0, 7); g.arc(185, 135, 8, 0, 7); g.fill(); g.beginPath(); g.arc(160, 165, 30, .2, 2.9); g.stroke(); }
+    const u = c.toDataURL('image/jpeg', .6);
+    return /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(u) ? u : 'data:image/jpeg;base64,AAAA';
+  } catch (e) { return 'data:image/jpeg;base64,AAAA'; }
+}
+
+/* ---------- 🌀 LABERINTO: siempre distinto (3 algoritmos, tamaños, salida y colores al azar) ---------- */
+Object.assign(GAMES.maze, {
+  desc: 'Cada laberinto es NUEVO: cambia el tamaño, la forma, la salida y los colores 🎲. Muévanse con el joystick y lleguen primero al 🏆. ¡Hay atajos escondidos!',
+  start() {
+    const [W, Hh] = pickR([[20, 12], [16, 10], [24, 14], [18, 11], [22, 13], [14, 9]]);
+    const CS = Math.floor(Math.min(960 / W, 570 / Hh)), OX = Math.floor((1000 - W * CS) / 2), OY = Math.floor((600 - Hh * CS) / 2);
+    const g = new Array(W * Hh).fill(15), D = [[0, -1, 1, 4], [1, 0, 2, 8], [0, 1, 4, 1], [-1, 0, 8, 2]];
+    const inb = (x, y) => x >= 0 && y >= 0 && x < W && y < Hh;
+    const algo = pickR(['dfs', 'prim', 'tree']), s0 = rand(W * Hh);
+    if (algo === 'prim') {
+      const inM = new Array(W * Hh).fill(false), fr = [];
+      const addF = c => { const x = c % W, y = (c / W) | 0; for (const [dx, dy, b, ob] of D) if (inb(x + dx, y + dy) && !inM[(y + dy) * W + x + dx]) fr.push([c, (y + dy) * W + x + dx, b, ob]); };
+      inM[s0] = true; addF(s0);
+      while (fr.length) { const [c, n, b, ob] = fr.splice(rand(fr.length), 1)[0]; if (inM[n]) continue; g[c] &= ~b; g[n] &= ~ob; inM[n] = true; addF(n); }
+    } else {
+      const seen = new Array(W * Hh).fill(false), st = [s0], mix = algo === 'tree' ? .45 : 0; seen[s0] = true;
+      while (st.length) {
+        const k = Math.random() < mix ? rand(st.length) : st.length - 1, c = st[k], x = c % W, y = (c / W) | 0;
+        const o = D.filter(([dx, dy]) => inb(x + dx, y + dy) && !seen[(y + dy) * W + x + dx]);
+        if (!o.length) { st.splice(k, 1); continue; }
+        const [dx, dy, b, ob] = pickR(o), n = (y + dy) * W + x + dx; g[c] &= ~b; g[n] &= ~ob; seen[n] = true; st.push(n);
+      }
+    }
+    const loops = W * Hh * (.02 + Math.random() * .08);
+    for (let k = 0; k < loops; k++) { if (Math.random() < .5) { const x = rand(W - 1), y = rand(Hh), c = y * W + x; g[c] &= ~2; g[c + 1] &= ~8; } else { const x = rand(W), y = rand(Hh - 1), c = y * W + x; g[c] &= ~4; g[c + W] &= ~1; } }
+    const bfs = src => { const d = new Array(W * Hh).fill(1e9), q = [src]; d[src] = 0; for (let qi = 0; qi < q.length; qi++) { const c = q[qi], x = c % W, y = (c / W) | 0; for (const [dx, dy, b] of D) { if (g[c] & b) continue; const n = (y + dy) * W + x + dx; if (d[n] > d[c] + 1) { d[n] = d[c] + 1; q.push(n); } } } return d; };
+    const start = pickR([0, W - 1, (Hh - 1) * W, W * Hh - 1]), ds = bfs(start);
+    let goal = 0; ds.forEach((d, i) => { if (d > ds[goal]) goal = i; });
+    const dist = bfs(goal);
+    const pal = pickR([{ bg: '#0f0a24', wall: '#a78bfa' }, { bg: '#03140f', wall: '#34d399' }, { bg: '#1a0b0b', wall: '#fb923c' }, { bg: '#081226', wall: '#38bdf8' }, { bg: '#1b0f24', wall: '#f472b6' }, { bg: '#151515', wall: '#facc15' }]);
+    const ids = onlineIds(), ps = {};
+    ids.forEach((id, i) => ps[id] = { c: start, px: start % W, py: (start / W) | 0, cool: 0, k: i });
+    H.inp = {}; H.gd = { ids, g, dist, goal, ps, fin: [], sid: rid(), t: 0, W, Hh, CS, OX, OY, pal, algo };
+    setPhase('mz-ready', 3500, () => { SFX.go(); GAMES.maze.go(); }, 0, false);
+    rtLoop(null, GAMES.maze.draw);
+  },
+  step(dt) {
+    const gd = H.gd, W = gd.W; gd.t += dt;
+    for (const id of gd.ids) {
+      const p = gd.ps[id], tx = p.c % W, ty = (p.c / W) | 0;
+      p.px += (tx - p.px) * Math.min(1, dt * 18); p.py += (ty - p.py) * Math.min(1, dt * 18);
+      if (gd.fin.includes(id)) continue;
+      p.cool -= dt; if (p.cool > 0) continue;
+      const i = inp(id); if (Math.max(Math.abs(i.x), Math.abs(i.y)) < .4) continue;
+      const tryDir = (dx, dy) => { const b = dx === 1 ? 2 : dx === -1 ? 8 : dy === 1 ? 4 : 1; if (gd.g[p.c] & b) return false; p.c += dy * W + dx; return true; };
+      const hx = Math.abs(i.x) >= Math.abs(i.y);
+      const moved = hx ? (tryDir(Math.sign(i.x), 0) || (Math.abs(i.y) > .3 && tryDir(0, Math.sign(i.y)))) : (tryDir(0, Math.sign(i.y)) || (Math.abs(i.x) > .3 && tryDir(Math.sign(i.x), 0)));
+      if (!moved) continue;
+      p.cool = .1;
+      if (p.c === gd.goal) {
+        gd.fin.push(id); SFX.win(); if (gd.fin.length === 1) confetti(70); sync(); updateStrip();
+        if (onlineIn(gd.ids).every(x => gd.fin.includes(x))) { const tok = H.token; setTimeout(() => { if (tok === H.token) GAMES.maze.end(); }, 1200); }
+      }
+    }
+  },
+  draw(ctx) {
+    const gd = H.gd, { W, CS, OX, OY, pal } = gd;
+    ctx.fillStyle = pal.bg; ctx.fillRect(0, 0, 1000, 600);
+    const gx = gd.goal % W, gy = (gd.goal / W) | 0;
+    ctx.fillStyle = '#facc1544'; ctx.fillRect(OX + gx * CS, OY + gy * CS, CS, CS);
+    emo(ctx, '🏆', OX + gx * CS + CS / 2, OY + gy * CS + CS / 2 + 2, CS * .7);
+    ctx.strokeStyle = pal.wall; ctx.lineWidth = Math.max(3, CS / 8); ctx.lineCap = 'round'; ctx.beginPath();
+    for (let c = 0; c < gd.g.length; c++) {
+      const x = OX + (c % W) * CS, y = OY + ((c / W) | 0) * CS, v = gd.g[c];
+      if (v & 1) { ctx.moveTo(x, y); ctx.lineTo(x + CS, y); }
+      if (v & 8) { ctx.moveTo(x, y); ctx.lineTo(x, y + CS); }
+      if ((c % W) === W - 1 && (v & 2)) { ctx.moveTo(x + CS, y); ctx.lineTo(x + CS, y + CS); }
+      if (((c / W) | 0) === gd.Hh - 1 && (v & 4)) { ctx.moveTo(x, y + CS); ctx.lineTo(x + CS, y + CS); }
+    }
+    ctx.stroke();
+    for (const id of gd.ids) {
+      const p = gd.ps[id], pp = pl(id), o = [[0, 0], [-1, -1], [1, 1], [-1, 1], [1, -1], [0, -1], [0, 1], [-1, 0]][p.k % 8];
+      const r = CS * .34, x = OX + p.px * CS + CS / 2 + o[0] * CS * .18, y = OY + p.py * CS + CS / 2 + o[1] * CS * .18;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = pp?.color || '#888'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = '#fff'; ctx.stroke();
+      emo(ctx, pp?.emoji || '?', x, y + 1, r * 1.15);
+    }
+  },
+});
+
+/* ---------- 🔍 ¿DÓNDE ESTÁ?: escenas al azar ---------- */
+GAMES.find.sub = function () {
+  const gd = H.gd; gd.r++;
+  const th = pickU(FIND_THEMES, 'find'); gd.th = { n: th.n, t: pickR(th.ts) };
+  const cols = 20 + rand(10), rows = Math.round(cols * .6), cw = 1000 / cols, ch = 600 / rows, base = Math.min(cw, ch);
+  const items = [];
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) if (Math.random() < .94) items.push({ x: x * cw + cw / 2 + (Math.random() - .5) * cw * .4, y: y * ch + ch / 2 + (Math.random() - .5) * ch * .4, e: pickR(th.d), s: base * (.72 + Math.random() * .38), r: (Math.random() - .5) * 1.2 });
+  const cand = items.filter(it => it.x > 60 && it.x < 940 && it.y > 60 && it.y < 540), tgt = pickR(cand);
+  tgt.e = gd.th.t; gd.target = tgt;
+  const sc = document.createElement('canvas'); sc.width = 1000; sc.height = 600;
+  const c = sc.getContext('2d'), bg = pickR(['#1e293b', '#14532d', '#1e1b4b', '#3f1d38', '#0c4a6e', '#422006']);
+  c.fillStyle = bg; c.fillRect(0, 0, 1000, 600);
+  for (const it of shuffle(items)) { c.save(); c.translate(it.x, it.y); c.rotate(it.r); emo(c, it.e, 0, 0, it.s); c.restore(); }
+  gd.scene = sc; gd.ps = {}; gd.found = [];
+  spreadStart(gd.ids, 500, 300, 150).forEach(([id, x, y]) => gd.ps[id] = { x, y, stun: 0, lb: inp(id).b, miss: 0 });
+  gd.sid = rid();
+  setPhase('find-ready', 3500, () => { SFX.go(); GAMES.find.go(); }, 0, false);
+};
+
+/* ---------- 🪢 SALTA LA CUERDA: ahora revisa cuando la cuerda pasa por los PIES ---------- */
+Object.assign(GAMES.jump, {
+  start() {
+    const ids = onlineIds(), ps = {}, n = ids.length;
+    ids.forEach((id, i) => ps[id] = { x: n === 1 ? 500 : 200 + i * (600 / (n - 1)), airT: -9, alive: true, jumps: 0 });
+    H.gd = { ids, ps, ph: 0, t: 0, period: 2.1, out: [], sid: rid(), beat: -1 };
+    setPhase('jp-ready', 3500, () => { SFX.go(); GAMES.jump.go(); }, 0, false);
+    rtLoop(null, GAMES.jump.draw);
+  },
+  onAct(p, m) {
+    const gd = H.gd; if (H.phase !== 'jp-go' || m.a !== 'jump' || !inGame(p)) return;
+    const s = gd.ps[p.id]; if (!s.alive || gd.t - s.airT < .62) return;
+    s.airT = gd.t; beep(500, .06, 'triangle', .05);
+  },
+  step(dt) {
+    const gd = H.gd; gd.t += dt;
+    gd.period = Math.max(.75, 2.1 - gd.t * .03);
+    const prev = gd.ph; gd.ph += dt / gd.period;
+    const toBottom = ((1.5 - (gd.ph % 1)) % 1) * gd.period, cyc = Math.floor(gd.ph + .5);
+    if (toBottom < .45 && gd.beat !== cyc) { gd.beat = cyc; bcast({ t: 'live', kind: 'beat', ms: Math.round(toBottom * 1000) }, gd.ids.filter(id => gd.ps[id].alive)); }
+    if (Math.floor(prev + .5) < Math.floor(gd.ph + .5)) {
+      const hit = [];
+      for (const id of gd.ids) { const s = gd.ps[id]; if (!s.alive) continue; const a = gd.t - s.airT; if (a >= 0 && a <= .62) s.jumps++; else hit.push(id); }
+      beep(240, .07, 'sine', .05);
+      if (hit.length) { hit.forEach(id => { gd.ps[id].alive = false; gd.out.push(id); }); SFX.bad(); shakeScreen(); sync(); updateStrip(); }
+      const left = gd.ids.filter(id => gd.ps[id].alive).length;
+      if (!gd.ending && ((gd.ids.length > 1 && left <= 1) || left === 0)) { gd.ending = true; const tok = H.token; setTimeout(() => { if (tok === H.token) GAMES.jump.end(); }, 1200); }
+    }
+  },
+  draw(ctx) {
+    const gd = H.gd, a = gd.ph * Math.PI * 2, ground = 520;
+    const g = ctx.createLinearGradient(0, 0, 0, 600); g.addColorStop(0, '#38bdf8'); g.addColorStop(1, '#a5f3fc');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 1000, 600);
+    ctx.fillStyle = '#16a34a'; ctx.fillRect(0, ground, 1000, 80);
+    const ry = 290 - Math.cos(a) * 250, low = ry > 420;
+    ctx.fillStyle = `rgba(0,0,0,${Math.max(0, (ry - 300) / 600)})`; ctx.fillRect(70, ground + 2, 860, 10);
+    const rope = () => { ctx.strokeStyle = low ? '#dc2626' : '#7c2d12'; ctx.lineWidth = 10; ctx.beginPath(); ctx.moveTo(70, 300); ctx.quadraticCurveTo(500, ry * 2 - 300, 930, 300); ctx.stroke(); };
+    if (!low) rope();
+    for (const id of gd.ids) {
+      const s = gd.ps[id], pp = pl(id), air = gd.t - s.airT;
+      const up = s.alive && air >= 0 && air <= .62 ? Math.sin(air / .62 * Math.PI) * 120 : 0;
+      ctx.fillStyle = '#0003'; ctx.beginPath(); ctx.ellipse(s.x, ground + 6, 30 - up / 8, 8, 0, 0, 7); ctx.fill();
+      ctx.globalAlpha = s.alive ? 1 : .35; emo(ctx, s.alive ? (pp?.emoji || '?') : '🤕', s.x, ground - 34 - up, 60); ctx.globalAlpha = 1;
+      nameTag(ctx, `${pp?.name || ''} · ${s.jumps}`, s.x, ground + 40, 15);
+    }
+    if (low) rope();
+    emo(ctx, '🧍', 50, 330, 70); emo(ctx, '🧍', 950, 330, 70);
+    nameTag(ctx, `Velocidad x${(2.1 / gd.period).toFixed(1)}`, 110, 30, 20);
+    if (H.phase === 'jp-go') { const tb = ((1.5 - (gd.ph % 1)) % 1) * gd.period; if (tb < .35) nameTag(ctx, '¡SALTEN!', 500, 90, 54); }
+  },
+});
+
+/* ---------- 🐹 DALE AL TOPO: los topos salen también en el cel ---------- */
+GAMES.mole.sync9 = function () { const gd = H.gd; bcast({ t: 'live', kind: 'mole', h: gd.holes.map(h => !h ? 0 : h.hit ? 'x' + (pl(h.hit)?.emoji || '') : h.type) }); };
+GAMES.mole.view = function (p) {
+  if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
+  if (H.phase === 'mole-ready') return { screen: 'msg', big: '🔨', title: '¡Prepará el martillo!', text: 'Los topos salen en tu cel y en la tele. ¡Tocalos!' };
+  if (H.phase === 'mole-go') return { screen: 'grid9', key: 'mg' + H.gd.sid };
+  return watch();
+};
+
+/* ---------- ✋ BASTA: los jugadores juzgan las palabras ---------- */
+(() => {
+  const B = GAMES.basta, oView = B.view, oAct = B.onAct, oRender = B.render, oDone = B.isDone;
+  B.desc = 'Sale una letra y llenan nombre, animal y más. El primero que termina grita ¡BASTA! Después TODOS juzgan las palabras de los demás 👎 para que nadie haga trampa.';
+  B.score = function () {
+    if (!['b-write', 'b-stop'].includes(H.phase)) return;
+    const gd = H.gd, L = norm(gd.letter); gd.items = []; gd.jv = {};
+    gd.ids.forEach(id => gd.cats.forEach((_, c) => { const a = clean((gd.ans[id] || [])[c] || '', 24); if (a) { const n = norm(a); gd.items.push({ i: gd.items.length, id, c, a, letterOk: n.length >= 2 && n[0] === L }); } }));
+    if (!gd.items.some(x => x.letterOk)) return B.finalScore();
+    setPhase('b-judge', 50000, () => GAMES.basta.finalScore(), 1500);
+  };
+  B.judgeItems = id => H.gd.items.filter(x => x.id !== id && x.letterOk).map(x => ({ i: x.i, c: x.c, a: x.a }));
+  B.isDone = id => H.phase === 'b-judge' ? H.gd.jv[id] != null : oDone(id);
+  B.view = function (p) {
+    const gd = H.gd;
+    if (H.phase === 'b-judge') {
+      if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
+      if (gd.jv[p.id]) return done('¡Veredicto enviado! ⚖️');
+      const its = B.judgeItems(p.id);
+      if (!its.length) return done('No hay palabras para juzgar 😅');
+      return { screen: 'judge', key: 'bj' + H.token, letter: gd.letter, cats: gd.cats, items: its, deadline: H.deadline };
+    }
+    return oView.call(B, p);
+  };
+  B.onAct = function (p, m) {
+    const gd = H.gd;
+    if (H.phase === 'b-judge') {
+      if (m.a !== 'judge' || !inGame(p) || gd.jv[p.id] || !Array.isArray(m.rej)) return;
+      const allowed = new Set(B.judgeItems(p.id).map(x => x.i));
+      gd.jv[p.id] = m.rej.map(x => x | 0).filter(x => allowed.has(x)); SFX.pop();
+      checkAll(id => gd.jv[id] != null || !B.judgeItems(id).length, () => GAMES.basta.finalScore());
+      return;
+    }
+    return oAct.call(B, p, m);
+  };
+  B.finalScore = function () {
+    if (!['b-write', 'b-stop', 'b-judge'].includes(H.phase)) return;
+    const gd = H.gd;
+    gd.items.forEach(x => {
+      const voters = Object.keys(gd.jv).filter(v => v !== x.id), no = voters.filter(v => gd.jv[v].includes(x.i)).length;
+      x.no = no; x.valid = x.letterOk && !(voters.length && no * 2 > voters.length);
+    });
+    gd.tab = {}; gd.tot = {};
+    gd.ids.forEach(id => { gd.tot[id] = 0; gd.tab[id] = gd.cats.map((_, c) => {
+      const x = gd.items.find(y => y.id === id && y.c === c);
+      if (!x) return { a: '', pts: 0 };
+      const rep = x.valid && gd.items.some(y => y !== x && y.c === c && y.valid && close(y.a, x.a));
+      const pts = !x.valid ? 0 : rep ? 50 : 100; gd.tot[id] += pts;
+      return { a: x.a, pts, no: x.no, why: !x.letterOk ? '🔤' : !x.valid ? '👎' : '' };
+    }); });
+    setPhase('b-res', 6000 + gd.ids.length * 900, () => finishGame(gd.tot), 0, false); SFX.win();
+  };
+  B.render = function (ph) {
+    const gd = H.gd;
+    if (ph === 'b-judge') return `<h1 class="title-pop">⚖️ ¡A JUZGAR!</h1><div class="bigletter" style="font-size:clamp(80px,14vw,150px)">${gd.letter}</div><p class="sub">📱 En su cel, marquen 👎 las palabras inventadas, mal escritas o que no son de la categoría.<br>Si la mayoría dice 👎, esa palabra vale 0.</p>`;
+    if (ph === 'b-res') return `<h2 class="title-pop">✋ Letra <span style="color:var(--yellow)">${gd.letter}</span> · 🟩 única 100 · 🟨 repetida 50 · 🟥 0 (👎 = rechazada por los jueces)</h2>
+      <div style="overflow-x:auto;max-width:100%"><table class="btab"><tr><th></th>${gd.cats.map(c => `<th>${esc(c)}</th>`).join('')}<th>Total</th></tr>
+      ${gd.ids.slice().sort((a, b) => gd.tot[b] - gd.tot[a]).map((id, i) => `<tr class="pop" style="animation-delay:${i * .25}s"><td>${who(id)}</td>${gd.tab[id].map(x => `<td class="${x.pts === 100 ? 'u' : x.pts === 50 ? 'r' : 'x'}">${esc(x.a) || '—'}${x.why ? ' ' + x.why : ''}${x.no ? ` <small>👎${x.no}</small>` : ''}</td>`).join('')}<td class="tot">+${gd.tot[id]}</td></tr>`).join('')}</table></div>`;
+    return oRender.call(B, ph);
+  };
+})();
+
+/* ---------- 🔤 PALABRA REVUELTA: dificultad que sube ---------- */
+GAMES.anagram.next = function () {
+  const gd = H.gd; gd.i++;
+  const [mn, mx] = [[4, 6], [6, 8], [7, 13]][Math.min(gd.i - 1, 2)];
+  H.used.an = H.used.an || new Set();
+  let pool = ANAGRAMS.filter(w => w.length >= mn && w.length <= mx && !H.used.an.has(w)); if (!pool.length) { H.used.an.clear(); pool = ANAGRAMS.filter(w => w.length >= mn && w.length <= mx); }
+  gd.word = pickR(pool); H.used.an.add(gd.word);
+  let s, best = null, bestSame = 99;
+  for (let k = 0; k < 30; k++) { s = shuffle([...gd.word]).join(''); const same = [...s].filter((c, i) => c === gd.word[i]).length; if (s !== gd.word && same < bestSame) { best = s; bestSame = same; } }
+  gd.scr = best || s; gd.sol = []; gd.hint = 0;
+  setPhase('an-go', 30000, () => GAMES.anagram.reveal(), 500);
+  const tok = H.token;
+  setTimeout(() => { if (tok === H.token) { gd.hint = 1; const h = $('#anh'); if (h) h.innerHTML = `💡 Empieza con <b>${gd.word[0]}</b> y termina con <b>${gd.word[gd.word.length - 1]}</b>`; } }, 14000);
+  A({ targets: '.tile', translateY: [-120, 0], rotate: () => window.anime ? anime.random(-30, 30) : 0, opacity: [0, 1], delay: anime_stagger(70), duration: 700, easing: 'easeOutBounce' });
+};
+
+/* ================== PANTALLAS DEL CEL (más cómodas) ================== */
+Object.assign(XS, {
+  joy(v) {
+    app.innerHTML = shell(`<div class="jhint">${esc(v.hint || 'Tocá y arrastrá para moverte')}</div><div class="jarea ${v.btn ? 'hasbtn' : ''}" id="jz"><div class="jbase idle" id="jbase"><div class="knob" id="knob"></div></div></div>${v.btn ? `<button class="actbtn" id="act"><span class="albl">${esc(v.btn)}</span><span class="cdov" id="cdov"></span></button>` : ''}`);
+    app.firstElementChild.classList.add('joy');
+    const zone = $('#jz'), base = $('#jbase'), knob = $('#knob');
+    let x = 0, y = 0, b = 0, id = null, cx = 0, cy = 0, lx = 9, ly = 9, lb = -1, ls = 0, coolUntil = 0;
+    const R = () => base.offsetWidth / 2;
+    const place = (px, py) => { const z = zone.getBoundingClientRect(), r = R(); cx = Math.max(z.left + r, Math.min(z.right - r, px)); cy = Math.max(z.top + r, Math.min(z.bottom - r, py)); base.style.left = (cx - z.left) + 'px'; base.style.top = (cy - z.top) + 'px'; };
+    const upd = e => { const m = R() * .72; let dx = e.clientX - cx, dy = e.clientY - cy; const d = Math.hypot(dx, dy); if (d > m) { dx = dx / d * m; dy = dy / d * m; } x = dx / m; y = dy / m; knob.style.transform = `translate(${dx}px,${dy}px)`; };
+    zone.addEventListener('pointerdown', e => { e.preventDefault(); if (id !== null) return; id = e.pointerId; try { zone.setPointerCapture(id); } catch (er) {} place(e.clientX, e.clientY); base.classList.remove('idle'); upd(e); });
+    zone.addEventListener('pointermove', e => { if (e.pointerId === id) { e.preventDefault(); upd(e); } });
+    const rel = e => { if (e.pointerId !== id) return; id = null; x = y = 0; knob.style.transform = ''; base.classList.add('idle'); base.style.left = ''; base.style.top = ''; };
+    zone.addEventListener('pointerup', rel); zone.addEventListener('pointercancel', rel);
+    const act = $('#act'), ov = $('#cdov');
+    const cool = (ms, lbl) => {
+      coolUntil = Date.now() + ms; act.classList.add('cool');
+      const tick = () => { const left = coolUntil - Date.now(); if (left <= 0) { act.classList.remove('cool'); ov.textContent = ''; if (navigator.vibrate) navigator.vibrate(15); return; } ov.style.setProperty('--p', (left / ms * 100) + '%'); ov.textContent = (lbl ? lbl + ' ' : '') + (left / 1000).toFixed(1); P.timers.push(setTimeout(tick, 80)); };
+      tick();
+    };
+    if (act) act.addEventListener('pointerdown', e => {
+      e.preventDefault(); if (Date.now() < coolUntil) { if (navigator.vibrate) navigator.vibrate(8); return; }
+      b++; act.classList.remove('hit'); void act.offsetWidth; act.classList.add('hit'); if (navigator.vibrate) navigator.vibrate(25);
+      if (v.cd) cool(v.cd * 1000);
+    });
+    P.onLive = m => { if (m.kind === 'lock' && act) cool(m.ms, '🥶'); };
+    P.timers.push(setInterval(() => {
+      const rx = Math.round(x * 100) / 100, ry = Math.round(y * 100) / 100, now = Date.now();
+      if (rx !== lx || ry !== ly || b !== lb || now - ls > 400) { lx = rx; ly = ry; lb = b; ls = now; send({ t: 'act', a: 'joy', x: rx, y: ry, b }); }
+    }, 45));
+  },
+  duelboard(v) {
+    const C4 = v.kind === 'c4', S = v.sym;
+    const grid = C4 ? `<div class="pboard c4">${v.cells.map((x, i) => `<button class="c4c" data-i="${i}" ${!v.myTurn || v.cells[i % 7] ? 'disabled' : ''}>${S[x]}</button>`).join('')}</div><p class="hint">👆 Tocá cualquier hoyo de la columna donde querés soltar la ficha</p>`
+      : `<div class="pboard ttt">${v.cells.map((x, i) => `<button data-i="${i}" ${!v.myTurn || x ? 'disabled' : ''}>${S[x]}</button>`).join('')}</div>`;
+    app.innerHTML = shell(`<div class="turnlbl ${v.myTurn ? 'me' : ''}">${v.myTurn ? `¡TU TURNO! Sos ${S[v.me]}` : `Turno de ${esc(v.opp)}…`}</div>${grid}<p class="hint">Contra ${esc(v.opp)}</p>`, v.myTurn);
+    const btns = [...app.querySelectorAll('.pboard [data-i]')];
+    if (C4) {
+      const hl = col => btns.forEach(b => b.classList.toggle('hl', col != null && (+b.dataset.i) % 7 === col));
+      btns.forEach(b => {
+        b.addEventListener('pointerenter', () => { if (v.myTurn) hl((+b.dataset.i) % 7); });
+        b.addEventListener('pointerdown', () => { if (v.myTurn) hl((+b.dataset.i) % 7); });
+        b.onclick = () => { if (b.disabled) return; const col = (+b.dataset.i) % 7; send({ t: 'act', a: 'move', i: col }); btns.forEach(x => x.disabled = true); hl(col); SFX.pop(); };
+      });
+    } else btns.forEach(b => b.onclick = () => { if (b.disabled) return; send({ t: 'act', a: 'move', i: +b.dataset.i }); btns.forEach(x => x.disabled = true); SFX.pop(); });
+  },
+  grid9(v) {
+    const ICON = { mole: '🐹', gold: '⭐', bomb: '💣' };
+    app.innerHTML = shell(`<div class="c-hint">🔨 ¡Dale a los topos! ⭐ = +3 · 💣 = −2</div><div class="pgrid" id="pg">${[0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => `<button data-i="${i}"><span></span></button>`).join('')}</div>`);
+    const bs = [...app.querySelectorAll('#pg button')]; let lockUntil = 0;
+    bs.forEach(b => b.addEventListener('pointerdown', e => {
+      e.preventDefault(); if (Date.now() < lockUntil) return;
+      send({ t: 'act', a: 'hit', i: +b.dataset.i }); b.classList.add('f'); setTimeout(() => b.classList.remove('f'), 120); if (navigator.vibrate) navigator.vibrate(15);
+    }));
+    P.onLive = m => {
+      if (m.kind === 'mole') m.h.forEach((s, i) => { const sp = bs[i].firstChild, nv = !s ? '' : typeof s === 'string' && s[0] === 'x' ? '💥' + s.slice(1) : ICON[s] || ''; if (sp.textContent !== nv) { sp.textContent = nv; bs[i].className = s && s[0] !== 'x' ? 'up ' + s : ''; } });
+      if (m.kind === 'lock') { lockUntil = Date.now() + m.ms; const pg = $('#pg'); pg.classList.add('locked'); setTimeout(() => pg.classList.remove('locked'), m.ms); if (navigator.vibrate) navigator.vibrate(60); }
+    };
+  },
+  jump(v) {
+    app.innerHTML = shell(`<div class="c-hint">Saltá cuando la cuerda pase por los pies 👣 (el círculo te ayuda)</div><div class="jwrap"><div class="beat" id="beat"></div><button class="tapbtn" id="jb" style="background:radial-gradient(circle at 35% 30%,#fdba74,#f97316 55%,#c2410c);box-shadow:0 14px 0 #7c2d12">⬆️<br>¡SALTÁ!</button></div>`);
+    const jb = $('#jb'), bt = $('#beat');
+    jb.addEventListener('pointerdown', e => { e.preventDefault(); send({ t: 'act', a: 'jump' }); jb.classList.remove('hit'); void jb.offsetWidth; jb.classList.add('hit'); if (navigator.vibrate) navigator.vibrate(20); });
+    jb.addEventListener('contextmenu', e => e.preventDefault());
+    P.onLive = m => { if (m.kind !== 'beat') return; bt.style.transition = 'none'; bt.style.transform = 'translate(-50%,-50%) scale(1.9)'; bt.style.opacity = '1'; void bt.offsetWidth; bt.style.transition = `transform ${m.ms}ms linear, opacity .25s ${m.ms}ms`; bt.style.transform = 'translate(-50%,-50%) scale(1)'; bt.style.opacity = '0'; };
+  },
+  judge(v) {
+    app.innerHTML = shell(`<div class="c-prompt small">⚖️ Letra <span class="bl">${esc(v.letter)}</span><br>Tocá 👎 las palabras que <b>NO valen</b>: inventadas, mal escritas o que no son de esa categoría.</div>
+      <div class="jlist">${v.cats.map((c, ci) => { const its = v.items.filter(x => x.c === ci); return its.length ? `<div class="jcat">${esc(c)}</div>` + its.map(x => `<button class="jrow" data-i="${x.i}"><span>${esc(x.a)}</span><b>👍</b></button>`).join('') : ''; }).join('')}</div>
+      <button class="btn big green" id="bJ">Listo ✅</button>`, true);
+    const rej = new Set(); let sent = false;
+    app.querySelectorAll('.jrow').forEach(r => r.onclick = () => { const i = +r.dataset.i; if (rej.has(i)) { rej.delete(i); r.classList.remove('no'); r.lastChild.textContent = '👍'; } else { rej.add(i); r.classList.add('no'); r.lastChild.textContent = '👎'; } if (navigator.vibrate) navigator.vibrate(10); });
+    const go = () => { if (sent) return; sent = true; send({ t: 'act', a: 'judge', rej: [...rej] }); $('#bJ').disabled = true; $('#bJ').textContent = 'Enviado ⚖️'; };
+    $('#bJ').onclick = go;
+    if (P.deadline) P.timers.push(setTimeout(go, Math.max(0, P.deadline - Date.now() - 500)));
+  },
+});
 
 boot();
 </script>
