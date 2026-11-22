@@ -12,3 +12,9 @@ dice/     Boardgame Pack (dados)
 deck/     Boardgame Pack (cartas y fichas)
 space/    Simple Space
 marbles/  Rolling Ball Assets
+--- Agregado en v17 (todo CC0, Kenney.nl) ---
+domino/   Domino Pack (reducido a 112x224)
+shapes/   Shape Characters
+scribble/ Scribble Platformer Expansion (decoración de la carrera de canicas)
+bricks/   Toy Brick Pack (piezas blancas, se pintan del color de cada jugador)
+dungeon/  Scribble Dungeons (tema de calabozo del laberinto)
