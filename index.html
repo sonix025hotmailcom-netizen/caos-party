@@ -597,6 +597,44 @@ body.isctrl::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .colpick .sw.custom::after{content:'+';position:absolute;inset:0;display:grid;place-items:center;font:900 22px Nunito;color:#fff;text-shadow:0 2px 0 #000a;pointer-events:none}
 .ctrl .colpick{margin-top:14px;max-width:340px}
 .ctrl .colpick .sw{width:34px;height:34px}
+/* v14: closet y regalos */
+.closet{width:100%;max-width:360px;margin:14px auto 0;background:#ffffff12;border:3px solid var(--ink);border-radius:20px;padding:10px 10px 12px;box-shadow:0 5px 0 var(--ink)}
+.cl-head{display:flex;justify-content:space-between;align-items:center;font:900 16px Nunito,sans-serif;margin:0 4px 8px}.cl-head span{font-size:13px;opacity:.75;background:#0004;border-radius:99px;padding:2px 9px}
+.cl-tabs{display:flex;gap:6px;margin-bottom:9px}
+.cl-tab{flex:1;border:2px solid var(--ink);border-radius:12px;background:#0003;color:#fff;font:800 13px Nunito,sans-serif;padding:7px 0;cursor:pointer}
+.cl-tab.on{background:var(--lemon);color:var(--ink)}
+.cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:7px}
+.cl-it{display:flex;flex-direction:column;align-items:center;gap:2px;border:2px solid transparent;border-bottom:4px solid var(--rc,#ffffff30);border-radius:14px;background:#ffffff14;color:#fff;font-size:26px;padding:7px 3px 6px;cursor:pointer;min-height:70px}
+.cl-it small{font:800 10px/1.1 Nunito,sans-serif;opacity:.85;text-align:center}
+.cl-it.on{border-color:var(--lemon);background:#ffffff33;box-shadow:0 0 0 2px var(--ink)}
+.cl-it.lock{opacity:.4;filter:grayscale(.6);cursor:default}
+.cl-tip{margin-top:9px;font:700 12px Nunito,sans-serif;opacity:.8;text-align:center}
+.giftm{position:fixed;inset:0;z-index:9000;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#5b21b6f0,#0b0620fa);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:16px;overflow:auto}
+.gm-card{width:min(100%,420px);text-align:center;color:#fff}
+.gm-t{font:400 clamp(22px,6.5vw,32px) Bungee,sans-serif;color:var(--lemon);text-shadow:0 3px 0 var(--ink)}
+.gm-s{font:800 16px Nunito,sans-serif;opacity:.9;margin-top:2px}
+.gm-stage{position:relative;height:min(62vw,270px);display:grid;place-items:center;margin:12px 0}
+.gm-box{position:relative;width:150px;height:150px;cursor:pointer;filter:drop-shadow(0 10px 0 #0006)}
+.gm-body{position:absolute;left:10px;right:10px;bottom:0;height:100px;border-radius:12px;border:4px solid var(--ink);background:linear-gradient(90deg,transparent 42%,#ffd23f 42% 58%,transparent 58%),#ff3d8b}
+.gm-lid{position:absolute;left:0;right:0;top:22px;height:40px;border-radius:10px;border:4px solid var(--ink);background:linear-gradient(90deg,transparent 42%,#ffd23f 42% 58%,transparent 58%),#ff5c9f;z-index:2}
+.gm-bow{position:absolute;left:50%;top:-4px;width:64px;height:34px;margin-left:-32px;z-index:3;background:radial-gradient(circle at 25% 60%,#ffd23f 45%,transparent 47%),radial-gradient(circle at 75% 60%,#ffd23f 45%,transparent 47%)}
+.gm-prev{width:min(62vw,250px)!important;position:relative;z-index:2}
+.gm-rays{position:absolute;inset:-40px;z-index:1;pointer-events:none;opacity:0;background:repeating-conic-gradient(#ffd23f33 0 10deg,transparent 10deg 20deg);border-radius:50%;-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
+.gm-rays.on{opacity:1;animation:gmspin 9s linear infinite}
+@keyframes gmspin{to{transform:rotate(360deg)}}
+.gm-cf{position:absolute;left:50%;top:40%;width:10px;height:14px;border-radius:2px;z-index:3;pointer-events:none}
+.gm-tap{font:800 17px Nunito,sans-serif;animation:gmpulse 1s ease-in-out infinite}
+@keyframes gmpulse{50%{opacity:.5;transform:scale(.96)}}
+.gm-rar{display:inline-block;background:var(--rc);color:#fff;font:900 13px Nunito,sans-serif;letter-spacing:.06em;padding:4px 14px;border-radius:99px;border:3px solid var(--ink)}
+.gm-name{font:400 clamp(20px,6vw,28px) 'Lilita One',sans-serif;margin-top:8px}
+.gm-slot{font:700 14px Nunito,sans-serif;opacity:.75}
+.gm-btns{display:flex;flex-direction:column;gap:10px;margin-top:16px;align-items:center}
+.gm-btns .btn{min-width:220px}
+.gifttv{position:fixed;right:22px;bottom:22px;z-index:8000;display:flex;align-items:center;gap:14px;max-width:min(440px,calc(100vw - 44px));background:#1a1033;color:#fff;border:4px solid var(--ink);border-left:12px solid var(--c);border-radius:22px;padding:12px 20px 12px 14px;box-shadow:0 8px 0 var(--ink),0 0 40px #ffd23f55}
+.gt-ico{font-size:46px;width:70px;height:70px;display:grid;place-items:center;border-radius:18px;background:#ffffff14;border-bottom:5px solid var(--rc,#ffd23f)}
+.gt-l{font:800 17px Nunito,sans-serif;opacity:.9}.gt-n{font:400 24px 'Lilita One',sans-serif;line-height:1.1}.gt-s{font:700 13px Nunito,sans-serif;opacity:.7}
+@media (max-width:600px){.gifttv{right:10px;bottom:10px;left:10px;max-width:none}.gt-ico{font-size:34px;width:54px;height:54px}.gt-n{font-size:19px}}
+.mini3d{flex-shrink:0}
 /* ---------- v12: escala automática para cualquier pantalla ---------- */
 :root{--z:1;--vh:calc(1vh / var(--z));--vw:calc(1vw / var(--z));--dvh:calc(1dvh / var(--z))}
 #app>*{zoom:var(--z)}
@@ -4308,12 +4346,13 @@ const Stage3D = (() => {
       m.traverse(o => { if (o.isMesh) { o.castShadow = true; if (o.material && o.material.name === 'Main') { o.material = o.material.clone(); o.material.color.set(p.color); o.material.roughness = .35; } } });
       m.scale.setScalar(.42); mixer = new T.AnimationMixer(m); gltf.animations.forEach(cl => acts[cl.name] = mixer.clipAction(cl));
     }
+    if (!cg && typeof dressRobot === 'function') dressRobot(m, p.eq, T);
     const g = new T.Group(); g.add(m); const b = badge(p); g.add(b);
-    const by = cg ? (ck === 'Panda' ? 1.6 : 1.95) : 2.35;
+    const by = (cg ? (ck === 'Panda' ? 1.6 : 1.95) : 2.35) + (!cg && p.eq && p.eq.h && typeof ITEMS !== 'undefined' && ITEMS[p.eq.h] ? (ITEMS[p.eq.h].tall || .25) : 0);
     const a = { by, g, m, mixer, acts, badge: b, cur: null, target: new T.Vector3(), rot: 0, seed: Math.random() * 6, key: akey(p) };
     S.scene.add(g); return a;
   }
-  function akey(p) { return p.color + p.emoji + p.name + (typeof charOf === 'function' ? charOf(p) + (CHAR_DONE[charOf(p)] ? 1 : 0) : ''); }
+  function akey(p) { return p.color + p.emoji + p.name + (p.eq ? JSON.stringify(p.eq) : '') + (typeof charOf === 'function' ? charOf(p) + (CHAR_DONE[charOf(p)] ? 1 : 0) : ''); }
   function play(a, name, once, then) {
     const next = a.acts[name] || (typeof ANIM_ALIAS !== 'undefined' && a.acts[ANIM_ALIAS[name]]); if (!next || a.cur === next) return;
     next.reset(); next.setLoop(once ? S.T.LoopOnce : S.T.LoopRepeat); next.clampWhenFinished = !!once;
@@ -5240,7 +5279,7 @@ const C3D = (() => {
   return { libs, load, make, prop, get T() { return base && base.T; } };
 })();
 function preloadChars(list) { list.forEach(k => C3D.load(charURL(k)).catch(() => {})); }
-const tintFor = (g, id) => /robot\.glb/.test(g.userData.url || '') ? pl(id)?.color : null;
+const tintFor = (g, id) => (window._dressId = id, /robot\.glb/.test(g.userData.url || '') ? pl(id)?.color : null);
 const hFor = (g, base) => /robot\.glb/.test(g.userData.url || '') ? base * 1.05 : /Panda/.test(g.userData.url || '') ? base * .82 : base;
 
 /* ---------- el escenario (lobby / podio / cel) usa los personajes elegidos ---------- */
@@ -5802,6 +5841,376 @@ const preview = (el, color) => { if (el) Stage3D.mount(el, [{ id: 'me', name: P.
     });
   };
 })();
+
+/* ================== v14 — PREMIOS: REGALO SORPRESA AL GANADOR + CLOSET DEL ROBOT ================== */
+const RAR = { c: { n: 'Común', col: '#94a3b8', w: 50 }, r: { n: 'Raro', col: '#3b82f6', w: 30 }, e: { n: 'Épico', col: '#a855f7', w: 15 }, l: { n: 'Legendario', col: '#f59e0b', w: 5 } };
+const SLOTS = { h: 'Cabeza', f: 'Cara', b: 'Espalda' };
+/* cada objeto se arma con three.js en unidades del robot (mide ~4.85). h=cabeza (sobre la coronilla), f=cara (frente a los ojos), b=espalda */
+const ITEMS = {
+  party:   { s: 'h', r: 'c', n: 'Gorro de fiesta', e: '🥳', tall: .45 },
+  cap:     { s: 'h', r: 'c', n: 'Gorra', e: '🧢', tall: .15 },
+  antenna: { s: 'h', r: 'c', n: 'Antena con foco', e: '📡', tall: .35 },
+  chef:    { s: 'h', r: 'r', n: 'Gorro de chef', e: '👨‍🍳', tall: .45 },
+  cowboy:  { s: 'h', r: 'r', n: 'Sombrero vaquero', e: '🤠', tall: .3 },
+  horns:   { s: 'h', r: 'r', n: 'Cuernos de diablillo', e: '😈', tall: .25 },
+  tophat:  { s: 'h', r: 'e', n: 'Sombrero de copa', e: '🎩', tall: .5 },
+  crown:   { s: 'h', r: 'e', n: 'Corona dorada', e: '👑', tall: .3 },
+  halo:    { s: 'h', r: 'e', n: 'Aureola', e: '😇', tall: .35 },
+  propeller: { s: 'h', r: 'l', n: 'Gorrito con hélice', e: '🚁', tall: .35 },
+  shades:  { s: 'f', r: 'c', n: 'Lentes oscuros', e: '🕶️' },
+  mustache:{ s: 'f', r: 'c', n: 'Bigotón', e: '🥸' },
+  hearts:  { s: 'f', r: 'r', n: 'Lentes de corazón', e: '😍' },
+  mask:    { s: 'f', r: 'r', n: 'Antifaz', e: '🦸' },
+  visor:   { s: 'f', r: 'e', n: 'Visor láser', e: '🔴' },
+  monocle: { s: 'f', r: 'l', n: 'Monóculo de lujo', e: '🧐' },
+  pack:    { s: 'b', r: 'c', n: 'Mochila', e: '🎒' },
+  cape:    { s: 'b', r: 'r', n: 'Capa de héroe', e: '🦸‍♂️' },
+  bat:     { s: 'b', r: 'e', n: 'Alas de murciélago', e: '🦇' },
+  wings:   { s: 'b', r: 'e', n: 'Alas de ángel', e: '🪽' },
+  jet:     { s: 'b', r: 'l', n: 'Jetpack', e: '🚀' },
+};
+const ITEM_IDS = Object.keys(ITEMS);
+const cleanEq = q => { const o = { h: null, f: null, b: null }; if (q && typeof q === 'object') for (const k in o) if (ITEMS[q[k]] && ITEMS[q[k]].s === k) o[k] = q[k]; return o; };
+const eqEmpty = q => !q || (!q.h && !q.f && !q.b);
+
+function buildItem(T, id) {
+  const G = new T.Group(), now = () => performance.now() / 1000;
+  const mat = (c, o = {}) => new T.MeshStandardMaterial(Object.assign({ color: c, roughness: .45, metalness: .1, flatShading: !!o.flat }, o.m || {}));
+  const gold = () => mat('#ffcc33', { m: { metalness: .85, roughness: .25, emissive: '#7a4b00', emissiveIntensity: .35 } });
+  const add = (geo, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => { const me = new T.Mesh(geo, m); me.position.set(x, y, z); me.rotation.set(rx, ry, rz); me.castShadow = true; G.add(me); return me; };
+  const shape = (pts, depth, bev = .04) => { const sh = new T.Shape(); sh.moveTo(pts[0][0], pts[0][1]); pts.slice(1).forEach(p => p.length > 2 ? sh.bezierCurveTo(...p) : sh.lineTo(p[0], p[1])); return new T.ExtrudeGeometry(sh, { depth, bevelEnabled: true, bevelSize: bev, bevelThickness: bev, bevelSegments: 2 }); };
+  const heart = s => shape([[0, -.9 * s], [-.1 * s, -.8 * s, -1 * s, -.2 * s, -1 * s, .25 * s], [-1 * s, .75 * s, -.25 * s, .95 * s, 0, .45 * s], [.25 * s, .95 * s, 1 * s, .75 * s, 1 * s, .25 * s], [1 * s, -.2 * s, .1 * s, -.8 * s, 0, -.9 * s]], .08, .03);
+  switch (id) {
+    case 'party': {
+      const c = add(new T.ConeGeometry(.55, 1.3, 24), mat('#ff3d8b'), 0, .65, 0);
+      const tex = document.createElement('canvas'); tex.width = 64; tex.height = 64; const g = tex.getContext('2d');
+      for (let i = 0; i < 8; i++) { g.fillStyle = i % 2 ? '#ffd23f' : '#ff3d8b'; g.fillRect(0, i * 8, 64, 8); }
+      const t = new T.CanvasTexture(tex); t.colorSpace = T.SRGBColorSpace; c.material.map = t; c.material.color.set('#fff');
+      add(new T.SphereGeometry(.18, 14, 10), mat('#4cc9ff'), 0, 1.35, 0);
+      G.rotation.z = -.15; break;
+    }
+    case 'cap': {
+      add(new T.SphereGeometry(1.02, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2), mat('#2563eb'), 0, -.12, 0);
+      add(new T.CylinderGeometry(.75, .75, .07, 28, 1, false, -Math.PI / 2, Math.PI), mat('#1e3a8a'), 0, -.08, .55);
+      add(new T.SphereGeometry(.1, 10, 8), mat('#facc15'), 0, .9, 0); break;
+    }
+    case 'antenna': {
+      add(new T.CylinderGeometry(.05, .07, .9, 10), mat('#cbd5e1', { m: { metalness: .8, roughness: .3 } }), 0, .45, 0);
+      add(new T.CylinderGeometry(.22, .3, .12, 18), mat('#475569'), 0, .04, 0);
+      const b = add(new T.SphereGeometry(.2, 18, 12), mat('#ff3d3d', { m: { emissive: '#ff2020', emissiveIntensity: 1.6 } }), 0, .98, 0);
+      b.onBeforeRender = () => { b.material.emissiveIntensity = .6 + (Math.sin(now() * 6) * .5 + .5) * 1.8; }; break;
+    }
+    case 'chef': {
+      add(new T.CylinderGeometry(.62, .58, .55, 24), mat('#ffffff', { m: { roughness: .8 } }), 0, .2, 0);
+      [[0, .75, 0, .5], [.38, .65, .1, .34], [-.38, .65, .1, .34], [.15, .7, -.35, .34], [-.2, .68, .35, .32]].forEach(([x, y, z, r]) => add(new T.SphereGeometry(r, 16, 12), mat('#ffffff', { m: { roughness: .85 } }), x, y, z));
+      break;
+    }
+    case 'cowboy': {
+      const brim = add(new T.CylinderGeometry(1.45, 1.45, .06, 32), mat('#8b5a2b'), 0, 0, 0);
+      brim.scale.set(1, 1, .85);
+      add(new T.CylinderGeometry(.62, .75, .62, 24), mat('#8b5a2b'), 0, .33, 0);
+      add(new T.CylinderGeometry(.76, .76, .12, 24), mat('#3b2412'), 0, .1, 0);
+      add(new T.TorusGeometry(1.4, .07, 8, 40), mat('#7a4a22'), 0, .05, 0, Math.PI / 2).scale.set(1, .85, 1); break;
+    }
+    case 'horns': {
+      [-1, 1].forEach(sd => { const h = add(new T.ConeGeometry(.17, .65, 14), mat('#dc2626', { m: { roughness: .3 } }), sd * .5, .25, .1, 0, 0, -sd * .45); });
+      break;
+    }
+    case 'tophat': {
+      add(new T.CylinderGeometry(1.05, 1.05, .07, 32), mat('#111827', { m: { roughness: .35 } }), 0, 0, 0);
+      add(new T.CylinderGeometry(.62, .66, 1, 28), mat('#111827', { m: { roughness: .35 } }), 0, .52, 0);
+      add(new T.CylinderGeometry(.67, .67, .2, 28), mat('#e11d48'), 0, .14, 0); G.rotation.z = .1; break;
+    }
+    case 'crown': {
+      add(new T.CylinderGeometry(.7, .66, .35, 8, 1, true), gold(), 0, .17, 0).material.side = T.DoubleSide;
+      for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; add(new T.ConeGeometry(.13, .32, 6), gold(), Math.sin(a) * .66, .5, Math.cos(a) * .66); add(new T.OctahedronGeometry(.08), mat(i % 2 ? '#ef4444' : '#22d3ee', { m: { emissive: i % 2 ? '#ef4444' : '#22d3ee', emissiveIntensity: .6, metalness: .3 } }), Math.sin(a) * .69, .17, Math.cos(a) * .69); }
+      break;
+    }
+    case 'halo': {
+      const h = add(new T.TorusGeometry(.7, .09, 12, 40), mat('#fff3b0', { m: { emissive: '#ffd23f', emissiveIntensity: 1.8 } }), 0, .32, 0, Math.PI / 2);
+      h.onBeforeRender = () => { h.position.y = .32 + Math.sin(now() * 2.2) * .07; }; break;
+    }
+    case 'propeller': {
+      add(new T.SphereGeometry(.85, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), mat('#facc15'), 0, -.1, 0);
+      [0, 1, 2, 3].forEach(i => add(new T.SphereGeometry(.86, 24, 12, i * Math.PI / 2, Math.PI / 4, 0, Math.PI / 2), mat(['#ef4444', '#22c55e', '#3b82f6', '#a855f7'][i]), 0, -.095, 0));
+      add(new T.CylinderGeometry(.05, .05, .35, 8), mat('#94a3b8', { m: { metalness: .8 } }), 0, .9, 0);
+      const pr = new T.Group(); pr.position.y = 1.08; G.add(pr);
+      [0, 1].forEach(k => { const bl = new T.Mesh(new T.BoxGeometry(1.5, .04, .22), mat(k ? '#ef4444' : '#3b82f6')); bl.rotation.y = k * Math.PI / 2; bl.rotation.x = .15; pr.add(bl); });
+      const hub = new T.Mesh(new T.SphereGeometry(.1, 10, 8), mat('#ffffff')); pr.add(hub);
+      hub.onBeforeRender = () => { pr.rotation.y = now() * 14; }; break;
+    }
+    case 'shades': {
+      [-1, 1].forEach(sd => add(new T.BoxGeometry(.62, .36, .08), mat('#0b0b14', { m: { metalness: .6, roughness: .15 } }), sd * .4, 0, 0));
+      add(new T.BoxGeometry(.25, .07, .06), mat('#0b0b14'), 0, .1, 0);
+      [-1, 1].forEach(sd => add(new T.BoxGeometry(.06, .06, .7), mat('#0b0b14'), sd * .72, .1, -.33)); break;
+    }
+    case 'mustache': {
+      [-1, 1].forEach(sd => { const m = add(new T.TorusGeometry(.19, .065, 10, 20, Math.PI * 1.1), mat('#3b2412', { m: { roughness: .9 } }), sd * .2, -.36, .02, 0, 0, sd > 0 ? Math.PI * 1.05 : -.15 * Math.PI); });
+      break;
+    }
+    case 'hearts': {
+      [-1, 1].forEach(sd => { const h = add(heart(.3), mat('#ff3d8b', { m: { emissive: '#ff3d8b', emissiveIntensity: .45, roughness: .2 } }), sd * .42, 0, 0); h.onBeforeRender = () => { const k = 1 + Math.max(0, Math.sin(now() * 7)) * .12; h.scale.setScalar(k); }; });
+      add(new T.BoxGeometry(.2, .06, .06), mat('#be185d'), 0, .08, .03); break;
+    }
+    case 'mask': {
+      const m = add(shape([[-.95, .05], [-.85, .3, -.5, .35, 0, .22], [.5, .35, .85, .3, .95, .05], [.85, -.3, .45, -.32, .15, -.15], [0, -.05], [-.15, -.15], [-.45, -.32, -.85, -.3, -.95, .05]], .06, .03), mat('#111827', { m: { roughness: .3 } }), 0, 0, 0);
+      [-1, 1].forEach(sd => add(new T.CircleGeometry(.16, 18), mat('#ffffff', { m: { emissive: '#ffffff', emissiveIntensity: .8 } }), sd * .45, .03, .11)); break;
+    }
+    case 'visor': {
+      add(new T.BoxGeometry(1.6, .26, .1), mat('#ff2244', { m: { emissive: '#ff2244', emissiveIntensity: 2.2, transparent: true, opacity: .85 } }), 0, 0, 0);
+      [-1, 1].forEach(sd => add(new T.CylinderGeometry(.12, .12, .14, 14), mat('#94a3b8', { m: { metalness: .8, roughness: .3 } }), sd * .85, 0, -.02, 0, 0, Math.PI / 2));
+      const sc = G.children[0]; sc.onBeforeRender = () => { sc.material.emissiveIntensity = 1.6 + Math.sin(now() * 9) * .6; }; break;
+    }
+    case 'monocle': {
+      add(new T.TorusGeometry(.27, .045, 10, 28), gold(), .42, .02, 0);
+      add(new T.CircleGeometry(.25, 24), mat('#bde0ff', { m: { transparent: true, opacity: .35, metalness: .9, roughness: .05 } }), .42, .02, -.01);
+      for (let i = 0; i < 6; i++) add(new T.TorusGeometry(.04, .015, 6, 10), gold(), .62 + i * .02, -.28 - i * .1, -.02 - i * .02, 0, Math.PI / 2 * (i % 2));
+      break;
+    }
+    case 'pack': {
+      add(new T.BoxGeometry(1.25, 1.35, .6), mat('#22c55e', { m: { roughness: .7 } }), 0, 0, -.25);
+      add(new T.BoxGeometry(.9, .55, .28), mat('#16a34a', { m: { roughness: .7 } }), 0, -.25, -.65);
+      add(new T.SphereGeometry(.63, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), mat('#22c55e', { m: { roughness: .7 } }), 0, .66, -.25).scale.set(1, .5, .5);
+      [-1, 1].forEach(sd => add(new T.BoxGeometry(.14, 1.2, .12), mat('#14532d'), sd * .45, .05, .1)); break;
+    }
+    case 'cape': {
+      const geo = new T.PlaneGeometry(1.9, 2.4, 6, 10), pos = geo.attributes.position, base = pos.array.slice();
+      const m = add(geo, mat('#e11d48', { m: { side: T.DoubleSide, roughness: .6 } }), 0, -1.05, -.35);
+      add(new T.TorusGeometry(.18, .06, 8, 16), gold(), 0, .1, .05);
+      m.onBeforeRender = () => { const t = now(); for (let i = 0; i < pos.count; i++) { const x = base[i * 3], y = base[i * 3 + 1], d = (1.2 - y) / 2.4; pos.array[i * 3 + 2] = -d * d * 1.1 - Math.sin(t * 3 + x * 2 + y * 2) * .12 * d; pos.array[i * 3] = x * (1 + d * .25); } pos.needsUpdate = true; geo.computeVertexNormals(); };
+      break;
+    }
+    case 'wings': case 'bat': {
+      const angel = id === 'wings';
+      [-1, 1].forEach(sd => {
+        const piv = new T.Group(); piv.position.set(sd * .3, .25, -.35); G.add(piv);
+        if (angel) for (let i = 0; i < 4; i++) { const f = new T.Mesh(new T.SphereGeometry(.5 - i * .05, 14, 10), mat('#ffffff', { m: { roughness: .6, emissive: '#fff7d6', emissiveIntensity: .25 } })); f.scale.set(1.5 - i * .15, .32, .15); f.position.set(sd * (.65 + i * .18), .25 - i * .28, -.1); f.rotation.z = sd * (.5 - i * .15); f.castShadow = true; piv.add(f); }
+        else { const w = new T.Mesh(shape([[0, 0], [.9, .7], [1.7, .55], [1.5, .05], [1.3, -.4], [.95, -.15], [.7, -.55], [.45, -.2], [0, -.3]], .03, .02), mat('#7c3aed', { m: { roughness: .45, emissive: '#5b21b6', emissiveIntensity: .5, side: T.DoubleSide } })); w.scale.x = sd; w.castShadow = true; piv.add(w); }
+        const ph = sd * 1.3; piv.children[0].onBeforeRender = () => { piv.rotation.y = sd * (.35 + Math.sin(now() * (angel ? 3 : 6) + ph) * .28); };
+      }); break;
+    }
+    case 'jet': {
+      const metal = mat('#cbd5e1', { m: { metalness: .85, roughness: .25 } });
+      [-1, 1].forEach(sd => {
+        add(new T.CylinderGeometry(.3, .3, 1.15, 18), metal, sd * .36, 0, -.4);
+        add(new T.ConeGeometry(.3, .35, 18), mat('#ef4444'), sd * .36, .75, -.4);
+        add(new T.CylinderGeometry(.22, .3, .2, 18), mat('#334155'), sd * .36, -.66, -.4);
+        const fl = add(new T.ConeGeometry(.2, .75, 14), mat('#ffb703', { m: { emissive: '#ff6a00', emissiveIntensity: 2.6, transparent: true, opacity: .9 } }), sd * .36, -1.15, -.4, Math.PI);
+        fl.onBeforeRender = () => { const k = .75 + Math.random() * .45; fl.scale.set(1, k, 1); fl.position.y = -.95 - k * .3; };
+      });
+      add(new T.BoxGeometry(.5, .7, .25), mat('#475569'), 0, 0, -.25); break;
+    }
+  }
+  return G;
+}
+
+/* posiciones (en unidades del robot) de cada ranura respecto al hueso donde se pega */
+const SLOT_ANCHOR = { h: ['Head', [0, 1.4, -.02], 1.1], f: ['Head', [0, .72, 1.36], 1.75], b: ['Abdomen', [0, .65, -.62], 1] };
+function dressRobot(m, eq, T0) {
+  eq = cleanEq(eq); if (eqEmpty(eq) || !m) return;
+  const T = T0 || C3D.T; if (!T) return;
+  m.updateMatrixWorld(true);
+  const mq = m.getWorldQuaternion(new T.Quaternion()), ms = m.getWorldScale(new T.Vector3()).x;
+  for (const k of ['h', 'f', 'b']) {
+    if (!eq[k]) continue;
+    const [bn, off, sc] = SLOT_ANCHOR[k];
+    let bone = null; m.traverse(o => { if (!bone && o.isBone && o.name === bn) bone = o; }); if (!bone) continue;
+    const bq = bone.getWorldQuaternion(new T.Quaternion()), bs = bone.getWorldScale(new T.Vector3()).x;
+    const hold = new T.Group(); hold.name = 'acc_' + k;
+    hold.quaternion.copy(bq.clone().invert().multiply(mq)); hold.scale.setScalar(ms / bs);
+    const it = buildItem(T, eq[k]); it.position.fromArray(off); it.scale.multiplyScalar(sc); hold.add(it);
+    hold.traverse(o => { if (o.isMesh) o.frustumCulled = false; });
+    bone.add(hold);
+  }
+}
+
+/* los juegos 3D crean robots con C3D.make(g, alto, tintFor(g,id)): tintFor deja anotado de quién es */
+(() => {
+  const om = C3D.make;
+  C3D.make = function (g, height, tint) {
+    const id = window._dressId; window._dressId = null;
+    const a = om.call(C3D, g, height, tint);
+    try { if (id && /robot\.glb/.test(g.userData.url || '') && typeof pl === 'function') { const p = pl(id); if (p && p.eq) dressRobot(a.obj, p.eq); } } catch (e) {}
+    return a;
+  };
+})();
+
+/* ---------- lado del control (celular): closet guardado en el cel ---------- */
+const myInv = () => { try { const a = JSON.parse(store.get('cp_inv') || '[]'); return Array.isArray(a) ? a.filter(x => ITEMS[x]) : []; } catch (e) { return []; } };
+const myEq = () => { try { return cleanEq(JSON.parse(store.get('cp_eq') || '{}')); } catch (e) { return cleanEq(); } };
+const saveInv = a => store.set('cp_inv', JSON.stringify([...new Set(a)]));
+const saveEq = q => { q = cleanEq(q); store.set('cp_eq', JSON.stringify(q)); P.eq = q; send({ t: 'equip', eq: q }); return q; };
+function rollItem(owned) {
+  const pool = ITEM_IDS.filter(i => !owned.includes(i)); if (!pool.length) return null;
+  const tot = pool.reduce((s, i) => s + RAR[ITEMS[i].r].w, 0); let x = Math.random() * tot;
+  for (const i of pool) { x -= RAR[ITEMS[i].r].w; if (x <= 0) return i; } return pool[pool.length - 1];
+}
+const meActor = (eq, color) => ({ id: 'me', name: P.name || '', emoji: P.emoji || '🤖', color: color || P.color || P.wantColor || '#ff4d6d', char: 'Robot', eq });
+function remountMini() { const el = $('#mini3d'); if (el) Stage3D.mount(el, [meActor(P.eq)], 'solo'); }
+
+function closetHTML(tab) {
+  const inv = myInv(), eq = P.eq || myEq();
+  const list = ITEM_IDS.filter(i => ITEMS[i].s === tab);
+  return `<div class="closet"><div class="cl-head"><b>👕 Mi closet</b><span>${inv.length}/${ITEM_IDS.length}</span></div>
+    <div class="cl-tabs">${Object.entries(SLOTS).map(([k, n]) => `<button class="cl-tab ${k === tab ? 'on' : ''}" data-tab="${k}">${n}</button>`).join('')}</div>
+    <div class="cl-grid"><button class="cl-it ${!eq[tab] ? 'on' : ''}" data-it="">🚫<small>Nada</small></button>${list.map(i => {
+      const own = inv.includes(i), it = ITEMS[i];
+      return own ? `<button class="cl-it ${eq[tab] === i ? 'on' : ''}" data-it="${i}" style="--rc:${RAR[it.r].col}">${it.e}<small>${it.n}</small></button>`
+        : `<button class="cl-it lock" disabled style="--rc:${RAR[it.r].col}">❔<small>${RAR[it.r].n}</small></button>`;
+    }).join('')}</div>${inv.length ? '' : '<div class="cl-tip">Ganá un minijuego en primer lugar para abrir regalos sorpresa 🎁</div>'}</div>`;
+}
+function wireCloset(root, tab) {
+  const box = root.querySelector('.closet'); if (!box) return;
+  box.querySelectorAll('.cl-tab').forEach(b => b.onclick = () => { box.outerHTML = closetHTML(b.dataset.tab); wireCloset(root, b.dataset.tab); SFX.pop(); });
+  box.querySelectorAll('.cl-it:not(.lock)').forEach(b => b.onclick = () => {
+    const q = Object.assign({}, P.eq || myEq()); q[tab] = b.dataset.it || null; saveEq(q);
+    box.outerHTML = closetHTML(tab); wireCloset(root, tab); remountMini(); SFX.pop(); if (navigator.vibrate) navigator.vibrate(12);
+  });
+}
+
+(() => {
+  /* el equipo viaja con el "join" */
+  const oc = connectToHost;
+  connectToHost = function () {
+    oc();
+    const c = P.conn; if (!c) return;
+    P.eq = myEq();
+    const os2 = c.send.bind(c);
+    c.send = o => os2(o && o.t === 'join' ? Object.assign({}, o, { eq: P.eq }) : o);
+  };
+  /* la vista previa de la pantalla de unirse también se viste */
+  const os = showJoin;
+  showJoin = function (code) {
+    os(code); P.eq = myEq();
+    const pv = $('#colprev'); if (pv) Stage3D.mount(pv, [meActor(P.eq, P.wantColor)], 'solo');
+    const pick = app.querySelector('.colpick');
+    if (pick) pick.addEventListener('click', () => setTimeout(() => { const v = $('#colprev'); if (v) Stage3D.mount(v, [meActor(P.eq, P.wantColor)], 'solo'); }, 30));
+    const inp = app.querySelector('.colpick input[type=color]'); if (inp) inp.addEventListener('input', () => { const v = $('#colprev'); if (v) Stage3D.mount(v, [meActor(P.eq, inp.value)], 'solo'); });
+  };
+  /* en el lobby: closet debajo de los colores */
+  let tab = 'h';
+  const orc = renderCtrl;
+  renderCtrl = function (v) {
+    orc(v);
+    if (!v || v.screen !== 'lobby') return;
+    const el = $('#mini3d'); if (!el) return;
+    if (!P.eq) P.eq = myEq();
+    remountMini();
+    const host = el.parentElement;
+    const pick = host.querySelector('.colpick');
+    if (pick && !pick.dataset.dress) { pick.dataset.dress = 1; pick.addEventListener('click', () => setTimeout(remountMini, 30)); const inp = pick.querySelector('input[type=color]'); if (inp) inp.addEventListener('input', () => setTimeout(remountMini, 30)); }
+    if (!host.querySelector('.closet')) { (pick || el).insertAdjacentHTML('afterend', closetHTML(tab)); wireCloset(host, tab); host.querySelectorAll('.cl-tab').forEach(b => b.addEventListener('click', () => tab = b.dataset.tab)); }
+  };
+  /* ¡regalo! */
+  const ow = onPlayerMsg;
+  onPlayerMsg = function (m) {
+    if (m && m.t === 'gift') { openGift(m); return; }
+    ow(m);
+  };
+})();
+
+function openGift(m) {
+  if (document.querySelector('.giftm')) return;
+  const inv = myInv(), id = rollItem(inv), it = id && ITEMS[id];
+  if (id) { inv.push(id); saveInv(inv); }
+  send({ t: 'got', id: id || '' });
+  if (navigator.vibrate) navigator.vibrate([80, 40, 80, 40, 160]);
+  const d = document.createElement('div'); d.className = 'giftm';
+  d.innerHTML = `<div class="gm-card">
+    <div class="gm-t">🏆 ¡Ganaste ${esc(m.game || 'el minijuego')}!</div>
+    <div class="gm-s">Te ganaste un regalo sorpresa</div>
+    <div class="gm-stage"><div class="gm-box" id="gmBox"><div class="gm-lid"></div><div class="gm-body"></div><div class="gm-bow"></div></div>
+      <div class="mini3d gm-prev" id="gmPrev" style="display:none"><span class="mini-fallback">${it ? it.e : '🏆'}</span></div><div class="gm-rays"></div></div>
+    <div class="gm-tap">👆 Tocá la caja para abrirla</div>
+    <div class="gm-res" style="display:none">${it ? `<div class="gm-rar" style="--rc:${RAR[it.r].col}">${RAR[it.r].n}</div><div class="gm-name">${it.e} ${esc(it.n)}</div><div class="gm-slot">Para: ${SLOTS[it.s]}</div>` : `<div class="gm-name">🏆 ¡Ya tenés todo el closet!</div><div class="gm-slot">Sos coleccionista oficial</div>`}
+      <div class="gm-btns">${it ? '<button class="btn big pink" id="gmWear">¡Ponérmelo!</button>' : ''}<button class="btn gray" id="gmClose">${it ? 'Después' : 'Cerrar'}</button></div></div></div>`;
+  document.body.appendChild(d);
+  const box = d.querySelector('#gmBox'); let opened = false;
+  if (window.gsap) { gsap.from(d.querySelector('.gm-card'), { scale: .5, opacity: 0, duration: .5, ease: 'back.out(2)' }); gsap.to(box, { rotation: 6, yoyo: true, repeat: -1, duration: .12, ease: 'sine.inOut', repeatDelay: .6 }); }
+  const close = () => { if (window.gsap) gsap.to(d, { opacity: 0, duration: .25, onComplete: () => { d.remove(); remountMini(); } }); else { d.remove(); remountMini(); } };
+  box.onclick = () => {
+    if (opened) return; opened = true; SFX.win && SFX.win();
+    if (navigator.vibrate) navigator.vibrate(120);
+    d.querySelector('.gm-tap').style.display = 'none';
+    const reveal = () => {
+      box.style.display = 'none';
+      const pv = d.querySelector('#gmPrev'); pv.style.display = '';
+      const eq = Object.assign({}, P.eq || myEq()); if (it) eq[it.s] = id;
+      Stage3D.mount(pv, [meActor(eq)], 'solo');
+      d.querySelector('.gm-rays').classList.add('on');
+      const res = d.querySelector('.gm-res'); res.style.display = '';
+      confettiDOM(d.querySelector('.gm-stage'), it ? RAR[it.r].col : '#ffd23f');
+      if (window.gsap) gsap.from(res, { y: 30, opacity: 0, duration: .45, ease: 'back.out(2)' });
+    };
+    if (window.gsap) { gsap.killTweensOf(box); const tl = gsap.timeline({ onComplete: reveal }); tl.to(box, { rotation: -12, duration: .08, yoyo: true, repeat: 5 }).to(box, { scale: 1.25, duration: .15 }).to(box.querySelector('.gm-lid'), { y: -160, rotation: -40, opacity: 0, duration: .35, ease: 'power2.out' }, '-=.05').to(box, { scale: 0, opacity: 0, duration: .2 }); }
+    else reveal();
+  };
+  d.querySelector('#gmClose').onclick = close;
+  const w = d.querySelector('#gmWear'); if (w) w.onclick = () => { const q = Object.assign({}, P.eq || myEq()); q[it.s] = id; saveEq(q); close(); };
+}
+function confettiDOM(el, col) {
+  const cols = [col, '#ff3d8b', '#ffd23f', '#4cc9ff', '#22c55e', '#ffffff'];
+  for (let i = 0; i < 46; i++) {
+    const s = document.createElement('i'); s.className = 'gm-cf'; s.style.background = cols[i % cols.length]; el.appendChild(s);
+    const a = Math.random() * Math.PI * 2, r = 90 + Math.random() * 170;
+    if (window.gsap) gsap.fromTo(s, { x: 0, y: 0, rotation: 0, opacity: 1 }, { x: Math.cos(a) * r, y: Math.sin(a) * r * .8 + 120, rotation: Math.random() * 720, opacity: 0, duration: 1.4 + Math.random() * .8, ease: 'power2.out', onComplete: () => s.remove() });
+    else setTimeout(() => s.remove(), 100);
+  }
+}
+
+/* ---------- lado del anfitrión ---------- */
+(() => {
+  const oh = onHostMsg;
+  onHostMsg = function (conn, m) {
+    if (m && (m.t === 'equip' || m.t === 'got')) {
+      const p = pl(conn._pid); if (!p || p.conn !== conn) return;
+      if (m.t === 'equip') { p.eq = cleanEq(m.eq); if (H.phase === 'lobby') renderHost(); }
+      else { const it = ITEMS[m.id]; giftTV(p, it || null, true); }
+      return;
+    }
+    oh(conn, m);
+    if (m && m.t === 'join') { const p = pl(conn._pid); if (p && m.eq) { const q = cleanEq(m.eq); if (JSON.stringify(q) !== JSON.stringify(p.eq || null)) { p.eq = q; if (H.phase === 'lobby') renderHost(); } } }
+  };
+  const of = finishGame;
+  finishGame = function (gains) {
+    const gname = H.game ? H.game.name : '';
+    of(gains);
+    try {
+      const ids = [...H.players.keys()], best = Math.max(0, ...ids.map(i => gains[i] || 0));
+      if (best <= 0) return;
+      const wins = ids.filter(i => (gains[i] || 0) === best);
+      if (wins.length > 3) return;                      // empate masivo: nadie ganó de verdad
+      wins.forEach((id, k) => {
+        const p = pl(id); if (!p) return;
+        if (p.isBot || !p.conn) {
+          const owned = Object.values(p.eq || {}).filter(Boolean), nid = rollItem(owned);
+          if (nid) { p.eq = Object.assign(cleanEq(p.eq), { [ITEMS[nid].s]: nid }); setTimeout(() => giftTV(p, ITEMS[nid], true), 900 + k * 700); }
+        } else {
+          try { p.conn.send({ t: 'gift', game: gname }); } catch (e) {}
+          setTimeout(() => giftTV(p, null, false), 900 + k * 700);
+        }
+      });
+    } catch (e) { console.warn(e); }
+  };
+})();
+
+/* anuncio en la tele */
+const giftQ = []; let giftBusy = false;
+function giftTV(p, it, opened) { giftQ.push({ p, it, opened }); if (!giftBusy) giftNext(); }
+function giftNext() {
+  const g = giftQ.shift(); if (!g) { giftBusy = false; return; } giftBusy = true;
+  const { p, it, opened } = g;
+  const d = document.createElement('div'); d.className = 'gifttv'; d.style.setProperty('--c', p.color);
+  d.innerHTML = opened && it
+    ? `<div class="gt-ico" style="--rc:${RAR[it.r].col}">${it.e}</div><div><div class="gt-l"><b>${esc(p.name)}</b> abrió su regalo</div><div class="gt-n">${esc(it.n)} <span style="color:${RAR[it.r].col}">· ${RAR[it.r].n}</span></div></div>`
+    : opened ? `<div class="gt-ico">🏆</div><div><div class="gt-l"><b>${esc(p.name)}</b> ya tiene todo el closet</div></div>`
+    : `<div class="gt-ico gt-box">🎁</div><div><div class="gt-l">¡Regalo sorpresa para</div><div class="gt-n">${esc(p.name)}!</div><div class="gt-s">Abrilo en tu cel 📱</div></div>`;
+  document.body.appendChild(d); if (SFX.pop) SFX.pop();
+  const out = () => { if (window.gsap) gsap.to(d, { x: 420, opacity: 0, duration: .35, ease: 'power2.in', onComplete: () => { d.remove(); giftNext(); } }); else { d.remove(); giftNext(); } };
+  if (window.gsap) { gsap.from(d, { x: 420, opacity: 0, duration: .5, ease: 'back.out(1.6)' }); const ic = d.querySelector('.gt-ico'); gsap.fromTo(ic, { rotation: -15 }, { rotation: 15, yoyo: true, repeat: 7, duration: .18 }); }
+  setTimeout(out, 3400);
+  if (opened && it && H.phase === 'lobby') renderHost();
+}
 
 /* ---------- escala automática de la interfaz ---------- */
 function fitUI() {
