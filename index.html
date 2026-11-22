@@ -635,6 +635,33 @@ body.isctrl::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .gt-l{font:800 17px Nunito,sans-serif;opacity:.9}.gt-n{font:400 24px 'Lilita One',sans-serif;line-height:1.1}.gt-s{font:700 13px Nunito,sans-serif;opacity:.7}
 @media (max-width:600px){.gifttv{right:10px;bottom:10px;left:10px;max-width:none}.gt-ico{font-size:34px;width:54px;height:54px}.gt-n{font-size:19px}}
 .mini3d{flex-shrink:0}
+/* v15: generala loca */
+.dctop{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin-bottom:10px}
+.dclucky{display:flex;align-items:center;gap:8px;background:#0006;border:3px solid #22c55e;border-radius:99px;padding:6px 16px;font:800 clamp(15px,1.6vw,20px) Nunito,sans-serif}
+.dclucky img{width:clamp(30px,3vw,42px)}.dclucky small{opacity:.75;font-size:.8em}
+.dcgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:clamp(8px,1.2vw,16px);width:min(100%,1300px);margin:0 auto}
+.dcp{background:#1a1033cc;border:4px solid var(--c);border-radius:20px;padding:10px 12px;box-shadow:0 6px 0 #0007;transition:transform .3s,opacity .3s}
+.dcp.done{opacity:.8}.dcp.win{transform:scale(1.04);box-shadow:0 0 0 4px #facc15,0 6px 0 #0007}
+.dcn{display:flex;justify-content:space-between;align-items:center;font:900 clamp(15px,1.5vw,20px) Nunito,sans-serif;margin-bottom:6px}.dcn span{color:var(--lemon,#facc15)}
+.dcds{display:flex;gap:6px;justify-content:center}
+.dcd{width:clamp(36px,4.2vw,58px);aspect-ratio:1;filter:drop-shadow(0 4px 0 #0007);transition:transform .2s}
+.dcd.held{transform:translateY(-8px);filter:drop-shadow(0 0 6px #facc15) drop-shadow(0 4px 0 #0007)}
+.dch{text-align:center;margin-top:6px;font:800 clamp(14px,1.4vw,18px) Nunito,sans-serif;opacity:.9}.dch.big{color:#facc15;font-family:'Lilita One',sans-serif;font-size:clamp(18px,1.9vw,26px)}
+.dclegend{margin-top:12px;text-align:center;font:700 clamp(12px,1.2vw,15px) Nunito,sans-serif;opacity:.7}
+.pdc{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:520px;margin:0 auto}
+.pdc-top{display:flex;justify-content:space-between;align-items:center;width:100%;font:900 17px Nunito,sans-serif}.pdc-top img{width:30px;vertical-align:middle}
+.pdc-dice{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%}
+.pdie{background:#ffffff12;border:3px solid transparent;border-radius:16px;padding:6px 2px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:#fff;transition:transform .15s}
+.pdie img{width:100%;max-width:74px;aspect-ratio:1;filter:drop-shadow(0 4px 0 #0007)}
+.pdie small{font:900 9px Nunito,sans-serif;letter-spacing:.04em;min-height:11px;opacity:.75}
+.pdie.held{border-color:#facc15;background:#facc1533;transform:translateY(-6px)}.pdie.held small{color:#facc15;opacity:1}
+.pdie:disabled{cursor:default}
+.pdc-hand{font:400 clamp(22px,6vw,30px) 'Lilita One',sans-serif;color:var(--lemon,#facc15);text-shadow:0 3px 0 #0008;text-align:center}
+.pdc-roll{width:100%;max-width:360px}.pdc-roll small{font-size:.6em;opacity:.85}.pdc-stand{width:100%;max-width:360px}
+.pdc-done{font:900 20px Nunito,sans-serif;background:#22c55e33;border:3px solid #22c55e;border-radius:16px;padding:12px 18px}
+.pdc-tip{font:700 13px Nunito,sans-serif;opacity:.7;text-align:center;min-height:16px}
+@media (max-height:520px){.pdc{gap:6px}.pdie img{max-width:calc(15 * var(--vh))}.pdc-hand{font-size:22px}.pdc-roll,.pdc-stand{padding-top:8px!important;padding-bottom:8px!important;font-size:20px!important}.pdc-tip{display:none}}
+@media (min-width:700px) and (min-height:600px){.pdc{max-width:640px}.pdie img{max-width:100px}}
 /* ---------- v12: escala automática para cualquier pantalla ---------- */
 :root{--z:1;--vh:calc(1vh / var(--z));--vw:calc(1vw / var(--z));--dvh:calc(1dvh / var(--z))}
 #app>*{zoom:var(--z)}
@@ -1610,7 +1637,7 @@ Object.assign(GAMES, {
           if (b.cd <= 0) {
             let dx = i.x, dy = i.y, m = Math.hypot(dx, dy);
             if (m < .2) { dx = b.vx; dy = b.vy; m = Math.hypot(dx, dy); }
-            if (m > 0) { b.vx += dx / m * 560; b.vy += dy / m * 560; b.cd = 1.0; b.dash = .3; beep(220, .12, 'sawtooth', .05); }
+            if (m > 0) { b.vx += dx / m * 560; b.vy += dy / m * 560; b.cd = 1.0; b.dash = .3; beep(220, .12, 'sawtooth', .03); if (typeof SND !== 'undefined') SND.play('sf_thrusterFire_000', .35, 1.4, 0); }
           }
         }
         const damp = Math.pow(.22, dt); b.vx *= damp; b.vy *= damp;
@@ -1627,7 +1654,7 @@ Object.assign(GAMES, {
             let j = -(1 + .95) * rv / 2;
             if (b1.dash > 0 || b2.dash > 0) j *= 1.6;
             b1.vx -= j * nx; b1.vy -= j * ny; b2.vx += j * nx; b2.vy += j * ny;
-            if (gd.bumpT <= 0 && Math.abs(rv) > 120) { gd.bumpT = .12; beep(140 + rand(80), .08, 'square', .06); }
+            if (gd.bumpT <= 0 && Math.abs(rv) > 120) { gd.bumpT = .12; beep(140 + rand(80), .08, 'square', .03); if (typeof SFX.hit === 'function') SFX.hit(); }
           }
         }
       }
@@ -6211,6 +6238,427 @@ function giftNext() {
   setTimeout(out, 3400);
   if (opened && it && H.phase === 'lobby') renderHost();
 }
+
+/* ================== v15 — SONIDOS REALES + LOCUTOR, 💥 GUERRA DE TANQUES, 🎲 GENERALA LOCA ================== */
+/* ---------- muestras de sonido (Kenney CC0) con respaldo de los beeps ---------- */
+const SND = (() => {
+  const buf = {}, base = 'assets/sfx/', last = {};
+  const C = () => { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); return actx; };
+  function load(n) {
+    if (buf[n]) return buf[n];
+    if (!window.fetch) return Promise.resolve(null);
+    return buf[n] = fetch(base + n + '.mp3').then(r => r.ok ? r.arrayBuffer() : Promise.reject()).then(a => new Promise((res, rej) => C().decodeAudioData(a, res, rej))).catch(() => null);
+  }
+  function play(n, vol = .6, rate = 1, gap = 40) {
+    if (Array.isArray(n)) n = pickR(n);
+    const now = performance.now(); if (last[n] && now - last[n] < gap) return; last[n] = now;
+    try {
+      const c = C(); if (c.state === 'suspended') c.resume();
+      load(n).then(b => { if (!b) return; const s = c.createBufferSource(), g = c.createGain(); s.buffer = b; s.playbackRate.value = rate; g.gain.value = vol; s.connect(g); g.connect(c.destination); s.start(); });
+    } catch (e) {}
+  }
+  let vq = Promise.resolve(), vLast = 0;
+  /* el locutor nunca se encima consigo mismo */
+  function voice(n, vol = .9) { const t = performance.now(); if (t - vLast < 350) return; vLast = t; play('v_' + n, vol, 1, 0); }
+  const PRE = ['ui_click_001', 'ui_click_002', 'ui_pluck_001', 'ui_pluck_002', 'ui_tick_002', 'ui_error_004', 'ui_confirmation_002', 'ui_maximize_006', 'ui_drop_002', 'ui_glass_002'];
+  const HOSTPRE = ['v_1', 'v_2', 'v_3', 'v_fight', 'v_begin', 'v_winner', 'v_round_1', 'v_round_2', 'v_round_3', 'v_final_round', 'v_game_over'];
+  return { play, voice, load, preload(host) { PRE.concat(host ? HOSTPRE : []).forEach(load); } };
+})();
+(() => {
+  const B = Object.assign({}, SFX);
+  SFX.pop = () => { SND.play(['ui_click_001', 'ui_click_002', 'ui_pluck_001', 'ui_pluck_002'], .45, .95 + Math.random() * .15); };
+  SFX.tick = () => { SND.play('ui_tick_002', .55); };
+  SFX.bad = () => { SND.play('ui_error_004', .55); B.bad(); };
+  SFX.join = () => { SND.play('ui_confirmation_002', .6); B.join(); };
+  SFX.go = () => { SND.play('ui_maximize_006', .5); B.go(); };
+  SFX.whoosh = () => { SND.play('ui_drop_002', .5); B.whoosh(); };
+  SFX.win = () => { B.win(); SND.play('ui_glass_002', .35); };
+  SFX.hit = () => SND.play(['impactPunch_heavy_000', 'impactPunch_heavy_001', 'impactPunch_medium_000'], .7);
+  SFX.boom = () => { SND.play(['sf_explosionCrunch_000', 'sf_explosionCrunch_001', 'sf_explosionCrunch_002'], .7); SND.play('sf_lowFrequency_explosion_000', .5); };
+  /* precarga en el primer toque (los navegadores exigen un gesto antes de sonar) */
+  const once = () => { removeEventListener('pointerdown', once, true); removeEventListener('keydown', once, true); SND.preload(!!(H && H.code)); };
+  addEventListener('pointerdown', once, true); addEventListener('keydown', once, true);
+})();
+
+/* ---------- el locutor: rondas, cuenta regresiva y ganador ---------- */
+(() => {
+  const onr = nextRound;
+  nextRound = function () {
+    onr();
+    if (H.phase === 'intro') {
+      const last = H.roundIdx === H.order.length - 1, n = H.roundIdx + 1;
+      setTimeout(() => SND.voice(last && n > 1 ? 'final_round' : n <= 5 ? 'round_' + n : pickR(['ready', 'prepare_yourself'])), 700);
+    } else if (H.phase === 'final') { setTimeout(() => SND.voice('game_over'), 300); setTimeout(() => SND.voice('winner'), 2300); }
+  };
+  /* números 3-2-1 y "¡FIGHT!" en las cuentas regresivas de los juegos (no en la presentación) */
+  let lastCd = '';
+  setInterval(() => {
+    const c = document.querySelector('#cdown'); if (!c || !H.code || H.phase === 'intro' || H.phase === 'lobby') { lastCd = ''; return; }
+    const t = c.textContent.trim(); if (t === lastCd) return; lastCd = t;
+    if (t === '3' || t === '2' || t === '1') SND.voice(t, .8);
+    else if (/YA/.test(t)) SND.voice(pickR(['fight', 'fight', 'begin']), .95);
+  }, 60);
+  /* al mostrar resultados de un minijuego */
+  const osp = setPhase;
+  setPhase = function (ph, ...a) {
+    const r = osp(ph, ...a);
+    if (/-res$/.test(ph) && H.code) setTimeout(() => SND.voice(Math.random() < .15 ? 'flawless_victory' : 'winner'), 450);
+    return r;
+  };
+})();
+
+/* =================================================================== */
+/* 💥 GUERRA DE TANQUES                                                 */
+/* =================================================================== */
+const TK = { R: 20, SPD: 175, BSPD: 560, CD: .5, HP: 3, T: 60000 };
+const tkTint = (() => { const cache = {}; return (img, col) => {
+  const k = img.src + col; if (cache[k]) return cache[k]; if (!img.complete || !img.naturalWidth) return null;
+  const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight; const g = c.getContext('2d');
+  g.drawImage(img, 0, 0); g.globalCompositeOperation = 'multiply'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height);
+  g.globalCompositeOperation = 'destination-in'; g.drawImage(img, 0, 0); return cache[k] = c;
+}; })();
+Object.assign(GAMES, {
+  tanks: {
+    name: 'Guerra de Tanques', emoji: '💥', color: '#65a30d',
+    desc: 'Cada uno maneja un tanque 🪖. El joystick lo mueve (y apunta hacia donde va) y el botón DISPARA. Las balas rebotan una vez y los barriles rojos ¡EXPLOTAN! 60 segundos: gana el que más destruya.',
+    start() {
+      const ids = onlineIds(), n = ids.length;
+      ['tankBody_sand_outline', 'tankSand_barrel2_outline', 'tileGrass1', 'tileGrass2', 'tileSand1', 'tileSand2', 'treeGreen_large', 'treeBrown_large', 'treeGreen_small', 'barrelRed_top', 'barrelGreen_top', 'crateWood', 'crateMetal', 'sandbagBrown', 'sandbagBeige', 'bulletSand2_outline', 'explosion1', 'explosion2', 'explosion3', 'explosion4', 'explosion5', 'explosionSmoke1', 'explosionSmoke2', 'explosionSmoke3', 'shotOrange', 'tracksSmall', 'oilSpill_large'].forEach(f => IMG('tanks/' + f + '.png'));
+      const spawns = []; for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + Math.PI / 8; spawns.push([500 + Math.cos(a) * 400, 300 + Math.sin(a) * 215]); }
+      const sp = shuffle(spawns.slice());
+      const ps = {}; ids.forEach((id, i) => { const [x, y] = sp[i % 8]; ps[id] = { x, y, a: Math.atan2(300 - y, 500 - x), hp: TK.HP, alive: true, resp: 0, inv: 1.5, cd: 0, lb: 0, kills: 0, deaths: 0, hits: 0, flash: 0, odo: 0, lk: -9, streak: 0 }; });
+      /* mapa espejado (justo para todos) y distinto cada vez */
+      const obs = [], near = (x, y, r) => spawns.some(([sx, sy]) => Math.hypot(sx - x, sy - y) < r) || obs.some(o => Math.hypot(o.x - x, o.y - y) < 85);
+      const kinds = ['crateWood', 'crateMetal', 'sandbagBrown', 'sandbagBeige', 'barrel', 'barrel', 'tree', 'tree'];
+      let tries = 0;
+      while (obs.length < 12 && tries++ < 400) {
+        const x = 150 + Math.random() * 310, y = 70 + Math.random() * 460; if (near(x, y, 95) || near(1000 - x, y, 95)) continue;
+        const k = pickR(kinds), rot = k.startsWith('sandbag') ? (Math.random() < .5 ? 0 : Math.PI / 2) : 0;
+        const mk = X => k === 'barrel' ? { k, x: X, y, r: 19, alive: true } : k === 'tree' ? { k, x: X, y, r: 13, img: pickR(['treeGreen_large', 'treeBrown_large', 'treeGreen_small']) } : (() => { const w = k.startsWith('crate') ? 46 : rot ? 36 : 54, h = k.startsWith('crate') ? 46 : rot ? 54 : 36; return { k, x: X, y, w, h, rot }; })();
+        obs.push(mk(x), mk(1000 - x));
+      }
+      if (Math.random() < .6) obs.push({ k: 'crateMetal', x: 500, y: 300, w: 46, h: 46, rot: 0 });
+      H.inp = {}; H.gd = { ids, ps, obs, spawns, bul: [], fx: [], tracks: [], t: 0, sid: rid(), sand: Math.random() < .5, oil: [[200 + rand(600), 80 + rand(440)], [200 + rand(600), 80 + rand(440)]] };
+      setPhase('tk-ready', 3600, () => { SFX.go(); GAMES.tanks.go(); }, 0, false);
+      rtLoop(null, GAMES.tanks.draw);
+    },
+    go() { setPhase('tk-go', TK.T, () => GAMES.tanks.end()); rtLoop(dt => GAMES.tanks.step(dt), GAMES.tanks.draw); },
+    view(p) {
+      if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
+      if (H.phase === 'tk-ready' || H.phase === 'tk-go') { const s = H.gd.ps[p.id]; return s && !s.alive && H.phase === 'tk-go' ? { screen: 'msg', big: '💥', title: '¡Te volaron!', text: 'Volvés en un toque… preparate para la venganza 😤' } : joyView(p, '🕹️ Mové y apuntá · Botón = DISPARAR', '💥 FUEGO', TK.CD); }
+      return watch();
+    },
+    onAct(p, m) { if (H.phase === 'tk-ready' || H.phase === 'tk-go') joyAct(p, m); },
+    isDone(id) { const s = H.gd.ps && H.gd.ps[id]; return H.phase === 'tk-go' && s && !s.alive; },
+    solid(x, y, r) {
+      const gd = H.gd;
+      if (x < r + 8 || x > 992 - r || y < r + 8 || y > 592 - r) return true;
+      for (const o of gd.obs) {
+        if (o.k === 'tree') { if (Math.hypot(o.x - x, o.y - y) < o.r + r) return o; continue; }
+        if (o.k === 'barrel') { if (o.alive && Math.hypot(o.x - x, o.y - y) < o.r + r) return o; continue; }
+        if (Math.abs(o.x - x) < o.w / 2 + r && Math.abs(o.y - y) < o.h / 2 + r) return o;
+      }
+      return null;
+    },
+    boom(x, y, big, by) {
+      const gd = H.gd; gd.fx.push({ k: 'ex', x, y, t: 0, s: big ? 1.6 : 1 }); SFX.boom(); shakeScreen();
+      if (!big) return;
+      for (const id of gd.ids) { const s = gd.ps[id]; if (s.alive && s.inv <= 0 && Math.hypot(s.x - x, s.y - y) < 95) this.damage(id, by, 1); }
+      for (const o of gd.obs) if (o.k === 'barrel' && o.alive && Math.hypot(o.x - x, o.y - y) < 80) { o.alive = false; setTimeout(() => { if (H.gd === gd) this.boom(o.x, o.y, true, by); }, 140); }
+    },
+    damage(id, by, d) {
+      const gd = H.gd, s = gd.ps[id]; if (!s.alive || s.inv > 0) return;
+      s.hp -= d; s.flash = .15; SFX.hit();
+      if (by && by !== id && gd.ps[by]) gd.ps[by].hits++;
+      gd.fx.push({ k: 'txt', x: s.x, y: s.y - 30, t: 0, txt: '-' + d, c: '#ef4444' });
+      if (s.hp <= 0) {
+        s.alive = false; s.deaths++; s.resp = 2.6; s.streak = 0; this.boom(s.x, s.y, false);
+        gd.fx.push({ k: 'smoke', x: s.x, y: s.y, t: 0 });
+        if (by && by !== id && gd.ps[by]) {
+          const k = gd.ps[by]; k.kills++;
+          gd.fx.push({ k: 'txt', x: k.x, y: k.y - 40, t: 0, txt: '+1 💥', c: '#facc15' });
+          if (gd.t - k.lk < 5) { k.streak++; SND.voice(k.streak >= 2 ? 'multi_kill' : 'combo'); } else k.streak = 0;
+          k.lk = gd.t;
+          gd.feed = { txt: `${pl(by)?.emoji || ''} ${pl(by)?.name || '?'} 💥 ${pl(id)?.name || '?'}`, t: 3 };
+        }
+        sync();
+      }
+    },
+    step(dt) {
+      const gd = H.gd; gd.t += dt; if (gd.feed) gd.feed.t -= dt;
+      for (const id of gd.ids) {
+        const s = gd.ps[id], i = inp(id);
+        s.cd -= dt; s.inv -= dt; s.flash -= dt;
+        if (!s.alive) {
+          s.resp -= dt;
+          if (s.resp <= 0) {
+            const far = gd.spawns.slice().sort((a, b) => Math.min(...gd.ids.filter(o => o !== id && gd.ps[o].alive).map(o => Math.hypot(gd.ps[o].x - b[0], gd.ps[o].y - b[1])), 9e9) - Math.min(...gd.ids.filter(o => o !== id && gd.ps[o].alive).map(o => Math.hypot(gd.ps[o].x - a[0], gd.ps[o].y - a[1])), 9e9))[0];
+            Object.assign(s, { x: far[0], y: far[1], hp: TK.HP, alive: true, inv: 1.6, a: Math.atan2(300 - far[1], 500 - far[0]) }); sync();
+          }
+          s.lb = i.b; continue;
+        }
+        const m = Math.min(1, Math.hypot(i.x, i.y));
+        if (m > .18) {
+          const ta = Math.atan2(i.y, i.x); let d = ta - s.a; d = Math.atan2(Math.sin(d), Math.cos(d));
+          s.a += Math.sign(d) * Math.min(Math.abs(d), 9 * dt);
+          const sp = TK.SPD * m * (Math.abs(d) > 1.2 ? .35 : 1), nx = s.x + Math.cos(s.a) * sp * dt, ny = s.y + Math.sin(s.a) * sp * dt;
+          if (!this.solid(nx, s.y, TK.R)) s.x = nx; if (!this.solid(s.x, ny, TK.R)) s.y = ny;
+          s.odo += sp * dt; if (s.odo > 16) { s.odo = 0; gd.tracks.push({ x: s.x, y: s.y, a: s.a, t: 0 }); if (gd.tracks.length > 260) gd.tracks.shift(); }
+        }
+        for (const o of gd.ids) { if (o === id) continue; const q = gd.ps[o]; if (!q.alive) continue; const dx = s.x - q.x, dy = s.y - q.y, dd = Math.hypot(dx, dy); if (dd < TK.R * 2 && dd > 0) { const push = (TK.R * 2 - dd) / 2; const nx = s.x + dx / dd * push, ny = s.y + dy / dd * push; if (!this.solid(nx, ny, TK.R)) { s.x = nx; s.y = ny; } } }
+        if (i.b !== s.lb) {
+          s.lb = i.b;
+          if (s.cd <= 0 && H.phase === 'tk-go') {
+            s.cd = TK.CD; s.inv = Math.min(s.inv, 0);
+            const bx = s.x + Math.cos(s.a) * 32, by = s.y + Math.sin(s.a) * 32;
+            gd.bul.push({ x: bx, y: by, vx: Math.cos(s.a) * TK.BSPD, vy: Math.sin(s.a) * TK.BSPD, own: id, bnc: 1, life: 1.9, bounced: false });
+            gd.fx.push({ k: 'shot', x: bx, y: by, a: s.a, t: 0 });
+            SND.play(['sf_laserSmall_000', 'sf_laserSmall_001', 'sf_laserSmall_002'], .32, .55 + Math.random() * .1, 0);
+          }
+        }
+      }
+      for (const b of gd.bul) {
+        b.life -= dt; if (b.life <= 0) { b.dead = true; continue; }
+        const steps = 3;
+        for (let k = 0; k < steps && !b.dead; k++) {
+          const nx = b.x + b.vx * dt / steps, ny = b.y + b.vy * dt / steps;
+          const hitX = this.solid(nx, b.y, 4), hitY = this.solid(b.x, ny, 4), hit = hitX || hitY;
+          if (hit) {
+            if (hit.k === 'barrel') { hit.alive = false; b.dead = true; this.boom(hit.x, hit.y, true, b.own); break; }
+            if (hit.k === 'tree') { b.dead = true; gd.fx.push({ k: 'puff', x: b.x, y: b.y, t: 0 }); SND.play('impactWood_medium_000', .4); break; }
+            if (b.bnc <= 0) { b.dead = true; gd.fx.push({ k: 'puff', x: b.x, y: b.y, t: 0 }); SND.play('impactMetal_light_000', .35); break; }
+            b.bnc--; b.bounced = true; if (hitX) b.vx *= -1; if (hitY) b.vy *= -1; SND.play('impactPlate_light_000', .3); continue;
+          }
+          b.x = nx; b.y = ny;
+          for (const id of gd.ids) {
+            const s = gd.ps[id]; if (!s.alive || (id === b.own && !b.bounced)) continue;
+            if (Math.hypot(s.x - b.x, s.y - b.y) < TK.R + 4) { b.dead = true; gd.fx.push({ k: 'puff', x: b.x, y: b.y, t: 0 }); if (s.inv <= 0) this.damage(id, b.own, 1); break; }
+          }
+        }
+      }
+      gd.bul = gd.bul.filter(b => !b.dead);
+      gd.fx.forEach(f => f.t += dt); gd.fx = gd.fx.filter(f => f.t < (f.k === 'smoke' ? 2.2 : f.k === 'txt' ? 1 : f.k === 'ex' ? .55 : .25));
+      gd.tracks.forEach(t => t.t += dt); gd.tracks = gd.tracks.filter(t => t.t < 5);
+    },
+    bg() {
+      const gd = H.gd; if (gd.bgc) return gd.bgc;
+      const t1 = IMG('tanks/tileGrass1.png'), t2 = IMG('tanks/tileGrass2.png'), s1 = IMG('tanks/tileSand1.png'), s2 = IMG('tanks/tileSand2.png');
+      if (![t1, t2, s1, s2].every(i => i.complete && i.naturalWidth)) return null;
+      const c = document.createElement('canvas'); c.width = 1000; c.height = 600; const g = c.getContext('2d'), ph = Math.random() * 6;
+      for (let y = 0; y < 10; y++) for (let x = 0; x < 16; x++) {
+        const sand = gd.sand ? Math.sin(x * .6 + ph) + Math.cos(y * .8 + ph * 1.3) > .9 : Math.sin(x * .45 + ph) * Math.cos(y * .5) > .6;
+        g.drawImage(sand ? (Math.random() < .5 ? s1 : s2) : (Math.random() < .7 ? t1 : t2), x * 64, y * 64, 64, 64);
+      }
+      const oil = IMG('tanks/oilSpill_large.png'); if (oil.complete) gd.oil.forEach(([x, y]) => { g.globalAlpha = .55; g.drawImage(oil, x - 40, y - 40, 80, 80); g.globalAlpha = 1; });
+      g.strokeStyle = '#3f2a14'; g.lineWidth = 16; g.strokeRect(0, 0, 1000, 600);
+      return gd.bgc = c;
+    },
+    draw(ctx) {
+      const gd = H.gd, I = n => IMG('tanks/' + n + '.png'), ok = i => i.complete && i.naturalWidth;
+      const bg = GAMES.tanks.bg(); if (bg) ctx.drawImage(bg, 0, 0); else { ctx.fillStyle = '#5a8f3a'; ctx.fillRect(0, 0, 1000, 600); }
+      const tr = I('tracksSmall'); if (ok(tr)) for (const t of gd.tracks) { ctx.save(); ctx.globalAlpha = .28 * (1 - t.t / 5); ctx.translate(t.x, t.y); ctx.rotate(t.a + Math.PI / 2); ctx.drawImage(tr, -16, -10, 32, 20); ctx.restore(); }
+      for (const f of gd.fx) if (f.k === 'smoke') { const im = I('explosionSmoke' + (1 + Math.min(2, Math.floor(f.t / .75)))); if (ok(im)) { ctx.globalAlpha = Math.max(0, .7 - f.t / 3.2); const s = 50 + f.t * 20; ctx.drawImage(im, f.x - s / 2, f.y - s / 2 - f.t * 18, s, s); ctx.globalAlpha = 1; } }
+      for (const o of gd.obs) {
+        if (o.k === 'tree') continue;
+        if (o.k === 'barrel') { if (!o.alive) continue; const im = I('barrelRed_top'); ctx.fillStyle = '#0004'; ctx.beginPath(); ctx.arc(o.x + 3, o.y + 4, o.r, 0, 7); ctx.fill(); if (ok(im)) ctx.drawImage(im, o.x - 22, o.y - 22, 44, 44); continue; }
+        const im = I(o.k); ctx.save(); ctx.translate(o.x, o.y); ctx.fillStyle = '#0004'; ctx.fillRect(-o.w / 2 + 4, -o.h / 2 + 5, o.w, o.h);
+        if (ok(im)) { if (o.rot) { ctx.rotate(o.rot); ctx.drawImage(im, -o.h / 2 - 2, -o.w / 2 - 2, o.h + 4, o.w + 4); } else ctx.drawImage(im, -o.w / 2 - 2, -o.h / 2 - 2, o.w + 4, o.h + 4); }
+        else { ctx.fillStyle = '#8b5a2b'; ctx.fillRect(-o.w / 2, -o.h / 2, o.w, o.h); }
+        ctx.restore();
+      }
+      const body = I('tankBody_sand_outline'), barrel = I('tankSand_barrel2_outline');
+      for (const id of gd.ids) {
+        const s = gd.ps[id], p = pl(id); if (!s.alive) continue;
+        if (s.inv > 0 && Math.floor(s.inv * 10) % 2) ctx.globalAlpha = .45;
+        ctx.save(); ctx.translate(s.x, s.y);
+        ctx.fillStyle = '#0005'; ctx.beginPath(); ctx.ellipse(4, 6, 25, 23, 0, 0, 7); ctx.fill();
+        ctx.save(); ctx.rotate(s.a + Math.PI / 2);
+        const tb = tkTint(body, p?.color || '#888'), tbr = tkTint(barrel, p?.color || '#888');
+        if (tb) ctx.drawImage(tb, -22, -21, 44, 42); else { ctx.fillStyle = p?.color || '#888'; ctx.fillRect(-19, -19, 38, 38); }
+        if (s.flash > 0) { ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = '#ffffff88'; ctx.fillRect(-20, -20, 40, 40); ctx.globalCompositeOperation = 'source-over'; }
+        if (tbr) ctx.drawImage(tbr, -7, -33, 14, 35); else { ctx.fillStyle = '#333'; ctx.fillRect(-4, -32, 8, 30); }
+        ctx.restore();
+        emo(ctx, p?.emoji || '?', 0, 1, 18);
+        ctx.restore(); ctx.globalAlpha = 1;
+        for (let k = 0; k < TK.HP; k++) { ctx.fillStyle = k < s.hp ? '#22c55e' : '#0007'; ctx.strokeStyle = '#1a1033'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(s.x - 22 + k * 15, s.y - 40, 13, 7, 3) : ctx.rect(s.x - 22 + k * 15, s.y - 40, 13, 7); ctx.fill(); ctx.stroke(); }
+        pill2(ctx, s.x, s.y + 38, `${p?.name || '?'} · ${s.kills}`, p?.color || '#888', 13);
+      }
+      const bi = I('bulletSand2_outline');
+      for (const b of gd.bul) { ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(Math.atan2(b.vy, b.vx) + Math.PI / 2); if (ok(bi)) ctx.drawImage(bi, -6, -8, 12, 16); else { ctx.fillStyle = '#fde047'; ctx.fillRect(-3, -6, 6, 12); } ctx.restore(); }
+      for (const f of gd.fx) {
+        if (f.k === 'shot') { const im = I('shotOrange'); if (ok(im)) { ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(f.a + Math.PI / 2); ctx.globalAlpha = 1 - f.t / .25; ctx.drawImage(im, -10, -26, 20, 34); ctx.restore(); ctx.globalAlpha = 1; } }
+        else if (f.k === 'ex') { const fr = Math.min(5, 1 + Math.floor(f.t / .11)), im = I('explosion' + fr), s = 90 * f.s; if (ok(im)) ctx.drawImage(im, f.x - s / 2, f.y - s / 2, s, s); }
+        else if (f.k === 'puff') { ctx.globalAlpha = 1 - f.t / .25; ctx.fillStyle = '#fff6'; ctx.beginPath(); ctx.arc(f.x, f.y, 6 + f.t * 50, 0, 7); ctx.fill(); ctx.globalAlpha = 1; }
+        else if (f.k === 'txt') { ctx.globalAlpha = 1 - f.t; ctx.fillStyle = f.c; ctx.font = '900 24px Nunito, sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#1a1033'; ctx.strokeText(f.txt, f.x, f.y - f.t * 40); ctx.fillText(f.txt, f.x, f.y - f.t * 40); ctx.globalAlpha = 1; }
+      }
+      for (const o of gd.obs) if (o.k === 'tree') { const im = I(o.img), s = o.img === 'treeGreen_small' ? 58 : 84; ctx.fillStyle = '#0003'; ctx.beginPath(); ctx.arc(o.x + 6, o.y + 8, s * .42, 0, 7); ctx.fill(); if (ok(im)) ctx.drawImage(im, o.x - s / 2, o.y - s / 2, s, s); }
+      const top = gd.ids.slice().sort((a, b) => gd.ps[b].kills - gd.ps[a].kills || gd.ps[a].deaths - gd.ps[b].deaths).slice(0, 4);
+      hudChips(ctx, top.map(id => ({ color: pl(id)?.color || '#888', txt: `${pl(id)?.emoji || ''} ${gd.ps[id].kills}` })));
+      if (gd.feed && gd.feed.t > 0) { ctx.globalAlpha = Math.min(1, gd.feed.t); pill2(ctx, 500, 575, gd.feed.txt, '#ef4444', 18); ctx.globalAlpha = 1; }
+    },
+    end() {
+      if (H.phase !== 'tk-go') return;
+      const gd = H.gd, sc = id => { const s = gd.ps[id]; return s.kills * 100 + s.hits * 15 - s.deaths * 40; };
+      const g = rankGains(gd.ids, sc, true);
+      gd.rows = gd.ids.slice().sort((a, b) => sc(b) - sc(a)).map(id => ({ id, val: `💥 ${gd.ps[id].kills} · 🎯 ${gd.ps[id].hits} · 💀 ${gd.ps[id].deaths}`, gain: g[id] || 0 }));
+      setPhase('tk-res', 5500, () => finishGame(g), 0, false); confetti(90); SFX.win();
+    },
+    render(ph) {
+      if (ph === 'tk-ready') return canvasHTML(true, '🪖 ¡A sus tanques!');
+      if (ph === 'tk-go') return canvasHTML(false);
+      return `<h1 class="title-pop">💥 Los generales del campo</h1>${resultsList(H.gd.rows)}`;
+    }
+  },
+
+  /* =================================================================== */
+  /* 🎲 GENERALA LOCA                                                     */
+  /* =================================================================== */
+  dice: {
+    name: 'Generala Loca', emoji: '🎲', color: '#dc2626', R: 3,
+    desc: 'Tirá 5 dados desde el cel 🎲. Tocá los que querés guardar y volvé a tirar (máximo 3 tiros). Generala, póker, full, escalera… ¡y cada ronda hay un número de la suerte que vale extra! 3 rondas.',
+    start() {
+      const ids = onlineIds(); for (let i = 1; i <= 6; i++) { IMG('dice/dieWhite_border' + i + '.png'); IMG('dice/dieRed_border' + i + '.png'); }
+      H.gd = { ids, r: 0, tot: Object.fromEntries(ids.map(i => [i, 0])), hist: Object.fromEntries(ids.map(i => [i, []])) };
+      this.round();
+    },
+    round() {
+      const gd = H.gd; gd.r++; gd.lucky = 1 + rand(6);
+      gd.st = Object.fromEntries(gd.ids.map(id => [id, { d: [1, 2, 3, 4, 5].map(() => 1 + rand(6)), hold: [0, 0, 0, 0, 0], rolls: 0, done: false, rid: 0 }]));
+      setPhase('dc-go', 32000, () => GAMES.dice.closeRound());
+      SND.play('ui_question_001', .5);
+    },
+    score(d, rolls) {
+      const c = [0, 0, 0, 0, 0, 0, 0]; d.forEach(v => c[v]++); const cs = c.slice(1).filter(Boolean).sort((a, b) => b - a), s = d.slice().sort().join('');
+      let n, b;
+      if (cs[0] === 5) [n, b] = rolls === 1 ? ['¡GENERALA SERVIDA!', 100] : ['¡GENERALA!', 60];
+      else if (cs[0] === 4) [n, b] = ['Póker', 40];
+      else if (cs[0] === 3 && cs[1] === 2) [n, b] = ['Full', 30];
+      else if (s === '12345' || s === '23456') [n, b] = ['Escalera', 25];
+      else if (cs[0] === 3) [n, b] = ['Trío', 15];
+      else if (cs[0] === 2 && cs[1] === 2) [n, b] = ['Doble par', 10];
+      else if (cs[0] === 2) [n, b] = ['Par', 5];
+      else [n, b] = ['Nada', 0];
+      const lucky = H.gd.lucky ? c[H.gd.lucky] * 3 : 0, sum = d.reduce((a, v) => a + v, 0);
+      return { n, b, lucky, sum, pts: b + lucky + sum };
+    },
+    roll(id) {
+      const gd = H.gd, s = gd.st[id]; if (!s || s.done || s.rolls >= 3) return;
+      s.d = s.d.map((v, i) => s.rolls && s.hold[i] ? v : 1 + rand(6)); s.rolls++; s.rid++;
+      if (s.rolls >= 3) s.done = true;
+      const sc = this.score(s.d, s.rolls);
+      SND.play(['impactWood_medium_000', 'impactPlate_light_000'], .5, 1.2); setTimeout(() => SND.play('impactWood_medium_000', .35, 1.5), 120);
+      if (sc.b >= 60) { SND.voice('flawless_victory'); confetti(120); } else if (sc.b >= 30) SND.play('ui_confirmation_001', .5);
+      this.paint(id, true); sync(); this.check();
+    },
+    check() { const gd = H.gd; if (H.phase === 'dc-go' && gd.ids.every(id => !pl(id)?.online || gd.st[id].done)) setTimeout(() => { if (H.phase === 'dc-go' && H.gd === gd) this.closeRound(); }, 1300); },
+    onAct(p, m) {
+      if (H.phase !== 'dc-go') return; const s = H.gd.st[p.id]; if (!s) return;
+      if (m.a === 'roll') this.roll(p.id);
+      else if (m.a === 'hold' && s.rolls && !s.done) { const i = m.i | 0; if (i >= 0 && i < 5) { s.hold[i] = s.hold[i] ? 0 : 1; SFX.pop(); this.paint(p.id); sync(); } }
+      else if (m.a === 'stand' && s.rolls && !s.done) { s.done = true; SFX.pop(); this.paint(p.id); sync(); this.check(); }
+    },
+    isDone(id) { return H.phase === 'dc-go' && H.gd.st && H.gd.st[id] && H.gd.st[id].done; },
+    closeRound() {
+      const gd = H.gd; if (H.phase !== 'dc-go') return;
+      gd.last = gd.ids.map(id => { const s = gd.st[id]; if (!s.rolls) { s.d = s.d.map(() => 1 + rand(6)); s.rolls = 1; } s.done = true; const sc = this.score(s.d, s.rolls); gd.tot[id] += sc.pts; gd.hist[id].push(sc.pts); return { id, sc }; }).sort((a, b) => b.sc.pts - a.sc.pts);
+      if (gd.r >= this.R) return this.end();
+      setPhase('dc-sub', 6000, () => GAMES.dice.round(), 0, false); SFX.win();
+    },
+    end() {
+      const gd = H.gd, g = rankGains(gd.ids, id => gd.tot[id], true);
+      gd.rows = gd.ids.slice().sort((a, b) => gd.tot[b] - gd.tot[a]).map(id => ({ id, val: `🎲 ${gd.tot[id]} pts (${gd.hist[id].join(' + ')})`, gain: g[id] || 0 }));
+      setPhase('dc-res', 6500, () => finishGame(g), 0, false); confetti(100); SFX.win();
+    },
+    view(p) {
+      const gd = H.gd;
+      if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
+      if (H.phase !== 'dc-go') return watch();
+      const s = gd.st[p.id], sc = s.rolls ? this.score(s.d, s.rolls) : null;
+      return { screen: 'dice', key: `dc${gd.r}-${s.rolls}-${s.hold.join('')}-${s.done ? 1 : 0}`, r: gd.r, R: this.R, lucky: gd.lucky, d: s.d, hold: s.hold, rolls: s.rolls, done: s.done, rid: s.rid, hand: sc ? `${sc.n} · ${sc.pts} pts` : '', deadline: H.deadline };
+    },
+    dieSrc(v, red) { return `assets/dice/die${red ? 'Red' : 'White'}_border${v}.png`; },
+    paint(id, rolled) {
+      const gd = H.gd, el = $('#dcp-' + id); if (!el || !gd.st) return;
+      const s = gd.st[id], sc = s.rolls ? this.score(s.d, s.rolls) : null;
+      const dice = el.querySelectorAll('.dcd');
+      dice.forEach((im, i) => {
+        im.classList.toggle('held', !!(s.rolls && s.hold[i]));
+        if (rolled && !(s.rolls > 1 && s.hold[i])) {
+          let k = 0; const iv = setInterval(() => { im.src = this.dieSrc(1 + rand(6), (1 + rand(6)) === gd.lucky); if (++k > 6) { clearInterval(iv); im.src = this.dieSrc(s.d[i], s.d[i] === gd.lucky); } }, 70);
+          if (window.gsap) gsap.fromTo(im, { rotation: -200 + Math.random() * 400, y: -18 }, { rotation: 0, y: 0, duration: .55, ease: 'back.out(2)' });
+        } else im.src = s.rolls ? this.dieSrc(s.d[i], s.d[i] === gd.lucky) : this.dieSrc(1 + i, false);
+        im.style.opacity = s.rolls ? 1 : .35;
+      });
+      const h = el.querySelector('.dch'); if (h) { h.textContent = sc ? `${sc.n} · ${sc.pts}` : 'Esperando su tiro…'; h.classList.toggle('big', !!(sc && sc.b >= 30)); }
+      const t = el.querySelector('.dct'); if (t) t.textContent = s.done ? '✅' : `🎲 ${s.rolls}/3`;
+      el.classList.toggle('done', s.done);
+    },
+    render(ph) {
+      const gd = H.gd;
+      if (ph === 'dc-res') return `<h1 class="title-pop">🎲 Los reyes de los dados</h1>${resultsList(gd.rows)}`;
+      if (ph === 'dc-sub') return `<div class="round-lbl">Ronda ${gd.r} de ${this.R}</div><h2 class="title-pop">🎲 Así quedó la ronda</h2><div class="dcgrid">${gd.last.map((x, k) => { const p = pl(x.id), s = gd.st[x.id]; return `<div class="dcp pop ${k === 0 ? 'win' : ''}" style="--c:${p?.color};animation-delay:${k * .12}s"><div class="dcn">${p?.emoji} ${esc(p?.name || '')}<span>+${x.sc.pts}</span></div><div class="dcds">${s.d.map(v => `<img class="dcd" src="${this.dieSrc(v, v === gd.lucky)}" alt="${v}">`).join('')}</div><div class="dch ${x.sc.b >= 30 ? 'big' : ''}">${x.sc.n} · ${x.sc.b} + ${x.sc.sum} dados${x.sc.lucky ? ` + ${x.sc.lucky} 🍀` : ''}</div></div>`; }).join('')}</div>`;
+      setTimeout(() => gd.ids.forEach(id => this.paint(id)), 20);
+      return `<div class="dctop"><div class="round-lbl">Ronda ${gd.r} de ${this.R}</div><div class="dclucky">🍀 Número de la suerte <img src="${this.dieSrc(gd.lucky, true)}" alt="${gd.lucky}"> <small>cada uno vale +3</small></div></div>
+        <div class="dcgrid">${gd.ids.map(id => { const p = pl(id); return `<div class="dcp" id="dcp-${id}" style="--c:${p?.color}"><div class="dcn">${p?.emoji} ${esc(p?.name || '')}<span class="dct"></span></div><div class="dcds">${[0, 1, 2, 3, 4].map(i => `<img class="dcd" src="${this.dieSrc(i + 1)}" alt="">`).join('')}</div><div class="dch"></div></div>`; }).join('')}</div>
+        <div class="dclegend">Generala 60 · Póker 40 · Full 30 · Escalera 25 · Trío 15 · Doble par 10 · Par 5 · + la suma de los dados</div>`;
+    }
+  }
+});
+
+/* ---------- control del cel para los dados ---------- */
+XS.dice = function (v) {
+  const src = (n, red) => `assets/dice/die${red ? 'Red' : 'White'}_border${n}.png`;
+  const fresh = P._dcRid !== v.rid; P._dcRid = v.rid;
+  app.innerHTML = shell(`<div class="pdc">
+    <div class="pdc-top"><span>Ronda ${v.r}/${v.R}</span><span>🍀 <img src="${src(v.lucky, true)}" alt="${v.lucky}"> = +3</span></div>
+    <div class="pdc-dice">${v.d.map((n, i) => `<button class="pdie ${v.rolls && v.hold[i] ? 'held' : ''}" data-i="${i}" ${!v.rolls || v.done ? 'disabled' : ''}><img src="${v.rolls ? src(n, n === v.lucky) : src(i + 1)}" style="${v.rolls ? '' : 'opacity:.35'}" alt="${n}"><small>${v.rolls && v.hold[i] ? 'GUARDADO' : v.rolls && !v.done ? 'tocá' : ''}</small></button>`).join('')}</div>
+    <div class="pdc-hand">${v.hand ? esc(v.hand) : '¡Tirá los dados!'}</div>
+    ${v.done ? `<div class="pdc-done">✅ ¡Listo! Mirá la tele</div>` : `<button class="btn big pink pdc-roll" id="dcRoll" ${v.rolls >= 3 ? 'disabled' : ''}>🎲 ${v.rolls ? 'Volver a tirar' : 'TIRAR'} <small>(${3 - v.rolls} ${3 - v.rolls === 1 ? 'tiro' : 'tiros'})</small></button>
+      ${v.rolls ? '<button class="btn gray pdc-stand" id="dcStand">✋ Me planto</button>' : ''}`}
+    <div class="pdc-tip">${v.rolls && !v.done ? 'Tocá los dados que querés guardar y tirá los demás' : ''}</div></div>`, !!v.deadline);
+  if (fresh && v.rolls && window.gsap) app.querySelectorAll('.pdie:not(.held) img').forEach(im => gsap.fromTo(im, { rotation: -300 + Math.random() * 600, scale: .6 }, { rotation: 0, scale: 1, duration: .5, ease: 'back.out(2)' }));
+  app.querySelectorAll('.pdie').forEach(b => b.onclick = () => { if (b.disabled) return; b.classList.toggle('held'); const sm = b.querySelector('small'); if (sm) sm.textContent = b.classList.contains('held') ? 'GUARDADO' : 'tocá'; send({ t: 'act', a: 'hold', i: +b.dataset.i }); if (navigator.vibrate) navigator.vibrate(12); SFX.pop(); });
+  const r = $('#dcRoll'); if (r) r.onclick = () => { if (r.disabled) return; r.disabled = true; send({ t: 'act', a: 'roll' }); if (navigator.vibrate) navigator.vibrate([20, 30, 20]); SND.play('impactWood_medium_000', .4, 1.3); };
+  const s = $('#dcStand'); if (s) s.onclick = () => { s.disabled = true; send({ t: 'act', a: 'stand' }); };
+  /* teclado: espacio = tirar, 1-5 = guardar dado, P = plantarse */
+  P.onKey = (k, first) => { if (!first) return; if (k === ' ' || k === 'enter') { const b = $('#dcRoll'); if (b && !b.disabled) b.click(); } else if (k === 'p') { const b = $('#dcStand'); if (b) b.click(); } else if (/^[1-5]$/.test(k)) { const b = app.querySelectorAll('.pdie')[+k - 1]; if (b) b.click(); } };
+};
+
+/* ---------- bots para tanques y dados ---------- */
+(() => {
+  const ob = botBrain;
+  botBrain = function (p) {
+    if (H.game === GAMES.dice && H.phase === 'dc-go') {
+      const gd = H.gd, s = gd.st[p.id]; if (!s || s.done) return;
+      const M = p._dc || (p._dc = {}); const k = gd.r + ':' + s.rolls; if (M.k !== k) { M.k = k; M.t = Date.now() + 1100 + rand(2200); }
+      if (Date.now() < M.t) return; M.t = Date.now() + 99999;
+      if (!s.rolls) return GAMES.dice.onAct(p, { a: 'roll' });
+      const sc = GAMES.dice.score(s.d, s.rolls); if (sc.b >= 30 || (sc.b >= 15 && Math.random() < .3)) return GAMES.dice.onAct(p, { a: 'stand' });
+      const c = [0, 0, 0, 0, 0, 0, 0]; s.d.forEach(v => c[v]++);
+      let keep = c.indexOf(Math.max(...c)); if (c[keep] === 1) keep = Math.random() < .5 ? gd.lucky : 6;
+      s.d.forEach((v, i) => { const want = v === keep ? 1 : 0; if (s.hold[i] !== want) GAMES.dice.onAct(p, { a: 'hold', i }); });
+      return GAMES.dice.onAct(p, { a: 'roll' });
+    }
+    if (H.game === GAMES.tanks && (H.phase === 'tk-go' || H.phase === 'tk-ready')) {
+      const gd = H.gd, s = gd.ps[p.id]; if (!s) return;
+      const M = p._tk || (p._tk = { b: 0, side: 1, lx: s.x, ly: s.y, st: 0, wander: 0, dir: [1, 0] });
+      const act = (x, y) => joyAct(p, { a: 'joy', x, y, b: M.b });
+      if (!s.alive || H.phase === 'tk-ready') return act(0, 0);
+      M.st += .22; if (M.st > 1.2) { if (Math.hypot(s.x - M.lx, s.y - M.ly) < 12) { M.wander = .8; const a = Math.random() * 6.28; M.dir = [Math.cos(a), Math.sin(a)]; } M.lx = s.x; M.ly = s.y; M.st = 0; }
+      if (M.wander > 0) { M.wander -= .22; return act(...M.dir); }
+      const foes = gd.ids.filter(id => id !== p.id && gd.ps[id].alive).map(id => gd.ps[id]).sort((a, b) => Math.hypot(a.x - s.x, a.y - s.y) - Math.hypot(b.x - s.x, b.y - s.y));
+      const f = foes[0]; if (!f) return act(0, 0);
+      const dx = f.x - s.x, dy = f.y - s.y, d = Math.hypot(dx, dy) || 1, aim = Math.atan2(dy, dx);
+      let da = aim - s.a; da = Math.atan2(Math.sin(da), Math.cos(da));
+      if (s.cd <= .05 && d < 470) { if (Math.abs(da) < .16 + Math.random() * .1) M.b++; return act(dx / d * .3, dy / d * .3); }
+      if (Math.random() < .02) M.side *= -1;
+      if (d > 260) act(dx / d + (Math.random() - .5) * .4, dy / d + (Math.random() - .5) * .4);
+      else act(-dy / d * M.side + dx / d * .2, dx / d * M.side + dy / d * .2);
+      return;
+    }
+    return ob(p);
+  };
+})();
 
 /* ---------- escala automática de la interfaz ---------- */
 function fitUI() {
