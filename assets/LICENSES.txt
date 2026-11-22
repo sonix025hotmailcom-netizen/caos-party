@@ -8,3 +8,7 @@ Assets de terceros (todos CC0 1.0, dominio público):
 sfx/      Interface Sounds, Impact Sounds, Sci-fi Sounds, Voiceover Pack: Fighter (convertidos a mp3)
 tanks/    Top-down Tanks Redux (Remastered)
 dice/     Boardgame Pack (dados)
+--- Agregado en v16 (todo CC0, Kenney.nl) ---
+deck/     Boardgame Pack (cartas y fichas)
+space/    Simple Space
+marbles/  Rolling Ball Assets
