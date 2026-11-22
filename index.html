@@ -7192,6 +7192,7 @@ const DOM_STYLES = ['Light', 'Stars', 'Gingerbread'];
 const domSrc = (st, a, b) => `assets/domino/${st}/tile_${Math.min(a, b)}_${Math.max(a, b)}.png`;
 /* ficha acostada: el valor `l` queda a la izquierda */
 const domFlat = (st, l, r, cls = '') => `<span class="dmt ${l === r ? 'dbl' : ''} ${cls}"><img src="${domSrc(st, l, r)}" style="transform:rotate(${l === r ? 0 : l <= r ? -90 : 90}deg)" alt="${l}|${r}"></span>`;
+const handImg = (col, g) => col === 'yellow' ? `hand_yellow_${g}.png` : `${col}_hand_${g}.png`;
 const GESTOS = [['open', '✋', 'Mano abierta'], ['closed', '✊', 'Puño'], ['peace', '✌️', 'Paz'], ['point', '👉', 'Señalar'], ['rock', '🤘', 'Rock'], ['thumb', '👍', 'Pulgar']];
 
 Object.assign(GAMES, {
@@ -7286,7 +7287,7 @@ Object.assign(GAMES, {
     desc: 'Un muñequito hace una seña con la mano ✌️👍🤘. Si dice "Simón dice", ¡tocá esa seña rapidísimo en tu cel! Pero si NO dice "Simón dice"… ¡no toqués nada! Cada vez es más rápido.',
     start() {
       const ids = onlineIds();
-      ['red', 'blue', 'green', 'pink', 'purple', 'yellow'].forEach(c => { IMG(`shapes/${c}_body_squircle.png`); GESTOS.forEach(([g]) => IMG(`shapes/${c}_hand_${g}.png`)); });
+      ['red', 'blue', 'green', 'pink', 'purple', 'yellow'].forEach(c => { IMG(`shapes/${c}_body_squircle.png`); GESTOS.forEach(([g]) => IMG('shapes/' + handImg(c, g))); });
       H.gd = { ids, r: 0, pts: Object.fromEntries(ids.map(i => [i, 0])), ok: Object.fromEntries(ids.map(i => [i, 0])), oops: Object.fromEntries(ids.map(i => [i, 0])) };
       setTimeout(() => this.round(), 300);
     },
@@ -7332,7 +7333,7 @@ Object.assign(GAMES, {
       return watch();
     },
     guy(c, big) {
-      return `<div class="mnguy ${big ? 'big' : ''}"><img class="mnb" src="assets/shapes/${c.col}_body_${c.body}.png" alt=""><img class="mnf" src="assets/shapes/face_${c.face}.png" alt=""><img class="mnh" src="assets/shapes/${c.col}_hand_${GESTOS[c.g][0]}.png" alt=""><img class="mnh2" src="assets/shapes/${c.col}_hand_open.png" alt=""></div>`;
+      return `<div class="mnguy ${big ? 'big' : ''}"><img class="mnb" src="assets/shapes/${c.col}_body_${c.body}.png" alt=""><img class="mnf" src="assets/shapes/face_${c.face}.png" alt=""><img class="mnh" src="assets/shapes/${handImg(c.col, GESTOS[c.g][0])}" alt=""><img class="mnh2" src="assets/shapes/${handImg(c.col, 'open')}" alt=""></div>`;
     },
     render(ph) {
       const gd = H.gd, c = gd.cur;
@@ -7624,7 +7625,7 @@ Object.assign(GAMES, {
     name: 'Piedra, Papel o Tijera', emoji: '✌️', color: '#7c3aed', N: 7,
     desc: '¡Todos contra todos! Elegí piedra ✊, papel ✋ o tijera ✌️ en tu cel. Ganás 1 punto por cada jugador al que le ganás. Pero ojo: hay rondas AL REVÉS 🙃 donde gana lo que normalmente pierde.',
     start() {
-      const ids = onlineIds(); ['red', 'blue', 'green', 'pink', 'purple', 'yellow'].forEach(c => PPT.forEach(([g]) => IMG(`shapes/${c}_hand_${g}.png`)));
+      const ids = onlineIds(); ['red', 'blue', 'green', 'pink', 'purple', 'yellow'].forEach(c => PPT.forEach(([g]) => IMG('shapes/' + handImg(c, g))));
       H.gd = { ids, r: 0, pts: Object.fromEntries(ids.map(i => [i, 0])), wins: Object.fromEntries(ids.map(i => [i, 0])) };
       setTimeout(() => this.round(), 300);
     },
@@ -7670,12 +7671,12 @@ Object.assign(GAMES, {
         setTimeout(() => { if (window.gsap) { gsap.from('.ppcard', { y: 60, rotation: () => -20 + Math.random() * 40, opacity: 0, stagger: .06, duration: .45, ease: 'back.out(2)' }); } }, 20);
         return `<div class="round-lbl">Ronda ${gd.r} de ${this.N}${gd.rev ? ' · 🙃 AL REVÉS' : ''}</div>
           <div class="ppsum">${PPT.map(([g, e, n], c) => `<span>${e} ${n}: <b>${count[c]}</b></span>`).join('')}</div>
-          <div class="ppgrid">${gd.ids.slice().sort((a, b) => gd.delta[b] - gd.delta[a]).map((id, k) => { const p = pl(id), c = gd.pick[id]; return `<div class="ppcard ${gd.delta[id] > 0 && gd.delta[id] === gd.delta[gd.ids.slice().sort((a, b) => gd.delta[b] - gd.delta[a])[0]] ? 'win' : ''}" style="--c:${p?.color}">${c >= 0 ? `<img src="assets/shapes/${cols[k % 6]}_hand_${PPT[c][0]}.png" alt="${PPT[c][1]}">` : '<div class="ppz">😴</div>'}<b>${p?.emoji} ${esc(p?.name || '')}</b><span>+${gd.delta[id]}</span></div>`; }).join('')}</div>`;
+          <div class="ppgrid">${gd.ids.slice().sort((a, b) => gd.delta[b] - gd.delta[a]).map((id, k) => { const p = pl(id), c = gd.pick[id]; return `<div class="ppcard ${gd.delta[id] > 0 && gd.delta[id] === gd.delta[gd.ids.slice().sort((a, b) => gd.delta[b] - gd.delta[a])[0]] ? 'win' : ''}" style="--c:${p?.color}">${c >= 0 ? `<img src="assets/shapes/${handImg(cols[k % 6], PPT[c][0])}" alt="${PPT[c][1]}">` : '<div class="ppz">😴</div>'}<b>${p?.emoji} ${esc(p?.name || '')}</b><span>+${gd.delta[id]}</span></div>`; }).join('')}</div>`;
       }
       setTimeout(() => { if (window.gsap) gsap.fromTo('.ppbig img', { rotation: -25, y: 0 }, { rotation: 15, y: -20, yoyo: true, repeat: -1, duration: .35, stagger: .1, ease: 'sine.inOut' }); }, 20);
       return `<div class="round-lbl">Ronda ${gd.r} de ${this.N}</div>
         ${gd.rev ? '<div class="pprev">🙃 ¡RONDA AL REVÉS! Gana lo que normalmente pierde</div>' : ''}
-        <div class="ppbig">${PPT.map(([g], c) => `<img src="assets/shapes/${cols[(c * 2 + gd.r) % 6]}_hand_${g}.png" alt="">`).join('')}</div>
+        <div class="ppbig">${PPT.map(([g], c) => `<img src="assets/shapes/${handImg(cols[(c * 2 + gd.r) % 6], g)}" alt="">`).join('')}</div>
         <h2 class="title-pop">¡Piedra, papel o tijera!</h2><p class="sub">Elegí en tu cel · 1 punto por cada jugador al que le ganés</p>`;
     }
   }
