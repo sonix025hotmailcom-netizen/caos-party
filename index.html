@@ -748,6 +748,25 @@ body.isctrl::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .ppbeat{font:800 12px Nunito,sans-serif;opacity:.85}
 .pixpanel{border:32px solid transparent;border-image:url(assets/pixel/tile_0006.png) 10 fill / 32px stretch;image-rendering:pixelated;color:#3b2412;padding:6px 10px;max-width:min(96vw,900px);margin:0 auto}
 .pixpanel .title-pop{color:#7f1d1d;text-shadow:none}
+/* v22: subasta */
+.auwrap{display:flex;gap:clamp(14px,3vw,40px);align-items:center;justify-content:center;flex-wrap:wrap;width:min(100%,1200px);margin:0 auto}
+.austage{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:min(100%,380px)}
+.aubox{width:clamp(130px,16vw,220px);filter:drop-shadow(0 10px 0 #0007)}
+.auhint{font:800 clamp(18px,2vw,26px) Nunito,sans-serif;text-align:center;background:#0006;border-radius:18px;padding:10px 18px}.auhint b{color:#facc15}
+.auitem{font-size:clamp(90px,12vw,170px);filter:drop-shadow(0 8px 0 #0007)}
+.auval{font:400 clamp(24px,3vw,40px) 'Lilita One',sans-serif;color:#4ade80}.auval.neg{color:#f87171}
+.auwho{font:900 clamp(16px,1.8vw,24px) Nunito,sans-serif;background:#facc15;color:#1a1033;border-radius:16px;padding:6px 16px}
+.aupl{display:flex;flex-direction:column;gap:8px;min-width:min(100%,300px)}
+.aup{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;background:#1a1033cc;border-left:8px solid var(--c);border-radius:14px;padding:8px 14px;font:800 clamp(13px,1.3vw,17px) Nunito,sans-serif}
+.aup em{font-style:normal;opacity:.85}.aup.win{box-shadow:0 0 0 3px #facc15;transform:scale(1.04)}
+.pau{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:460px;margin:0 auto;text-align:center}
+.pau-top{display:flex;justify-content:space-between;width:100%;font:800 16px Nunito,sans-serif}.pau-top b{color:#facc15;font-size:1.2em}
+.pau-hint{font:800 18px Nunito,sans-serif;background:#ffffff14;border-radius:16px;padding:10px 14px}.pau-hint b{color:#facc15}
+.pau-amt{display:flex;align-items:center;gap:6px}.pau-amt span{font:400 46px 'Lilita One',sans-serif;min-width:90px;color:#facc15}
+.pau-amt .btn{padding:10px 12px!important;font-size:18px!important}
+.pau-quick{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}.pau-quick .btn{padding:8px 14px!important;font-size:16px!important}
+.pau-big{font-size:70px}
+@media (max-height:520px){.pau{gap:6px}.pau-amt span{font-size:34px}}
 /* ---------- v12: escala automática para cualquier pantalla ---------- */
 :root{--z:1;--vh:calc(1vh / var(--z));--vw:calc(1vw / var(--z));--dvh:calc(1dvh / var(--z))}
 #app>*{zoom:var(--z)}
@@ -8135,6 +8154,96 @@ GAME_TAGS.dungeon = ['miniatures']; GAME_TAGS.ovni = ['miniatures', 'puzzle'];
       if (Math.abs(s.x - (M.lx || 0)) + Math.abs(s.y - (M.ly || 0)) < 2) { M.st = (M.st || 0) + 1; if (M.st > 4) { M.st = 0; M.wd = .8; const a = Math.random() * 6.28; M.dir = [Math.cos(a), Math.sin(a)]; } } else M.st = 0;
       M.lx = s.x; M.ly = s.y;
       return act(dx / d, dy / d);
+    }
+    return ob(p);
+  };
+})();
+
+/* ================== v22 — 🔨 SUBASTA MISTERIOSA ================== */
+const SUB_ITEMS = [['💎', 'Diamante', 60, 95], ['💰', 'Bolsa de oro', 40, 70], ['🎁', 'Regalo', 20, 50], ['🐔', 'Gallina', 10, 30], ['🍌', 'Banano', 3, 12], ['🪨', 'Piedra', 0, 0], ['🦨', 'Zorrillo', -25, -10], ['💣', 'Bomba', -45, -20]];
+Object.assign(GAMES, {
+  auction: {
+    name: 'Subasta Misteriosa', emoji: '🔨', color: '#a16207', N: 6,
+    desc: 'Cada ronda sale una caja misteriosa 📦 con una pista: "puede ser 💎 o 💣". Todos pujan en secreto desde el cel. El que más ofrece se la lleva… ¡y descubre si era un tesoro o una bomba! Empiezan con 100 🪙 y gana el que termine con más.',
+    start() {
+      const ids = onlineIds(); IMG('dungeon/chest.png');
+      H.gd = { ids, r: 0, money: Object.fromEntries(ids.map(i => [i, 100])), won: Object.fromEntries(ids.map(i => [i, []])) };
+      setTimeout(() => this.round(), 300);
+    },
+    round() {
+      const gd = H.gd; gd.r++; gd.bids = {}; gd.order = 0;
+      const a = rand(SUB_ITEMS.length); let b = rand(SUB_ITEMS.length); while (b === a) b = rand(SUB_ITEMS.length);
+      const real = Math.random() < .5 ? a : b, it = SUB_ITEMS[real];
+      gd.hint = Math.random() < .5 ? [a, b] : [b, a]; gd.item = real; gd.value = it[2] + rand(it[3] - it[2] + 1);
+      setPhase('au-go', 15000, () => GAMES.auction.reveal());
+      SND.play('ui_open_002', .5);
+    },
+    onAct(p, m) {
+      const gd = H.gd; if (H.phase !== 'au-go' || m.a !== 'bid' || !inGame(p) || gd.bids[p.id]) return;
+      const v = Math.max(0, Math.min(gd.money[p.id], Math.round(+m.v || 0)));
+      gd.bids[p.id] = { v, o: gd.order++ }; SFX.pop(); updateStrip(); this.paint(); sync();
+      checkAll(id => gd.bids[id], () => GAMES.auction.reveal());
+    },
+    isDone(id) { return H.phase === 'au-go' && !!H.gd.bids?.[id]; },
+    reveal() {
+      const gd = H.gd; if (H.phase !== 'au-go') return;
+      const list = gd.ids.filter(id => gd.bids[id] && gd.bids[id].v > 0).sort((a, b) => gd.bids[b].v - gd.bids[a].v || gd.bids[a].o - gd.bids[b].o);
+      gd.winner = list[0] || null;
+      if (gd.winner) { gd.money[gd.winner] += gd.value - gd.bids[gd.winner].v; gd.money[gd.winner] = Math.max(0, gd.money[gd.winner]); gd.won[gd.winner].push(SUB_ITEMS[gd.item][0]); }
+      SND.play(gd.value > 0 ? 'ui_confirmation_001' : 'sf_explosionCrunch_000', .55);
+      if (gd.value < 0) shakeScreen(); else if (gd.value >= 40) confetti(70);
+      setPhase('au-rev', 5000, () => { if (gd.r >= this.N) this.end(); else this.round(); }, 0, false);
+    },
+    end() {
+      const gd = H.gd, g = rankGains(gd.ids, id => gd.money[id], true);
+      gd.rows = gd.ids.slice().sort((a, b) => gd.money[b] - gd.money[a]).map(id => ({ id, val: `🪙 ${gd.money[id]} ${gd.won[id].join('')}`, gain: g[id] || 0 }));
+      setPhase('au-res', 5500, () => finishGame(g), 0, false); confetti(90); SFX.win();
+    },
+    view(p) {
+      const gd = H.gd;
+      if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
+      if (H.phase === 'au-go') return { screen: 'auction', key: `au${gd.r}-${gd.bids[p.id] ? 1 : 0}`, r: gd.r, N: this.N, money: gd.money[p.id], hint: gd.hint.map(i => SUB_ITEMS[i][0] + ' ' + SUB_ITEMS[i][1]), bid: gd.bids[p.id] ? gd.bids[p.id].v : null, deadline: H.deadline };
+      if (H.phase === 'au-rev') { const w = gd.winner === p.id; return { screen: 'msg', big: w ? (gd.value >= 0 ? '🤑' : '💥') : '👀', title: w ? `¡Te llevaste ${SUB_ITEMS[gd.item][0]} ${SUB_ITEMS[gd.item][1]}!` : 'No te la llevaste', text: `${w ? `Pagaste ${gd.bids[p.id].v} y valía ${gd.value} · ` : ''}Tenés ${gd.money[p.id]} 🪙` }; }
+      return watch();
+    },
+    paint() {
+      const gd = H.gd, el = $('#aupl'); if (!el) return; const rev = H.phase === 'au-rev';
+      el.innerHTML = gd.ids.slice().sort((a, b) => rev ? ((gd.bids[b]?.v || 0) - (gd.bids[a]?.v || 0)) : gd.money[b] - gd.money[a]).map(id => { const p = pl(id), bd = gd.bids[id]; return `<div class="aup ${rev && id === gd.winner ? 'win' : ''}" style="--c:${p?.color}"><b>${p?.emoji} ${esc(p?.name || '')}</b><span>🪙 ${gd.money[id]}</span><em>${rev ? (bd ? `pujó ${bd.v}` : '—') : bd ? '✅ pujó' : '🤔'}</em></div>`; }).join('');
+    },
+    render(ph) {
+      const gd = H.gd;
+      if (ph === 'au-res') return `<h1 class="title-pop">🔨 Los mejores negociantes</h1>${resultsList(gd.rows)}`;
+      const it = SUB_ITEMS[gd.item], rev = ph === 'au-rev';
+      setTimeout(() => { this.paint(); if (window.gsap) { if (rev) { gsap.fromTo('.aubox', { rotation: -8 }, { rotation: 8, yoyo: true, repeat: 5, duration: .07 }); gsap.from('.auitem', { scale: 0, rotation: -90, duration: .6, delay: .45, ease: 'back.out(2)' }); } else gsap.fromTo('.aubox', { y: -6 }, { y: 6, yoyo: true, repeat: -1, duration: .8, ease: 'sine.inOut' }); } }, 30);
+      return `<div class="round-lbl">Subasta ${gd.r} de ${this.N}</div><div class="auwrap">
+        <div class="austage">${rev ? `<div class="auitem">${it[0]}</div><div class="auval ${gd.value < 0 ? 'neg' : ''}">${it[1]} · vale ${gd.value > 0 ? '+' : ''}${gd.value} 🪙</div>${gd.winner ? `<div class="auwho">🔨 ¡Vendido a ${pl(gd.winner)?.emoji} ${esc(pl(gd.winner)?.name || '')} por ${gd.bids[gd.winner].v}!</div>` : '<div class="auwho">Nadie pujó 🤷</div>'}` : `<img class="aubox" src="assets/dungeon/chest.png" alt=""><div class="auhint">Puede ser <b>${gd.hint.map(i => SUB_ITEMS[i][0] + ' ' + SUB_ITEMS[i][1]).join('</b> o <b>')}</b></div>`}</div>
+        <div class="aupl" id="aupl"></div></div>`;
+    }
+  }
+});
+GAME_TAGS.auction = ['luck', 'interaction'];
+XS.auction = function (v) {
+  if (v.bid != null) { app.innerHTML = shell(`<div class="pau"><div class="pau-big">🔨</div><h2>Pujaste ${v.bid} 🪙</h2><p class="tag">Esperando a los demás…</p></div>`, true); return; }
+  let b = Math.min(v.money, P._auLast ?? 10);
+  app.innerHTML = shell(`<div class="pau"><div class="pau-top"><span>Subasta ${v.r}/${v.N}</span><span>Tenés <b>${v.money}</b> 🪙</span></div>
+    <div class="pau-hint">📦 Puede ser<br><b>${v.hint.join('</b> o <b>')}</b></div>
+    <div class="pau-amt"><button class="btn gray" data-d="-10">−10</button><button class="btn gray" data-d="-1">−1</button><span id="aub">${b}</span><button class="btn gray" data-d="1">+1</button><button class="btn gray" data-d="10">+10</button></div>
+    <div class="pau-quick">${[0, 10, 25, 50].map(q => `<button class="btn" data-q="${q}" ${q > v.money ? 'disabled' : ''}>${q}</button>`).join('')}<button class="btn" data-q="${v.money}">Todo</button></div>
+    <button class="btn big pink" id="aubid">🔨 Pujar</button></div>`, true);
+  const show = () => { $('#aub').textContent = b; };
+  app.querySelectorAll('[data-d]').forEach(x => x.onclick = () => { b = Math.max(0, Math.min(v.money, b + +x.dataset.d)); show(); SFX.pop(); });
+  app.querySelectorAll('[data-q]').forEach(x => x.onclick = () => { b = Math.min(v.money, +x.dataset.q); show(); SFX.pop(); });
+  $('#aubid').onclick = () => { P._auLast = b; send({ t: 'act', a: 'bid', v: b }); $('#aubid').disabled = true; if (navigator.vibrate) navigator.vibrate(30); };
+  P.onKey = (k, first) => { if (k === 'arrowup' || k === 'w') { b = Math.min(v.money, b + 1); show(); } else if (k === 'arrowdown' || k === 's') { b = Math.max(0, b - 1); show(); } else if (k === 'arrowright' || k === 'd') { b = Math.min(v.money, b + 10); show(); } else if (k === 'arrowleft' || k === 'a') { b = Math.max(0, b - 10); show(); } else if (first && (k === ' ' || k === 'enter')) $('#aubid')?.click(); };
+};
+(() => {
+  const ob = botBrain;
+  botBrain = function (p) {
+    if (H.game === GAMES.auction && H.phase === 'au-go') {
+      const gd = H.gd, M = p._au || (p._au = {}); if (gd.bids[p.id]) return;
+      if (M.r !== gd.r) { M.r = gd.r; M.t = Date.now() + 1500 + rand(6000); } if (Date.now() < M.t) return;
+      const ev = gd.hint.reduce((s, i) => s + (SUB_ITEMS[i][2] + SUB_ITEMS[i][3]) / 2, 0) / 2, bid = Math.max(0, Math.round(ev * (.4 + Math.random() * .6)));
+      return GAMES.auction.onAct(p, { a: 'bid', v: Math.min(gd.money[p.id], bid) });
     }
     return ob(p);
   };
