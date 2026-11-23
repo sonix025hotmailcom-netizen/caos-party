@@ -8277,7 +8277,7 @@ Object.assign(GAMES, {
   /* =================================================================== */
   race3d: {
     name: 'Gran Premio 3D', emoji: '🏎️', color: '#dc2626', LAPS: 3, W: 2.1,
-    desc: '¡Carrera de autos en 3D! 🏎️ El auto acelera solo: joystick ◀ ▶ (o A/D, flechas) para girar y ▼ (o S) para frenar. El botón (o ESPACIO) es el TURBO 🚀. Si te salís de la pista vas lento. ¡3 vueltas! 🏁',
+    desc: '¡Carrera de autos en 3D! 🏎️ Joystick ▲ (o W / flecha arriba) acelera, ▼ (S) frena y da reversa, ◀ ▶ (A/D) giran el volante. El botón (o ESPACIO) es el TURBO 🚀. Si te salís de la pista vas lento. ¡3 vueltas! 🏁',
     start() {
       const ids = onlineIds(), M = 220;
       ['raceCarRed', 'raceCarGreen', 'raceCarOrange', 'raceCarWhite', 'treeLarge', 'treeSmall', 'grandStand', 'grandStandCovered', 'overheadLights', 'flagCheckers', 'lightPostLarge', 'tent', 'billboard', 'bannerTowerRed', 'bannerTowerGreen', 'pylon'].forEach(n => C3D.load(Rk(n)).catch(() => {}));
@@ -8297,7 +8297,7 @@ Object.assign(GAMES, {
       if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
       const s = H.gd.ps?.[p.id];
       if (s && s.done) return { screen: 'msg', big: '🏁', title: `¡Llegaste ${s.place}º!`, text: 'Mirá la tele y apoyá a los demás 😄' };
-      if (H.phase === 'rc-ready' || H.phase === 'rc-go') return joyView(p, '◀ ▶ girar (A/D) · ▼ frenar (S) · acelera solo · Botón = TURBO (espacio)', '🚀 TURBO', 4);
+      if (H.phase === 'rc-ready' || H.phase === 'rc-go') return joyView(p, '▲ acelerar (W) · ▼ frenar / reversa (S) · ◀ ▶ girar (A/D) · Botón = TURBO (espacio)', '🚀 TURBO', 4);
       return watch();
     },
     onAct(p, m) { if (H.phase === 'rc-ready' || H.phase === 'rc-go') joyAct(p, m); },
@@ -8316,15 +8316,18 @@ Object.assign(GAMES, {
         s.idx = ni;
         const max = (s.turbo > 0 ? 11 : 7.4) * (s.off ? .42 : 1);
         /* controles tipo arcade: ◀ ▶ giran el auto, ▼ frena / reversa, acelera solo */
-        const steer = Math.abs(i.x) > .12 ? Math.max(-1, Math.min(1, i.x)) : 0, brake = i.y > .55;
-        s.steer = (s.steer || 0) + (steer - (s.steer || 0)) * Math.min(1, dt * 10);
-        s.a -= s.steer * (1.5 + Math.min(1, Math.abs(s.v) / 5) * 1.3) * dt * Math.sign(s.v || 1);
-        if (brake) { s.v -= (s.v > 0 ? 16 : 6) * dt; if (s.v < -2.5) s.v = -2.5; }
-        else s.v += (s.v < max ? 9 : -10) * dt;
-        if (s.turbo > 0) s.v += 12 * dt;
-        s.v = Math.min(max + (s.turbo > 0 ? 0 : 0), s.v);
+        /* ▲ acelera · ▼ frena y después reversa · ◀ ▶ giran · nada = el auto rueda y se va frenando solo */
+        const steer = Math.abs(i.x) > .15 ? Math.max(-1, Math.min(1, i.x)) : 0, gas = i.y < -.3 ? Math.min(1, -i.y * 1.3) : 0, brake = i.y > .3;
+        s.steer = (s.steer || 0) + (steer - (s.steer || 0)) * Math.min(1, dt * 8);
+        const grip = Math.min(1, Math.abs(s.v) / 2.5); /* quieto no gira; en reversa gira al revés, como un auto de verdad */
+        s.a -= s.steer * 2.4 * grip * dt * (s.v < 0 ? -1 : 1);
+        if (s.turbo > 0) { if (s.v < max) s.v = Math.min(max, s.v + 14 * dt); }
+        else if (brake) s.v = s.v > 0 ? Math.max(0, s.v - 15 * dt) : Math.max(-3, s.v - 5 * dt);
+        else if (gas) s.v += (s.v < 0 ? 15 : 8 * gas) * dt;
+        else s.v -= Math.sign(s.v) * Math.min(Math.abs(s.v), 3.5 * dt);
+        if (s.v > max) s.v = Math.max(max, s.v - 12 * dt); /* frena gradual al salirse, sin tirones */
         s.x += Math.sin(s.a) * s.v * dt; s.z += Math.cos(s.a) * s.v * dt;
-        if (Math.abs(s.x) > 11.5 || Math.abs(s.z) > 6.6) s.v *= .5;
+        if (Math.abs(s.x) > 11.5 || Math.abs(s.z) > 6.6) s.v = Math.min(s.v, 2);
         s.x = Math.max(-11.5, Math.min(11.5, s.x)); s.z = Math.max(-6.6, Math.min(6.6, s.z));
       }
       for (let a = 0; a < gd.ids.length; a++) for (let b = a + 1; b < gd.ids.length; b++) { const A = gd.ps[gd.ids[a]], B = gd.ps[gd.ids[b]], dx = B.x - A.x, dz = B.z - A.z, d = Math.hypot(dx, dz); if (d > 0 && d < .75) { const k = (.75 - d) / 2; A.x -= dx / d * k; A.z -= dz / d * k; B.x += dx / d * k; B.z += dz / d * k; if (d < .6) { A.v *= .96; B.v *= .96; } } }
@@ -8665,7 +8668,7 @@ XS.qcambio = function (v) {
       const s = gd.ps[p.id]; if (!s) return; const M = p._rc || (p._rc = { b: 0, look: 7 + rand(4), skill: .8 + Math.random() * .2 });
       const tgt = gd.pts[(s.idx + M.look) % gd.M], dx = tgt[0] - s.x, dz = tgt[1] - s.z, da = angTo(s.a, Math.atan2(dx, dz)), turn = Math.abs(da);
       if (s.cd <= 0 && turn < .15 && Math.random() < .08) M.b++;
-      return joyAct(p, { a: 'joy', x: Math.max(-1, Math.min(1, -da * 2.2)) * M.skill, y: turn > 1.2 && s.v > 5 ? 1 : 0, b: M.b });
+      return joyAct(p, { a: 'joy', x: Math.max(-1, Math.min(1, -da * 2.2)) * M.skill, y: turn > 1.2 && s.v > 5 ? 1 : turn > .8 ? -.5 : -1, b: M.b });
     }
     if (H.game === GAMES.golf && H.phase === 'gf-go' && gd.b) {
       const b = gd.b[p.id]; if (!b || b.in) return; const M = p._gf || (p._gf = { b: 0 });
