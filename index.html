@@ -791,6 +791,11 @@ body.isctrl::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .gfhead{position:absolute;left:50%;top:.4em;transform:translateX(-50%);background:#166534;color:#fff;font-weight:900;padding:.2em .9em;border-radius:999px;box-shadow:0 3px 0 #0005;white-space:nowrap;z-index:2}
 .gfpow{position:absolute;left:50%;transform:translateX(-50%);bottom:.5em;width:30%;height:.8em;background:#000a;border-radius:999px;overflow:hidden;border:2px solid #fff8}.gfpow i{display:block;height:100%;border-radius:999px}
 img.fe{width:1.15em;height:1.15em;vertical-align:-.22em;display:inline-block;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.pdz{position:absolute;left:0;top:0;bottom:0;width:64%;display:flex;gap:12px;padding:56px 12px 16px 14px;box-sizing:border-box;touch-action:none;user-select:none;-webkit-user-select:none;z-index:2}
+.pdb{flex:1;border-radius:26px;border:4px solid var(--ink,#1a1033);background:linear-gradient(#ffffff2e,#ffffff10);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 0 #0006;transition:transform .06s,background .06s}
+.pdb span{font-size:min(18vw,90px);color:#fff;text-shadow:0 4px 0 #0007;pointer-events:none}
+.pdb.on{transform:translateY(5px);box-shadow:0 3px 0 #0006;background:linear-gradient(#22d3ee,#0891b2)}
+@media (orientation:portrait){.pdz{width:100%;bottom:auto;height:54%;padding-top:64px}.ctrl.joy .actbtn.padjump{left:50%;right:auto;bottom:max(calc(4 * var(--vh)),16px);margin-left:calc(min(58vw,250px) / -2);width:min(58vw,250px)!important}}
 /* ---------- v12: escala automática para cualquier pantalla ---------- */
 :root{--z:1;--vh:calc(1vh / var(--z));--vw:calc(1vw / var(--z));--dvh:calc(1dvh / var(--z))}
 #app>*{zoom:var(--z)}
@@ -1050,6 +1055,13 @@ function onHostMsg(conn, m) {
   }
   const p = pl(conn._pid);
   if (!p || p.conn !== conn) return;
+  if (m.t === 'part') { /* mensajes grandes (dibujos) llegan en pedacitos y se arman acá */
+    const k = String(m.k || '').slice(0, 24), n = m.n | 0, i = m.i | 0; if (!k || n < 1 || n > 120 || i < 0 || i >= n || typeof m.d !== 'string' || m.d.length > 16000) return;
+    p._pdone = p._pdone || new Set(); if (p._pdone.has(k)) { try { conn.send({ t: 'ack', k }); } catch (e) {} return; }
+    p._parts = p._parts || {}; const a = p._parts[k] = p._parts[k] || { n, got: 0, d: [] }; if (a.d[i] == null) { a.d[i] = m.d; a.got++; }
+    if (a.got < a.n) return; delete p._parts[k]; p._pdone.add(k); try { conn.send({ t: 'ack', k }); } catch (e) {}
+    let o; try { o = JSON.parse(a.d.join('')); } catch (e) { return; } if (o && o.t === 'act' && H.game && H.game.onAct) H.game.onAct(p, o); return;
+  }
   if (m.t === 'act' && H.game && H.game.onAct) H.game.onAct(p, m);
 }
 function onHostClose(conn) {
@@ -1558,8 +1570,18 @@ function connectToHost() {
   });
 }
 function send(o) { try { if (P.conn && P.conn.open) P.conn.send(o); } catch (e) {} }
+/* manda algo grande (un dibujo) en pedacitos chicos y lo reintenta hasta que la tele confirme */
+function sendBig(o, onAck) {
+  const s = JSON.stringify(o), k = Math.random().toString(36).slice(2, 12), CH = 12000, n = Math.ceil(s.length / CH);
+  const go = () => { for (let i = 0; i < n; i++) send({ t: 'part', k, i, n, d: s.slice(i * CH, (i + 1) * CH) }); };
+  P.acks = P.acks || new Set(); go(); let tries = 0;
+  const iv = setInterval(() => { if (P.acks.has(k)) { clearInterval(iv); onAck && onAck(); return; } if (++tries > 12) { clearInterval(iv); return; } go(); onAck && onAck(tries); }, 3500);
+  P.timers.push({ clear: () => clearInterval(iv) }); return k;
+}
+function shrinkImg(c, max, q) { const w = Math.min(max, c.width), t = document.createElement('canvas'); t.width = t.height = w; const g = t.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, w, w); g.drawImage(c, 0, 0, w, w); return t.toDataURL('image/jpeg', q); }
 function onPlayerMsg(m) {
   if (!m || typeof m !== 'object') return;
+  if (m.t === 'ack') { (P.acks = P.acks || new Set()).add(m.k); return; }
   if (m.t === 'welcome') { P.color = m.color; P.name = m.name; P.emoji = m.emoji; document.documentElement.style.setProperty('--me', m.color); }
   else if (m.t === 'full') { P.conn = null; showError('La sala está llena (máximo 8) 😢', null); }
   else if (m.t === 'cut') { if (P.onCut) P.onCut(m.ms, m.by); }
@@ -1668,8 +1690,8 @@ function drawScreen(v) {
   $('#bClr').onclick = () => { hist.push(g.getImageData(0, 0, 320, 320)); g.fillStyle = '#fff'; g.fillRect(0, 0, 320, 320); };
   const submit = auto => {
     if (sent) return; if (auto && !hist.length) return;
-    sent = true; send({ t: 'act', a: 'draw', img: c.toDataURL('image/jpeg', .7) });
-    const b = $('#bSend'); b.disabled = true; b.textContent = 'Enviando… 🚀';
+    sent = true; const b = $('#bSend'); b.disabled = true; b.textContent = 'Enviando… 🚀';
+    sendBig({ t: 'act', a: 'draw', img: shrinkImg(c, 320, .72) }, tr => { if (b.isConnected) b.textContent = tr ? 'Reintentando… 📡' : '¡Enviado! ✅'; });
   };
   $('#bSend').onclick = () => submit(false);
   if (P.deadline) P.timers.push(setTimeout(() => submit(true), Math.max(0, P.deadline - Date.now() - 500)));
@@ -3979,13 +4001,13 @@ function paintScreen(v, mode) {
   $('#bClr').onclick = () => { save(); g.fillStyle = '#fff'; g.fillRect(0, 0, W, W); dirty = true; };
   P.timers.push({ clear: () => clearInterval(sprayIv) });
   if (live) {
-    const sm = document.createElement('canvas'); sm.width = sm.height = 400; const sg = sm.getContext('2d');
-    P.timers.push(setInterval(() => { if (!dirty) return; dirty = false; sg.drawImage(c, 0, 0, 400, 400); send({ t: 'act', a: 'live', img: sm.toDataURL('image/jpeg', .7) }); }, 600));
+    const sm = document.createElement('canvas'); sm.width = sm.height = 320; const sg = sm.getContext('2d');
+    P.timers.push(setInterval(() => { if (!dirty) return; dirty = false; sg.drawImage(c, 0, 0, 320, 320); send({ t: 'act', a: 'live', img: sm.toDataURL('image/jpeg', .6) }); }, 600));
   } else {
     const submit = auto => {
       if (sent || (auto && !strokes)) return; sent = true;
-      send({ t: 'act', a: 'draw', img: c.toDataURL('image/jpeg', .85) });
       const b = $('#bSend'); b.disabled = true; b.textContent = 'Enviando… 🚀';
+      sendBig({ t: 'act', a: 'draw', img: shrinkImg(c, 420, .78) }, tr => { if (b.isConnected) b.textContent = tr ? 'Reintentando… 📡' : '¡Enviado! ✅'; });
     };
     $('#bSend').onclick = () => submit(false);
     if (P.deadline) P.timers.push(setTimeout(() => submit(true), Math.max(0, P.deadline - Date.now() - 600)));
@@ -6926,7 +6948,7 @@ Object.assign(GAMES, {
     rock(edge, x, y, big = true) {
       const gd = H.gd, sq = Math.random() < .4;
       if (edge) { const s = rand(4); x = s === 0 ? -40 : s === 1 ? 1040 : Math.random() * 1000; y = s === 2 ? -40 : s === 3 ? 640 : Math.random() * 600; }
-      const a = Math.random() * 6.28, sp = (big ? 45 : 95) + Math.random() * 60 + gd.t * 1.2;
+      const a = Math.random() * 6.28, sp = (big ? 45 : 85) + Math.random() * 50 + gd.t * .6;
       gd.rocks.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: big ? 40 : 21, big, rot: Math.random() * 6, vr: (Math.random() - .5) * 2, img: (sq ? 'meteor_squareDetailed' : 'meteor_detailed') + (big ? 'Large' : 'Small'), hp: big ? 2 : 1, hit: 0 });
     },
     go() { setPhase('as-go', 60000, () => GAMES.rocks.end()); rtLoop(dt => GAMES.rocks.step(dt), GAMES.rocks.draw); },
@@ -6941,12 +6963,13 @@ Object.assign(GAMES, {
     step(dt) {
       const gd = H.gd, W = (o, m = 40) => { if (o.x < -m) o.x += 1000 + 2 * m; if (o.x > 1000 + m) o.x -= 1000 + 2 * m; if (o.y < -m) o.y += 600 + 2 * m; if (o.y > 600 + m) o.y -= 600 + 2 * m; };
       gd.t += dt; gd.spawn -= dt; gd.ufoT -= dt;
-      const want = 5 + Math.min(5, gd.ids.length) + Math.floor(gd.t / 15);
-      if (gd.spawn <= 0 && gd.rocks.filter(r => r.big).length < want) { gd.spawn = 1.1; this.rock(true); }
+      /* cantidad de meteoros pareja: crece un poco con la gente y el tiempo, pero con tope para que la pantalla no se llene */
+      const n = gd.ids.length, load = gd.rocks.reduce((a, r) => a + (r.big ? 1 : .45), 0), cap = Math.min(5 + n * .9, 12) + Math.min(3, gd.t / 20);
+      if (gd.spawn <= 0 && load < cap) { gd.spawn = 1.3; this.rock(true); }
       if (gd.ufoT <= 0) { gd.ufoT = 9 + Math.random() * 7; const L = Math.random() < .5; gd.ufos.push({ x: L ? -40 : 1040, y: 80 + Math.random() * 440, vx: (L ? 1 : -1) * (110 + Math.random() * 60), ph: Math.random() * 6, img: pickR(['enemy_A', 'enemy_B', 'enemy_C', 'enemy_D', 'enemy_E']), hp: 3, hit: 0 }); SND.play('sf_forceField_000', .35); }
       for (const id of gd.ids) {
         const s = gd.ps[id], i = inp(id); s.cd -= dt; s.inv -= dt;
-        if (!s.alive) { s.resp -= dt; if (s.resp <= 0) { Object.assign(s, { x: 200 + Math.random() * 600, y: 150 + Math.random() * 300, vx: 0, vy: 0, alive: true, inv: 2 }); sync(); } s.lb = i.b; continue; }
+        if (!s.alive) { s.resp -= dt; if (s.resp <= 0) { let best = null, bd = -1; for (let k = 0; k < 14; k++) { const x = 150 + Math.random() * 700, y = 120 + Math.random() * 360, d = Math.min(999, ...gd.rocks.map(r => Math.hypot(r.x - x, r.y - y) - r.r)); if (d > bd) { bd = d; best = [x, y]; } } Object.assign(s, { x: best[0], y: best[1], vx: 0, vy: 0, alive: true, inv: 2.5 }); sync(); } /* reaparece lejos de los meteoros */ s.lb = i.b; continue; }
         const m = Math.min(1, Math.hypot(i.x, i.y));
         if (m > .15) { const ta = Math.atan2(i.y, i.x); let d = ta - s.a; d = Math.atan2(Math.sin(d), Math.cos(d)); s.a += Math.sign(d) * Math.min(Math.abs(d), 10 * dt); s.vx += Math.cos(s.a) * 620 * m * dt; s.vy += Math.sin(s.a) * 620 * m * dt; s.thr = m; } else s.thr = 0;
         const sp = Math.hypot(s.vx, s.vy), mx = 300; if (sp > mx) { s.vx *= mx / sp; s.vy *= mx / sp; }
@@ -6965,11 +6988,11 @@ Object.assign(GAMES, {
         if (b.dead) continue;
         for (const u of gd.ufos) { if (u.gone || Math.hypot(u.x - b.x, u.y - b.y) > 30) continue; b.dead = true; u.hp--; u.hit = .1; if (u.hp <= 0) { u.gone = true; const s = gd.ps[b.own]; s.pts += 10; s.ufo++; this.pop(u.x, u.y, '+10 👾', '#22d3ee'); gd.fx.push({ k: 'boom', x: u.x, y: u.y, t: 0, s: 1.5 }); SFX.boom(); SND.voice('combo'); } break; }
         if (b.dead) continue;
-        for (const id of gd.ids) { const s = gd.ps[id]; if (id === b.own || !s.alive || s.inv > 0 || Math.hypot(s.x - b.x, s.y - b.y) > 22) continue; b.dead = true; s.vx += b.vx * .35; s.vy += b.vy * .35; s.pts = Math.max(0, s.pts - 2); gd.ps[b.own].pts += 2; gd.ps[b.own].hits++; s.inv = .6; this.pop(s.x, s.y - 20, '-2', '#ef4444'); SFX.hit(); break; }
+        for (const id of gd.ids) { const s = gd.ps[id]; if (id === b.own || !s.alive || s.inv > 0 || Math.hypot(s.x - b.x, s.y - b.y) > 22) continue; b.dead = true; s.vx += b.vx * .35; s.vy += b.vy * .35; s.pts = Math.max(0, s.pts - 1); gd.ps[b.own].pts += 1; gd.ps[b.own].hits++; s.inv = 1.2; this.pop(s.x, s.y - 20, '-1', '#ef4444'); SFX.hit(); break; }
       }
       for (const id of gd.ids) {
         const s = gd.ps[id]; if (!s.alive || s.inv > 0) continue;
-        for (const r of gd.rocks) if (!r.dead && Math.hypot(r.x - s.x, r.y - s.y) < r.r + 14) { s.alive = false; s.resp = 2.2; s.crash++; s.pts = Math.max(0, s.pts - 5); this.pop(s.x, s.y, '-5 💥', '#ef4444'); gd.fx.push({ k: 'boom', x: s.x, y: s.y, t: 0, s: 1.3 }); SFX.boom(); shakeScreen(); sync(); break; }
+        for (const r of gd.rocks) if (!r.dead && Math.hypot(r.x - s.x, r.y - s.y) < r.r + 14) { s.alive = false; s.resp = 1.7; s.crash++; s.pts = Math.max(0, s.pts - 3); this.pop(s.x, s.y, '-3 💥', '#ef4444'); gd.fx.push({ k: 'boom', x: s.x, y: s.y, t: 0, s: 1.3 }); SFX.boom(); shakeScreen(); sync(); break; }
       }
       gd.rocks = gd.rocks.filter(r => !r.dead); gd.ufos = gd.ufos.filter(u => !u.gone); gd.bul = gd.bul.filter(b => !b.dead);
       gd.fx.forEach(f => f.t += dt); gd.fx = gd.fx.filter(f => f.t < (f.k === 'txt' ? 1 : .6));
@@ -7048,7 +7071,7 @@ Object.assign(GAMES, {
     go() { const gd = H.gd; gd.t0 = Date.now(); setPhase('mb-go', 75000, () => GAMES.marbles.end()); rtLoop(dt => GAMES.marbles.step(dt), GAMES.marbles.draw); },
     view(p) {
       if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
-      if (H.phase === 'mb-ready' || H.phase === 'mb-go') { const s = H.gd.ps?.[p.id]; return s && s.done ? { screen: 'msg', big: '🏁', title: `¡Llegaste ${s.place}º!`, text: 'Mirá la tele y apoyá a los demás 😄' } : joyView(p, '🕹️ Rodá → · Botón = SALTAR (también mientras rodás)', '⬆️ SALTAR', 0); }
+      if (H.phase === 'mb-ready' || H.phase === 'mb-go') { const s = H.gd.ps?.[p.id]; return s && s.done ? { screen: 'msg', big: '🏁', title: `¡Llegaste ${s.place}º!`, text: 'Mirá la tele y apoyá a los demás 😄' } : { screen: 'pads', key: 'pads' + H.gd.sid, hint: 'Mantené ◀ ▶ para rodar · SALTAR también mientras rodás', btn: '⬆️ SALTAR' }; }
       return watch();
     },
     onAct(p, m) { if (H.phase === 'mb-ready' || H.phase === 'mb-go') joyAct(p, m); },
@@ -8998,6 +9021,28 @@ if (FE_ON) {
   const imgs = {}; const oemo = emo;
   emo = function (ctx, e, x, y, size) { const src = feSrc(e); if (src) { let im = imgs[src]; if (!im) { im = imgs[src] = new Image(); im.src = src; } if (im.complete && im.naturalWidth) { const s = size * 1.12; ctx.drawImage(im, x - s / 2, y - s / 2, s, s); return; } } return oemo(ctx, e, x, y, size); };
 }
+
+/* ---------- v30: controles de botones grandes ◀ ▶ + SALTAR para la Carrera de Canicas (mucho mejor en cel/tablet) ---------- */
+XS.pads = function (v) {
+  app.innerHTML = shell(`<div class="jhint">${esc(v.hint || '')}</div><div class="pdz" id="pdz"><div class="pdb" data-d="-1"><span>◀</span></div><div class="pdb" data-d="1"><span>▶</span></div></div><button class="actbtn padjump" id="act"><span class="albl">${esc(v.btn)}</span></button>`);
+  app.firstElementChild.classList.add('joy');
+  const zone = $('#pdz'), bl = zone.children[0], br = zone.children[1], act = $('#act'), touches = new Map();
+  let b = 0, lx = 9, lb = -1, ls = 0;
+  const dirAt = e => { const r = zone.getBoundingClientRect(); return e.clientX < r.left + r.width / 2 ? -1 : 1; };
+  const paint = () => { const v2 = [...touches.values()]; bl.classList.toggle('on', v2.includes(-1)); br.classList.toggle('on', v2.includes(1)); };
+  zone.addEventListener('pointerdown', e => { e.preventDefault(); try { zone.setPointerCapture(e.pointerId); } catch (er) {} touches.set(e.pointerId, dirAt(e)); paint(); if (navigator.vibrate) navigator.vibrate(10); });
+  zone.addEventListener('pointermove', e => { if (!touches.has(e.pointerId)) return; e.preventDefault(); const d = dirAt(e); if (touches.get(e.pointerId) !== d) { touches.set(e.pointerId, d); paint(); } });
+  const up = e => { touches.delete(e.pointerId); paint(); }; zone.addEventListener('pointerup', up); zone.addEventListener('pointercancel', up);
+  const jump = () => { b++; act.classList.remove('hit'); void act.offsetWidth; act.classList.add('hit'); if (navigator.vibrate) navigator.vibrate(25); };
+  act.addEventListener('pointerdown', e => { e.preventDefault(); jump(); });
+  P.onKey = (k, first) => { if (first && keyIs(k, 'act')) jump(); if (first && keyIs(k, 'up')) jump(); };
+  if (finePointer()) { const h = app.querySelector('.jhint'); if (h) h.innerHTML = `${KEYIMG('keyboard_a')}${KEYIMG('keyboard_d')} o ← → para rodar · ${KEYIMG('keyboard_space')} o W = saltar`; }
+  P.timers.push(setInterval(() => {
+    let x = 0; const vs = [...touches.values()]; if (vs.length) x = vs[vs.length - 1];
+    if (typeof kdown !== 'undefined' && kdown.size) { const h = g => KEYS[g].some(q => kdown.has(q)); const kx = (h('right') ? 1 : 0) - (h('left') ? 1 : 0); if (kx) x = kx; }
+    const now = Date.now(); if (x !== lx || b !== lb || now - ls > 400) { lx = x; lb = b; ls = now; send({ t: 'act', a: 'joy', x, y: 0, b }); }
+  }, 40));
+};
 
 /* ---------- escala automática de la interfaz ---------- */
 function fitUI() {
