@@ -26,3 +26,7 @@ pixel/    UI Pack Pixel Adventure (marcos y cintas del Calabozo Loco)
 race/     Racing Kit (autos, gradas, árboles, banderas…)
 golf/     Minigolf Kit
 furn/     Furniture Kit
+
+
+assets/fe/ — Fluent Emoji 3D (Microsoft), licencia MIT. https://github.com/microsoft/fluentui-emoji
+Copyright (c) Microsoft Corporation. Permission is hereby granted, free of charge, to any person obtaining a copy of this software... (MIT License)
