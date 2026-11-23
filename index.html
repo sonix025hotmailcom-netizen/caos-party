@@ -5881,10 +5881,22 @@ Object.assign(GAMES, {
 /* ---------- 2D más nítido: los canvas se dibujan a la resolución real de la pantalla ---------- */
 const CDPR = () => Math.min(2, Math.max(1, window.devicePixelRatio || 1));
 (() => {
+  /* calidad automática: si la tablet/tele no da abasto, baja la resolución del canvas (y lo recuerda) para que el juego no se ponga lento */
+  const LV = [2, 1.5, 1.15, .85]; let CQ = 0; try { CQ = Math.min(3, +sessionStorage.getItem('caos_cq') || 0); } catch (e) {}
+  window.canvasK = () => Math.min(CDPR(), LV[CQ]);
   const oc = canvasHTML;
-  canvasHTML = function (ready, text) { const k = CDPR(); return oc(ready, text).replace('width="1000" height="600"', `width="${1000 * k}" height="${600 * k}"`); };
+  canvasHTML = function (ready, text) { const k = canvasK(); return oc(ready, text).replace('width="1000" height="600"', `width="${Math.round(1000 * k)}" height="${Math.round(600 * k)}"`); };
   const ol = rtLoop;
-  rtLoop = function (step, draw) { return ol(step, ctx => { const k = ctx.canvas.width / 1000; ctx.setTransform(k, 0, 0, k, 0, 0); ctx.imageSmoothingQuality = 'high'; draw(ctx); }); };
+  rtLoop = function (step, draw) {
+    let lt = 0, n = 0, acc = 0, warm = 0;
+    return ol(step, ctx => {
+      const now = performance.now(), cv = ctx.canvas;
+      if (lt && cv.offsetParent && !document.hidden) { const d = now - lt; if (d < 250) { if (++warm > 30) { acc += d; n++; } } }
+      lt = now;
+      if (n >= 75) { const avg = acc / n; acc = 0; n = 0; if (avg > 23 && CQ < 3) { const k0 = canvasK(); do CQ++; while (CQ < 3 && canvasK() === k0); try { sessionStorage.setItem('caos_cq', CQ); } catch (e) {} const k = canvasK(); if (Math.abs(cv.width / 1000 - k) > .01) { cv.width = Math.round(1000 * k); cv.height = Math.round(600 * k); } } }
+      const k = cv.width / 1000; ctx.setTransform(k, 0, 0, k, 0, 0); ctx.imageSmoothingQuality = CQ ? 'low' : 'high'; window.__lowq = CQ >= 2; draw(ctx);
+    });
+  };
 })();
 
 /* ---------- brillo neón reutilizable ---------- */
@@ -7071,7 +7083,7 @@ Object.assign(GAMES, {
     go() { const gd = H.gd; gd.t0 = Date.now(); setPhase('mb-go', 75000, () => GAMES.marbles.end()); rtLoop(dt => GAMES.marbles.step(dt), GAMES.marbles.draw); },
     view(p) {
       if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
-      if (H.phase === 'mb-ready' || H.phase === 'mb-go') { const s = H.gd.ps?.[p.id]; return s && s.done ? { screen: 'msg', big: '🏁', title: `¡Llegaste ${s.place}º!`, text: 'Mirá la tele y apoyá a los demás 😄' } : { screen: 'pads', key: 'pads' + H.gd.sid, hint: 'Mantené ◀ ▶ para rodar · SALTAR también mientras rodás', btn: '⬆️ SALTAR' }; }
+      if (H.phase === 'mb-ready' || H.phase === 'mb-go') { const s = H.gd.ps?.[p.id]; return s && s.done ? { screen: 'msg', big: '🏁', title: `¡Llegaste ${s.place}º!`, text: 'Mirá la tele y apoyá a los demás 😄' } : joyView(p, '🕹️ Rodá → · Botón = SALTAR (también mientras rodás)', '⬆️ SALTAR', 0); }
       return watch();
     },
     onAct(p, m) { if (H.phase === 'mb-ready' || H.phase === 'mb-go') joyAct(p, m); },
@@ -7161,7 +7173,7 @@ Object.assign(GAMES, {
       const gyc = M.groundY(gd.cam.x) ?? 360; gd.cam.y += (Math.min(420, Math.max(260, gyc - 40)) - gd.cam.y) * .06;
       const c = gd.cam;
       const sky = ctx.createLinearGradient(0, 0, 0, 600); sky.addColorStop(0, '#38bdf8'); sky.addColorStop(1, '#e0f2fe'); ctx.fillStyle = sky; ctx.fillRect(0, 0, 1000, 600);
-      const bg = I(gd.bg); if (ok(bg)) { if (!gd.pat) gd.pat = ctx.createPattern(bg, 'repeat'); ctx.save(); ctx.fillStyle = gd.pat; ctx.translate((-c.x * .15) % 128, 0); ctx.globalAlpha = .12; ctx.fillRect(-128, 0, 1256, 600); ctx.restore(); }
+      const bg = I(gd.bg); if (ok(bg) && !window.__lowq) { if (!gd.pat) gd.pat = ctx.createPattern(bg, 'repeat'); ctx.save(); ctx.fillStyle = gd.pat; ctx.translate((-c.x * .15) % 128, 0); ctx.globalAlpha = .12; ctx.fillRect(-128, 0, 1256, 600); ctx.restore(); }
       ctx.fillStyle = '#ffffffcc'; for (let k = 0; k < 6; k++) { const cx = ((k * 260 - c.x * .1) % 1300 + 1300) % 1300 - 150, cy = 70 + (k % 3) * 45; ctx.beginPath(); ctx.arc(cx, cy, 26, 0, 7); ctx.arc(cx + 28, cy - 12, 32, 0, 7); ctx.arc(cx + 60, cy, 24, 0, 7); ctx.fill(); }
       [[.25, '#86efac', 330, 90], [.45, '#4ade80', 400, 70]].forEach(([par, col, base, amp]) => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(0, 600); for (let x = 0; x <= 1000; x += 20) { const wx = x + c.x * par; ctx.lineTo(x, base + Math.sin(wx * .004) * amp * .6 + Math.sin(wx * .011) * amp * .3); } ctx.lineTo(1000, 600); ctx.fill(); });
       ctx.save(); ctx.translate(500, 330); ctx.scale(c.z, c.z); ctx.translate(-c.x, -c.y);
@@ -7169,8 +7181,8 @@ Object.assign(GAMES, {
       for (const d of gd.deco) { if (!vis(d.x - 60, d.x + 60)) continue; const im = S(d.img), gy = M.groundY(d.x); if (gy == null || !ok(im)) continue; const s = 128 * d.s; ctx.globalAlpha = .9; ctx.drawImage(im, d.x - s / 2, gy - s + 6, s, s); ctx.globalAlpha = 1; }
       for (const sg of gd.segs) {
         if (!vis(sg.x0, sg.x1)) continue;
-        const dg = ctx.createLinearGradient(0, Math.min(sg.y0, sg.y1), 0, Math.min(sg.y0, sg.y1) + 260); dg.addColorStop(0, '#92582c'); dg.addColorStop(1, '#5b3416');
-        ctx.fillStyle = dg; ctx.beginPath(); ctx.moveTo(sg.x0, sg.y0); ctx.lineTo(sg.x1, sg.y1); ctx.lineTo(sg.x1, 1300); ctx.lineTo(sg.x0, 1300); ctx.closePath(); ctx.fill();
+        if (!sg.dg || sg.dgc !== ctx) { sg.dgc = ctx; sg.dg = ctx.createLinearGradient(0, Math.min(sg.y0, sg.y1), 0, Math.min(sg.y0, sg.y1) + 260); sg.dg.addColorStop(0, '#92582c'); sg.dg.addColorStop(1, '#5b3416'); }
+        ctx.fillStyle = sg.dg; ctx.beginPath(); ctx.moveTo(sg.x0, sg.y0); ctx.lineTo(sg.x1, sg.y1); ctx.lineTo(sg.x1, 1300); ctx.lineTo(sg.x0, 1300); ctx.closePath(); ctx.fill();
         ctx.strokeStyle = '#3f2410'; ctx.lineWidth = 4; ctx.beginPath(); if (sg.lw) { ctx.moveTo(sg.x0, 1300); ctx.lineTo(sg.x0, sg.y0); } if (sg.rw) { ctx.moveTo(sg.x1, sg.y1); ctx.lineTo(sg.x1, 1300); } ctx.stroke();
         ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(sg.x0, sg.y0 + 4); ctx.lineTo(sg.x1, sg.y1 + 4); ctx.stroke();
         ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(sg.x0, sg.y0 - 2); ctx.lineTo(sg.x1, sg.y1 - 2); ctx.stroke();
