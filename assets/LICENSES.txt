@@ -22,3 +22,7 @@ td/       Tower Defense Kit (ovnis como mascotas del robot)
 td/       + torres, cañones, losetas y decoración del Tower Defense Kit (juego Defensa Ovni 3D)
 info/     Board Game Info (íconos de tipo de juego en la presentación)
 pixel/    UI Pack Pixel Adventure (marcos y cintas del Calabozo Loco)
+--- Agregado en v23 (todo CC0, Kenney.nl) ---
+race/     Racing Kit (autos, gradas, árboles, banderas…)
+golf/     Minigolf Kit
+furn/     Furniture Kit

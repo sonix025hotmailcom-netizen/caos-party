@@ -767,6 +767,12 @@ body.isctrl::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .pau-quick{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}.pau-quick .btn{padding:8px 14px!important;font-size:16px!important}
 .pau-big{font-size:70px}
 @media (max-height:520px){.pau{gap:6px}.pau-amt span{font-size:34px}}
+/* v23: ¿qué cambió? */
+.qcopts{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(100%,1000px);margin:12px auto 0}
+.qco{background:#1a1033cc;border:3px solid #ffffff30;border-radius:16px;padding:10px 16px;font:800 clamp(14px,1.5vw,20px) Nunito,sans-serif}.qco b{color:#facc15;margin-right:6px}
+.pqc{display:flex;flex-direction:column;gap:10px;width:100%;max-width:520px;margin:0 auto}
+.pqcb{text-align:left;font-size:17px!important;padding:14px 16px!important}.pqcb b{color:#facc15;margin-right:6px}.pqcb.on{outline:4px solid #facc15}.pqcb:disabled:not(.on){opacity:.4}
+@media (max-height:520px) and (orientation:landscape){.pqc{display:grid;grid-template-columns:1fr 1fr;max-width:820px}.pqc .pmn-top{grid-column:1/-1}}
 /* ---------- v12: escala automática para cualquier pantalla ---------- */
 :root{--z:1;--vh:calc(1vh / var(--z));--vw:calc(1vw / var(--z));--dvh:calc(1dvh / var(--z))}
 #app>*{zoom:var(--z)}
@@ -8244,6 +8250,391 @@ XS.auction = function (v) {
       if (M.r !== gd.r) { M.r = gd.r; M.t = Date.now() + 1500 + rand(6000); } if (Date.now() < M.t) return;
       const ev = gd.hint.reduce((s, i) => s + (SUB_ITEMS[i][2] + SUB_ITEMS[i][3]) / 2, 0) / 2, bid = Math.max(0, Math.round(ev * (.4 + Math.random() * .6)));
       return GAMES.auction.onAct(p, { a: 'bid', v: Math.min(gd.money[p.id], bid) });
+    }
+    return ob(p);
+  };
+})();
+
+/* ================== v23 — 🏎️ GRAN PREMIO 3D, ⛳ MINI GOLF 3D, 🛋️ ¿QUÉ CAMBIÓ? (Racing, Minigolf y Furniture Kit) ================== */
+/* carga un modelo, lo centra (x/z) con la base en y=0 y lo escala: size = medida horizontal máxima, o scale fija */
+function fitModel(T, url, o = {}) {
+  return C3D.load(url).then(g => {
+    const m = g.scene.clone(true), bb = new T.Box3().setFromObject(m), sz = new T.Vector3(); bb.getSize(sz);
+    const k = o.size ? o.size / Math.max(sz.x, sz.z, .001) : o.h ? o.h / Math.max(sz.y, .001) : (o.scale || 1);
+    const inner = new T.Group(); m.position.set(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2); inner.add(m); inner.scale.setScalar(k);
+    const G = new T.Group(); G.add(inner); G.userData.size = sz.clone().multiplyScalar(k);
+    m.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; if (o.clone) q.material = Array.isArray(q.material) ? q.material.map(x => x.clone()) : q.material.clone(); } });
+    return G;
+  });
+}
+const Rk = n => 'assets/race/' + n + '.glb', Gk = n => 'assets/golf/' + n + '.glb', Fk = n => 'assets/furn/' + n + '.glb';
+const angTo = (a, b) => Math.atan2(Math.sin(b - a), Math.cos(b - a));
+
+Object.assign(GAMES, {
+  /* =================================================================== */
+  /* 🏎️ GRAN PREMIO 3D                                                   */
+  /* =================================================================== */
+  race3d: {
+    name: 'Gran Premio 3D', emoji: '🏎️', color: '#dc2626', LAPS: 3, W: 2.1,
+    desc: '¡Carrera de autos en 3D! 🏎️ Apuntá el joystick hacia donde querés ir y tu auto acelera solo. El botón es el TURBO 🚀. Si te salís de la pista vas lento. ¡3 vueltas y gana el primero en cruzar la meta! 🏁',
+    start() {
+      const ids = onlineIds(), M = 220;
+      ['raceCarRed', 'raceCarGreen', 'raceCarOrange', 'raceCarWhite', 'treeLarge', 'treeSmall', 'grandStand', 'grandStandCovered', 'overheadLights', 'flagCheckers', 'lightPostLarge', 'tent', 'billboard', 'bannerTowerRed', 'bannerTowerGreen', 'pylon'].forEach(n => C3D.load(Rk(n)).catch(() => {}));
+      /* pista cerrada aleatoria (curva suave) */
+      const K = 11, base = [], ph = Math.random() * 6;
+      for (let i = 0; i < K; i++) { const a = i / K * Math.PI * 2, r = 1 + .2 * Math.sin(a * 2 + ph) + (Math.random() - .5) * .22; base.push([Math.cos(a) * 8.6 * r, Math.sin(a) * 4.3 * r]); }
+      const cat = (p0, p1, p2, p3, t) => { const t2 = t * t, t3 = t2 * t; return [0, 1].map(k => .5 * (2 * p1[k] + (-p0[k] + p2[k]) * t + (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * t2 + (-p0[k] + 3 * p1[k] - 3 * p2[k] + p3[k]) * t3)); };
+      const pts = []; for (let i = 0; i < M; i++) { const u = i / M * K, k = Math.floor(u), t = u - k; pts.push(cat(base[(k - 1 + K) % K], base[k], base[(k + 1) % K], base[(k + 2) % K], t)); }
+      const dir = i => { const a = pts[(i + 1) % M], b = pts[(i - 1 + M) % M]; return Math.atan2(a[0] - b[0], a[1] - b[1]); };
+      const ps = {}; ids.forEach((id, i) => { const row = Math.floor(i / 2), col = i % 2, idx = (M - 2 - row * 5 + M) % M, a = dir(idx), side = (col ? 1 : -1) * .5; const [x, z] = pts[idx]; ps[id] = { x: x + Math.cos(a) * side, z: z - Math.sin(a) * side, a, v: 0, idx, lap: 0, half: false, done: 0, place: 0, lb: 0, turbo: 0, cd: 0, off: false }; });
+      H.inp = {}; H.gd = { ids, pts, M, ps, order: [], t: 0, sid: rid(), build3D: T => GAMES.race3d.build(T), deco: [] };
+      setPhase('rc-ready', 3800, () => { SFX.go(); GAMES.race3d.go(); }, 0, false);
+      attachArena(H.gd); rtLoop(null, GAMES.race3d.draw);
+    },
+    go() { const gd = H.gd; gd.t0 = Date.now(); setPhase('rc-go', 100000, () => GAMES.race3d.end()); attachArena(gd); rtLoop(dt => GAMES.race3d.step(dt), GAMES.race3d.draw); },
+    view(p) {
+      if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
+      const s = H.gd.ps?.[p.id];
+      if (s && s.done) return { screen: 'msg', big: '🏁', title: `¡Llegaste ${s.place}º!`, text: 'Mirá la tele y apoyá a los demás 😄' };
+      if (H.phase === 'rc-ready' || H.phase === 'rc-go') return joyView(p, '🕹️ Apuntá hacia donde querés ir · Botón = TURBO', '🚀 TURBO', 4);
+      return watch();
+    },
+    onAct(p, m) { if (H.phase === 'rc-ready' || H.phase === 'rc-go') joyAct(p, m); },
+    isDone(id) { return H.phase === 'rc-go' && !!H.gd.ps?.[id]?.done; },
+    near(s) { const gd = H.gd; let best = s.idx, bd = 1e9; for (let k = -6; k <= 18; k++) { const i = (s.idx + k + gd.M) % gd.M, d = (gd.pts[i][0] - s.x) ** 2 + (gd.pts[i][1] - s.z) ** 2; if (d < bd) { bd = d; best = i; } } return [best, Math.sqrt(bd)]; },
+    step(dt) {
+      const gd = H.gd, go = H.phase === 'rc-go'; gd.t += dt;
+      for (const id of gd.ids) {
+        const s = gd.ps[id], i = inp(id); s.cd -= dt; s.turbo -= dt;
+        if (!go || s.done) { s.v *= Math.pow(.2, dt); s.x += Math.sin(s.a) * s.v * dt; s.z += Math.cos(s.a) * s.v * dt; s.lb = i.b; continue; }
+        const m = Math.min(1, Math.hypot(i.x, i.y));
+        if (i.b !== s.lb) { s.lb = i.b; if (s.cd <= 0) { s.cd = 4; s.turbo = 1.3; SND.play('sf_thrusterFire_000', .5, 1, 0); } }
+        const [ni, dist] = this.near(s), prev = s.idx; s.off = dist > this.W / 2 + .15;
+        if (prev > gd.M * .4 && prev < gd.M * .6) s.half = true;
+        if (prev > gd.M - 25 && ni < 25 && s.half) { s.lap++; s.half = false; if (s.lap >= this.LAPS) { s.done = Date.now() - gd.t0; gd.order.push(id); s.place = gd.order.length; SFX.win(); if (s.place === 1) { confetti(100); toastHost(`🏁 ¡${pl(id)?.name || ''} ganó la carrera!`); const tok = H.token; setTimeout(() => { if (tok === H.token) this.end(); }, 15000); } sync(); updateStrip(); if (gd.ids.every(q => gd.ps[q].done || !pl(q)?.online)) setTimeout(() => this.end(), 1500); } else { SND.play('ui_confirmation_002', .5); gd.lapFx = { id, t: 1.5 }; } }
+        s.idx = ni;
+        const max = (s.turbo > 0 ? 11 : 7.4) * (s.off ? .42 : 1);
+        if (m > .25) { const want = Math.atan2(i.x, i.y), d = angTo(s.a, want); s.a += Math.sign(d) * Math.min(Math.abs(d), (2.2 + s.v * .22) * dt); s.v += (m * (Math.abs(d) > 1.6 ? .3 : 1) * 10 - (Math.abs(d) > .9 ? 3 : 0)) * dt; }
+        else s.v -= 4 * dt;
+        if (s.turbo > 0) s.v += 12 * dt;
+        s.v = Math.max(0, Math.min(max, s.v)); if (s.v > max) s.v = max; if (s.off && s.v > max) s.v -= 14 * dt;
+        s.x += Math.sin(s.a) * s.v * dt; s.z += Math.cos(s.a) * s.v * dt;
+        s.x = Math.max(-11.5, Math.min(11.5, s.x)); s.z = Math.max(-6.6, Math.min(6.6, s.z));
+      }
+      for (let a = 0; a < gd.ids.length; a++) for (let b = a + 1; b < gd.ids.length; b++) { const A = gd.ps[gd.ids[a]], B = gd.ps[gd.ids[b]], dx = B.x - A.x, dz = B.z - A.z, d = Math.hypot(dx, dz); if (d > 0 && d < .75) { const k = (.75 - d) / 2; A.x -= dx / d * k; A.z -= dz / d * k; B.x += dx / d * k; B.z += dz / d * k; if (d < .6) { A.v *= .96; B.v *= .96; } } }
+      if (gd.lapFx) gd.lapFx.t -= dt;
+      gd.hudT = (gd.hudT || 0) - dt;
+      if (gd.hudT <= 0) { gd.hudT = .25; const pos = gd.ids.slice().sort((a, b) => { const A = gd.ps[a], B = gd.ps[b]; return (A.done && B.done) ? A.done - B.done : B.done ? 1 : A.done ? -1 : (B.lap * gd.M + B.idx) - (A.lap * gd.M + A.idx); }); hud3D(chipsHTML(pos.map((id, k) => { const s = gd.ps[id]; return { c: pl(id)?.color || '#888', t: `${k + 1}º ${pl(id)?.emoji || ''} ${s.done ? '🏁' : `${Math.min(this.LAPS, s.lap + 1)}/${this.LAPS}`}${s.turbo > 0 ? ' 🚀' : ''}` }; }))); }
+    },
+    build(T) {
+      const gd = H.gd, r = arena3D(T, { bg: '#7dd3fc', camY: 20, camZ: 13.5, lookZ: .8 }), W = this.W, M = gd.M, P = gd.pts;
+      const add = o => { r.scene.add(o); return o; };
+      const grass = add(new T.Mesh(new T.BoxGeometry(25, .4, 15), new T.MeshStandardMaterial({ color: '#4ade80', roughness: 1 }))); grass.position.y = -.2; grass.receiveShadow = true;
+      const rim = add(new T.Mesh(new T.BoxGeometry(25.6, .6, 15.6), new T.MeshStandardMaterial({ color: '#65a30d' }))); rim.position.y = -.45;
+      /* asfalto, bordes y pianitos */
+      const ribbon = (w, y, color, stripe) => { const pos = [], idx = [], col = []; const c1 = new T.Color(color), c2 = new T.Color('#ffffff'); for (let i = 0; i <= M; i++) { const k = i % M, a = Math.atan2(P[(k + 1) % M][0] - P[(k - 1 + M) % M][0], P[(k + 1) % M][1] - P[(k - 1 + M) % M][1]), nx = Math.cos(a), nz = -Math.sin(a); const [x, z] = P[k]; pos.push(x + nx * w / 2, y, z + nz * w / 2, x - nx * w / 2, y, z - nz * w / 2); const cc = stripe && Math.floor(i / 3) % 2 ? c2 : c1; col.push(cc.r, cc.g, cc.b, cc.r, cc.g, cc.b); if (i < M) idx.push(i * 2, i * 2 + 1, i * 2 + 2, i * 2 + 1, i * 2 + 3, i * 2 + 2); } const g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new T.Float32BufferAttribute(col, 3)); g.setIndex(idx); g.computeVertexNormals(); const m = new T.Mesh(g, new T.MeshStandardMaterial({ vertexColors: true, roughness: .9, side: T.DoubleSide })); m.receiveShadow = true; return add(m); };
+      ribbon(W + .5, .012, '#ef4444', true); ribbon(W, .02, '#374151');
+      /* línea central punteada */
+      for (let i = 0; i < M; i += 6) { const [x, z] = P[i], a = Math.atan2(P[(i + 1) % M][0] - x, P[(i + 1) % M][1] - z); const d = add(new T.Mesh(new T.BoxGeometry(.08, .01, .35), new T.MeshBasicMaterial({ color: '#f8fafc' }))); d.position.set(x, .03, z); d.rotation.y = a; }
+      /* meta a cuadros */
+      const ck = document.createElement('canvas'); ck.width = 64; ck.height = 16; const cg = ck.getContext('2d'); for (let i = 0; i < 16; i++) for (let j = 0; j < 4; j++) { cg.fillStyle = (i + j) % 2 ? '#111' : '#fff'; cg.fillRect(i * 4, j * 4, 4, 4); }
+      const tx = new T.CanvasTexture(ck); tx.magFilter = T.NearestFilter; const [fx, fz] = P[0], fa = Math.atan2(P[1][0] - fx, P[1][1] - fz);
+      const fin = add(new T.Mesh(new T.PlaneGeometry(W, .5), new T.MeshBasicMaterial({ map: tx }))); fin.rotation.x = -Math.PI / 2; fin.rotation.z = fa; fin.position.set(fx, .035, fz);
+      [-1, 1].forEach(sd => fitModel(T, Rk('flagCheckers'), { h: 1.2 }).then(o => { o.position.set(fx + Math.cos(fa) * sd * (W / 2 + .35), 0, fz - Math.sin(fa) * sd * (W / 2 + .35)); o.rotation.y = fa; add(o); }).catch(() => {}));
+      /* decoración fuera de la pista */
+      const clear = (x, z, m) => P.every(([px, pz]) => (px - x) ** 2 + (pz - z) ** 2 > (W / 2 + m) ** 2);
+      const place = (n, size, tries, m) => { for (let k = 0; k < tries; k++) { const x = (Math.random() - .5) * 23, z = (Math.random() - .5) * 13.4; if (!clear(x, z, m)) continue; fitModel(T, Rk(n), { size }).then(o => { o.position.set(x, 0, z); o.rotation.y = Math.random() * 6.28; add(o); }).catch(() => {}); } };
+      place('treeLarge', 1.1, 14, 1.3); place('treeSmall', .8, 10, 1); place('pylon', .3, 8, .5);
+      const nearStart = (n, size, d, rot) => { const [x, z] = P[6], a = Math.atan2(P[7][0] - x, P[7][1] - z), nx = Math.cos(a), nz = -Math.sin(a); const sx = x + nx * d, sz = z + nz * d; if (!clear(sx, sz, 1.6) || Math.abs(sx) > 11.5 || Math.abs(sz) > 6.8) return; fitModel(T, Rk(n), { size }).then(o => { o.position.set(sx, 0, sz); o.rotation.y = a + rot; add(o); }).catch(() => {}); };
+      nearStart('grandStandCovered', 2.2, 3.4, Math.PI / 2); nearStart('grandStand', 2.2, -3.4, -Math.PI / 2); nearStart('bannerTowerRed', .8, 5, 0); nearStart('tent', 1.3, -5, 0);
+      /* autos (el chasis toma el color del jugador) */
+      const CARS = ['raceCarRed', 'raceCarGreen', 'raceCarOrange', 'raceCarWhite']; r.cars = {};
+      gd.ids.forEach((id, i) => {
+        const g = add(new T.Group()); r.cars[id] = g; const col = pl(id)?.color || '#ffffff';
+        fitModel(T, Rk(CARS[i % 4]), { size: 1.45, clone: true }).then(o => { o.traverse(q => { if (q.isMesh) [].concat(q.material).forEach(mm => { if (!/tire|glass|grey/i.test(mm.name)) mm.color.set(col); }); }); o.rotation.y = Math.PI; g.add(o); }).catch(() => {});
+        const lb = GAMES.ovni.label(T, `${pl(id)?.emoji || ''} ${pl(id)?.name || ''}`, col); lb.position.y = 1.2; lb.scale.set(1.8, .45, 1); g.add(lb);
+        const fl = new T.Mesh(new T.ConeGeometry(.12, .5, 10), new T.MeshBasicMaterial({ color: '#fb923c', transparent: true, opacity: .9 })); fl.rotation.x = -Math.PI / 2; fl.position.set(0, .2, -.7); fl.visible = false; g.add(fl); g.userData.fl = fl;
+      });
+      return r;
+    },
+    draw(ctx) {
+      const gd = H.gd, r = gd.r3;
+      if (r && r.renderer.domElement.isConnected) {
+        for (const id of gd.ids) { const g = r.cars[id], s = gd.ps[id]; if (!g) continue; g.position.set(s.x, s.off ? Math.sin(gd.t * 30) * .02 : 0, s.z); g.rotation.y = s.a; if (g.userData.fl) { g.userData.fl.visible = s.turbo > 0; g.userData.fl.scale.y = .8 + Math.random() * .6; } }
+        r.renderer.render(r.scene, r.cam); return;
+      }
+      ctx.fillStyle = '#4ade80'; ctx.fillRect(0, 0, 1000, 600); const S = 40, X = x => 500 + x * S, Z = z => 300 + z * S;
+      ctx.strokeStyle = '#374151'; ctx.lineWidth = this && this.W ? this.W * S : 84; ctx.beginPath(); gd.pts.forEach(([x, z], i) => i ? ctx.lineTo(X(x), Z(z)) : ctx.moveTo(X(x), Z(z))); ctx.closePath(); ctx.stroke();
+      for (const id of gd.ids) { const s = gd.ps[id]; ctx.fillStyle = pl(id)?.color || '#888'; ctx.beginPath(); ctx.arc(X(s.x), Z(s.z), 10, 0, 7); ctx.fill(); }
+    },
+    end() {
+      if (H.phase !== 'rc-go') return;
+      const gd = H.gd, sc = id => { const s = gd.ps[id]; return s.done ? 1e6 - s.done : s.lap * gd.M + s.idx; };
+      const g = rankGains(gd.ids, sc, true);
+      gd.rows = gd.ids.slice().sort((a, b) => sc(b) - sc(a)).map(id => { const s = gd.ps[id]; return { id, val: s.done ? `🏁 ${(s.done / 1000).toFixed(1)} s` : `🏎️ vuelta ${Math.min(this.LAPS, s.lap + 1)} de ${this.LAPS}`, gain: g[id] || 0 }; });
+      setPhase('rc-res', 6000, () => finishGame(g), 0, false); SFX.win();
+    },
+    render(ph) {
+      if (ph === 'rc-ready') return canvasHTML(true, '🏎️ ¡A sus marcas!');
+      if (ph === 'rc-go') return canvasHTML(false);
+      return `<h1 class="title-pop">🏁 Podio del Gran Premio</h1>${resultsList(H.gd.rows)}`;
+    }
+  },
+
+  /* =================================================================== */
+  /* ⛳ MINI GOLF 3D                                                       */
+  /* =================================================================== */
+  golf: {
+    name: 'Mini Golf 3D', emoji: '⛳', color: '#16a34a', HOLES: 3,
+    desc: '¡Todos juegan al mismo tiempo! ⛳ Apuntá con el joystick y tocá el botón para pegarle: mirá en la tele la barra de fuerza que sube y baja junto a tu bola. Menos golpes = mejor. 3 hoyos.',
+    LAYOUTS: [
+      { poly: [[-7, 1], [3, 1], [3, -4], [6.5, -4], [6.5, 4], [-7, 4]], tee: [-5.8, 2.5], cup: [4.8, -2.6], obs: [{ k: 'box', x: -1, z: 2.5, w: .8, d: 1.2 }], deco: [['windmill', -5, -2.5], ['castle', 0, -2.5]] },
+      { poly: [[-7, -4], [7, -4], [7, 4], [3, 4], [3, -.6], [-3, -.6], [-3, 4], [-7, 4]], tee: [-5, 2.8], cup: [5, 2.8], obs: [{ k: 'circ', x: 0, z: -2.3, r: .55 }], deco: [['windmill', 0, -2.3, true], ['castle', 0, 2.3]] },
+      { poly: [[-7.5, -2.2], [7.5, -2.2], [7.5, 2.2], [-7.5, 2.2]], tee: [-6.5, 0], cup: [6.5, 0], obs: [{ k: 'circ', x: -3, z: .9, r: .45 }, { k: 'circ', x: -1, z: -.9, r: .45 }, { k: 'circ', x: 1.2, z: .8, r: .45 }, { k: 'circ', x: 3.4, z: -.7, r: .45 }, { k: 'box', x: 5, z: 1.3, w: .5, d: 1.8 }], deco: [['castle', -4, -4], ['windmill', 3, 4]] },
+      { poly: [[-7, -4], [-1, -4], [-1, 0], [1, 0], [1, -4], [7, -4], [7, 4], [-7, 4]], tee: [-5.5, -2.5], cup: [5.5, -2.5], obs: [{ k: 'circ', x: 0, z: 2.2, r: .5 }, { k: 'box', x: -3.5, z: 1.5, w: 1.2, d: .5 }, { k: 'box', x: 3.5, z: 1.5, w: 1.2, d: .5 }], deco: [['castle', 0, -2.2], ['windmill', -5, 5.5]] },
+    ],
+    start() {
+      const ids = onlineIds(); ['windmill', 'castle', 'flag-red'].forEach(n => C3D.load(Gk(n)).catch(() => {})); ['treeLarge', 'treeSmall'].forEach(n => C3D.load(Rk(n)).catch(() => {}));
+      H.gd = { ids, hole: 0, total: Object.fromEntries(ids.map(i => [i, 0])), per: Object.fromEntries(ids.map(i => [i, []])), order: shuffle(this.LAYOUTS.map((_, i) => i)), sid: rid() };
+      this.newHole();
+    },
+    newHole() {
+      const gd = H.gd; gd.hole++; const L = this.LAYOUTS[gd.order[(gd.hole - 1) % this.LAYOUTS.length]];
+      gd.L = L; gd.walls = L.poly.map((p, i) => [p, L.poly[(i + 1) % L.poly.length]]);
+      gd.b = {}; gd.ids.forEach((id, i) => { gd.b[id] = { x: L.tee[0] + (i % 2 ? .35 : -.35) * Math.ceil(i / 2) * .6, z: L.tee[1] + (i % 3 - 1) * .3, vx: 0, vz: 0, a: Math.atan2(L.cup[0] - L.tee[0], L.cup[1] - L.tee[1]), strokes: 0, in: false, lb: 0, ph: Math.random() }; });
+      gd.t = 0; try { if (gd.r3) { gd.r3.renderer.dispose(); gd.r3.renderer.forceContextLoss && gd.r3.renderer.forceContextLoss(); } } catch (e) {} gd.r3 = null; gd.r3loading = null; gd.build3D = T => GAMES.golf.build(T);
+      H.inp = {};
+      setPhase('gf-ready', 3000, () => { SFX.go(); setPhase('gf-go', 45000, () => GAMES.golf.endHole()); attachArena(H.gd); rtLoop(dt => GAMES.golf.step(dt), GAMES.golf.draw); }, 0, false);
+      attachArena(gd); rtLoop(null, GAMES.golf.draw);
+    },
+    view(p) {
+      if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
+      const b = H.gd.b?.[p.id];
+      if (b && b.in) return { screen: 'msg', big: '⛳', title: `¡Embocaste en ${b.strokes} golpe${b.strokes > 1 ? 's' : ''}!`, text: 'Esperá a los demás 😎' };
+      if (H.phase === 'gf-ready' || H.phase === 'gf-go') return joyView(p, '🕹️ Apuntá · Botón = GOLPE (fuerza en la tele)', '🏌️ GOLPE', 0);
+      return watch();
+    },
+    onAct(p, m) { if (H.phase === 'gf-ready' || H.phase === 'gf-go') joyAct(p, m); },
+    isDone(id) { return H.phase === 'gf-go' && !!H.gd.b?.[id]?.in; },
+    power(b) { const t = (H.gd.t * .7 + b.ph) % 1; return t < .5 ? t * 2 : 2 - t * 2; },
+    inside(x, z) { const P = H.gd.L.poly; let c = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { if (((P[i][1] > z) !== (P[j][1] > z)) && (x < (P[j][0] - P[i][0]) * (z - P[i][1]) / (P[j][1] - P[i][1]) + P[i][0])) c = !c; } return c; },
+    step(dt) {
+      const gd = H.gd, R = .14, L = gd.L; gd.t += dt;
+      for (const id of gd.ids) {
+        const b = gd.b[id], i = inp(id); if (b.in) continue;
+        const moving = Math.hypot(b.vx, b.vz) > .04;
+        if (!moving) { b.vx = b.vz = 0; if (Math.hypot(i.x, i.y) > .25) b.a = Math.atan2(i.x, i.y); }
+        if (i.b !== b.lb) { b.lb = i.b; if (!moving && H.phase === 'gf-go' && b.strokes < 8) { const pw = .15 + this.power(b) * .85; b.vx = Math.sin(b.a) * pw * 11; b.vz = Math.cos(b.a) * pw * 11; b.strokes++; SND.play('impactPlate_light_000', .6, 1.4, 0); sync(); } }
+        if (!moving) continue;
+        const steps = 4, h = dt / steps;
+        for (let k = 0; k < steps; k++) {
+          const px = b.x, pz = b.z; b.x += b.vx * h; b.z += b.vz * h;
+          for (const [a, c] of gd.walls) {
+            const ex = c[0] - a[0], ez = c[1] - a[1], l2 = ex * ex + ez * ez, t = Math.max(0, Math.min(1, ((b.x - a[0]) * ex + (b.z - a[1]) * ez) / l2)), qx = a[0] + ex * t, qz = a[1] + ez * t, dx = b.x - qx, dz = b.z - qz, d = Math.hypot(dx, dz);
+            if (d < R + .07) { const nx = dx / (d || 1), nz = dz / (d || 1); b.x = qx + nx * (R + .07); b.z = qz + nz * (R + .07); const vn = b.vx * nx + b.vz * nz; if (vn < 0) { b.vx -= 1.75 * vn * nx; b.vz -= 1.75 * vn * nz; SND.play('impactWood_medium_000', .25, 1.6, 60); } }
+          }
+          for (const o of L.obs) {
+            if (o.k === 'circ') { const dx = b.x - o.x, dz = b.z - o.z, d = Math.hypot(dx, dz); if (d < R + o.r) { const nx = dx / d, nz = dz / d; b.x = o.x + nx * (R + o.r); b.z = o.z + nz * (R + o.r); const vn = b.vx * nx + b.vz * nz; if (vn < 0) { b.vx -= 1.8 * vn * nx; b.vz -= 1.8 * vn * nz; } } }
+            else { const cx = Math.max(o.x - o.w / 2, Math.min(o.x + o.w / 2, b.x)), cz = Math.max(o.z - o.d / 2, Math.min(o.z + o.d / 2, b.z)), dx = b.x - cx, dz = b.z - cz, d = Math.hypot(dx, dz); if (d < R && d > 0) { const nx = dx / d, nz = dz / d; b.x = cx + nx * R; b.z = cz + nz * R; const vn = b.vx * nx + b.vz * nz; if (vn < 0) { b.vx -= 1.75 * vn * nx; b.vz -= 1.75 * vn * nz; } } else if (d === 0) { b.x = px; b.z = pz; b.vx *= -.6; b.vz *= -.6; } }
+          }
+          if (!this.inside(b.x, b.z)) { b.x = px; b.z = pz; b.vx *= -.5; b.vz *= -.5; }
+          const dc = Math.hypot(b.x - L.cup[0], b.z - L.cup[1]), sp = Math.hypot(b.vx, b.vz);
+          if (dc < .24 && sp < 5.5) { b.in = true; b.x = L.cup[0]; b.z = L.cup[1]; b.vx = b.vz = 0; SND.play('ui_confirmation_001', .6); if (b.strokes === 1) { confetti(120); toastHost(`🏆 ¡HOYO EN UNO de ${pl(id)?.name || ''}!`); } sync(); updateStrip(); break; }
+          if (dc < .6 && sp < 7) { b.vx += (L.cup[0] - b.x) * 2.5 * h; b.vz += (L.cup[1] - b.z) * 2.5 * h; }
+        }
+        const sp = Math.hypot(b.vx, b.vz); if (sp > 0) { const ns = Math.max(0, sp - (.55 + sp * .75) * dt); b.vx *= ns / sp; b.vz *= ns / sp; }
+      }
+      if (H.phase === 'gf-go' && gd.ids.every(id => gd.b[id].in || !pl(id)?.online)) { const tok = H.token; setTimeout(() => { if (tok === H.token && H.phase === 'gf-go') this.endHole(); }, 1200); }
+      gd.hudT = (gd.hudT || 0) - dt;
+      if (gd.hudT <= 0) { gd.hudT = .25; hud3D(`<span class="schip" style="--c:#16a34a">⛳ Hoyo ${gd.hole}/${this.HOLES}</span>` + chipsHTML(gd.ids.map(id => ({ c: pl(id)?.color || '#888', t: `${pl(id)?.emoji || ''} ${gd.b[id].in ? '✅' : '🏌️'} ${gd.b[id].strokes}` })))); }
+    },
+    build(T) {
+      const gd = H.gd, L = gd.L, r = arena3D(T, { bg: '#86efac', camY: 17, camZ: 11.5, lookZ: .6 }), add = o => { r.scene.add(o); return o; };
+      const ground = add(new T.Mesh(new T.BoxGeometry(24, .4, 15), new T.MeshStandardMaterial({ color: '#65a30d', roughness: 1 }))); ground.position.y = -.25; ground.receiveShadow = true;
+      const sh = new T.Shape(); L.poly.forEach(([x, z], i) => i ? sh.lineTo(x, -z) : sh.moveTo(x, -z)); sh.closePath();
+      const gtex = checkerTex(T, '#22c55e', '#16a34a', 16); gtex.wrapS = gtex.wrapT = T.RepeatWrapping; gtex.repeat.set(.12, .12);
+      const green = add(new T.Mesh(new T.ExtrudeGeometry(sh, { depth: .12, bevelEnabled: false }), new T.MeshStandardMaterial({ map: gtex, roughness: .95 }))); green.rotation.x = -Math.PI / 2; green.position.y = -.08; green.receiveShadow = true;
+      const wmat = new T.MeshStandardMaterial({ color: '#f8fafc', roughness: .6 }), wtop = new T.MeshStandardMaterial({ color: '#ef4444' });
+      for (const [a, c] of gd.walls) { const len = Math.hypot(c[0] - a[0], c[1] - a[1]), w = add(new T.Mesh(new T.BoxGeometry(len + .14, .32, .14), wmat)); w.position.set((a[0] + c[0]) / 2, .16, (a[1] + c[1]) / 2); w.rotation.y = -Math.atan2(c[1] - a[1], c[0] - a[0]); w.castShadow = true; const t = add(new T.Mesh(new T.BoxGeometry(len + .16, .04, .16), wtop)); t.position.copy(w.position); t.position.y = .34; t.rotation.y = w.rotation.y; }
+      for (const o of L.obs) { const m = o.k === 'circ' ? new T.Mesh(new T.CylinderGeometry(o.r, o.r, .35, 20), new T.MeshStandardMaterial({ color: '#f59e0b' })) : new T.Mesh(new T.BoxGeometry(o.w, .35, o.d), new T.MeshStandardMaterial({ color: '#a855f7' })); m.position.set(o.x, .17, o.z); m.castShadow = true; add(m); }
+      /* hoyo + bandera */
+      const cup = add(new T.Mesh(new T.CylinderGeometry(.24, .24, .02, 24), new T.MeshBasicMaterial({ color: '#0b0b0b' }))); cup.position.set(L.cup[0], .06, L.cup[1]);
+      fitModel(T, Gk('flag-red'), { h: 1.6 }).then(o => { o.position.set(L.cup[0], .05, L.cup[1]); add(o); }).catch(() => {});
+      const tee = add(new T.Mesh(new T.CylinderGeometry(.5, .5, .02, 24), new T.MeshStandardMaterial({ color: '#bbf7d0' }))); tee.position.set(L.tee[0], .05, L.tee[1]);
+      for (const [n, x, z, onObs] of L.deco) fitModel(T, Gk(n), { size: onObs ? 1.4 : 2.2 }).then(o => { o.position.set(x, onObs ? .3 : 0, z); add(o); if (n === 'windmill') r.mill = o; }).catch(() => {});
+      for (let k = 0; k < 10; k++) { const x = (Math.random() - .5) * 23, z = (Math.random() - .5) * 14; if (this.insideAt(L, x, z, 1.3)) continue; fitModel(T, Rk(Math.random() < .5 ? 'treeLarge' : 'treeSmall'), { size: 1.2 }).then(o => { o.position.set(x, 0, z); add(o); }).catch(() => {}); }
+      r.balls = {};
+      gd.ids.forEach(id => { const col = pl(id)?.color || '#fff', g = add(new T.Group()); const ball = new T.Mesh(new T.SphereGeometry(.14, 20, 14), new T.MeshStandardMaterial({ color: col, roughness: .3 })); ball.position.y = .14; ball.castShadow = true; g.add(ball); const arrow = new T.Group(); const shaft = new T.Mesh(new T.BoxGeometry(.08, .03, 1), new T.MeshBasicMaterial({ color: col })); shaft.position.z = .5; arrow.add(shaft); const head = new T.Mesh(new T.ConeGeometry(.15, .3, 12), new T.MeshBasicMaterial({ color: col })); head.rotation.x = Math.PI / 2; head.position.z = 1.1; arrow.add(head); arrow.position.y = .06; g.add(arrow); const lb = GAMES.ovni.label(T, `${pl(id)?.emoji || ''} ${pl(id)?.name || ''}`, col); lb.position.y = .75; lb.scale.set(1.5, .38, 1); g.add(lb); r.balls[id] = { g, ball, arrow, shaft, head }; });
+      return r;
+    },
+    insideAt(L, x, z, m) { const P = L.poly; const xs = P.map(p => p[0]), zs = P.map(p => p[1]); return x > Math.min(...xs) - m && x < Math.max(...xs) + m && z > Math.min(...zs) - m && z < Math.max(...zs) + m; },
+    draw(ctx) {
+      const gd = H.gd, r = gd.r3, G = GAMES.golf;
+      if (r && r.renderer.domElement.isConnected) {
+        if (r.mill) r.mill.rotation.y = 0;
+        for (const id of gd.ids) { const o = r.balls[id], b = gd.b[id]; if (!o) continue; o.g.position.set(b.x, b.in ? -.25 : 0, b.z); const still = Math.hypot(b.vx, b.vz) < .04 && !b.in && H.phase === 'gf-go'; o.arrow.visible = still; if (still) { const pw = .15 + G.power(b) * .85; o.arrow.rotation.y = b.a; o.shaft.scale.z = .4 + pw * 2; o.shaft.position.z = (.4 + pw * 2) / 2; o.head.position.z = .4 + pw * 2 + .1; o.head.material.color.setHSL(.33 - pw * .33, .9, .5); } o.ball.rotation.x += Math.hypot(b.vx, b.vz) * .05; }
+        r.renderer.render(r.scene, r.cam); return;
+      }
+      ctx.fillStyle = '#65a30d'; ctx.fillRect(0, 0, 1000, 600); const S = 50, X = x => 500 + x * S, Z = z => 300 + z * S;
+      ctx.fillStyle = '#22c55e'; ctx.beginPath(); gd.L.poly.forEach(([x, z], i) => i ? ctx.lineTo(X(x), Z(z)) : ctx.moveTo(X(x), Z(z))); ctx.closePath(); ctx.fill();
+      for (const id of gd.ids) { const b = gd.b[id]; ctx.fillStyle = pl(id)?.color || '#fff'; ctx.beginPath(); ctx.arc(X(b.x), Z(b.z), 7, 0, 7); ctx.fill(); }
+    },
+    endHole() {
+      const gd = H.gd; if (H.phase !== 'gf-go') return;
+      gd.ids.forEach(id => { const b = gd.b[id], s = b.in ? b.strokes : Math.max(b.strokes + 2, 6); gd.per[id].push(s); gd.total[id] += s; });
+      gd.last = gd.ids.slice().sort((a, b) => gd.per[a][gd.hole - 1] - gd.per[b][gd.hole - 1]);
+      if (gd.hole >= this.HOLES) return this.end();
+      setPhase('gf-sub', 5000, () => GAMES.golf.newHole(), 0, false); SFX.win();
+    },
+    end() {
+      const gd = H.gd, g = rankGains(gd.ids, id => gd.total[id], false);
+      gd.rows = gd.ids.slice().sort((a, b) => gd.total[a] - gd.total[b]).map(id => ({ id, val: `⛳ ${gd.total[id]} golpes (${gd.per[id].join(' · ')})`, gain: g[id] || 0 }));
+      setPhase('gf-res', 6000, () => finishGame(g), 0, false); confetti(90); SFX.win();
+    },
+    render(ph) {
+      const gd = H.gd;
+      if (ph === 'gf-ready') return canvasHTML(true, `⛳ Hoyo ${gd.hole} de ${this.HOLES}`);
+      if (ph === 'gf-go') return canvasHTML(false);
+      if (ph === 'gf-sub') return `<div class="round-lbl">Hoyo ${gd.hole} de ${this.HOLES}</div><h2 class="title-pop">⛳ Así quedó el hoyo</h2>${resultsList(gd.last.map(id => ({ id, val: `${gd.per[id][gd.hole - 1]} golpes · total ${gd.total[id]}`, gain: 0 })))}`;
+      return `<h1 class="title-pop">⛳ Campeones del mini golf</h1>${resultsList(gd.rows)}`;
+    }
+  },
+
+  /* =================================================================== */
+  /* 🛋️ ¿QUÉ CAMBIÓ?                                                      */
+  /* =================================================================== */
+  qcambio: {
+    name: '¿Qué Cambió?', emoji: '🛋️', color: '#0ea5e9', N: 5,
+    desc: 'Mirá bien el cuarto 🛋️… se apagan las luces 💡 y ¡algo cambia! ¿Desapareció algo? ¿Se movió? ¿Cambió de color? Elegí la respuesta correcta en tu cel lo más rápido posible.',
+    ITEMS: [['loungeSofa', 'el sillón', 1.6], ['lampRoundFloor', 'la lámpara', .45], ['pottedPlant', 'la planta', .55], ['bear', 'el osito', .5], ['tableCoffee', 'la mesita', .9], ['televisionModern', 'la tele', .9], ['bookcaseOpen', 'el librero', .9], ['chair', 'la silla', .55], ['radio', 'el radio', .45], ['speaker', 'el parlante', .4], ['trashcan', 'el basurero', .4], ['coatRackStanding', 'el perchero', .5], ['cardboardBoxClosed', 'la caja', .55], ['loungeChair', 'el sofá', .9], ['sideTable', 'la mesita de noche', .55], ['lampSquareFloor', 'la lámpara cuadrada', .45], ['rugRound', 'la alfombra', 1.4], ['plantSmall2', 'la plantita', .35], ['laptop', 'la compu', .45], ['benchCushion', 'la banca', 1]],
+    COLS: ['#ef4444', '#3b82f6', '#22c55e', '#a855f7', '#f59e0b', '#ec4899'],
+    start() {
+      const ids = onlineIds(), GX = 5, GZ = 4, cells = shuffle(Array.from({ length: GX * GZ }, (_, i) => i)), items = shuffle(this.ITEMS.map((x, i) => i));
+      const room = []; for (let k = 0; k < 9; k++) room.push({ it: items[k], cell: cells[k], rot: [0, Math.PI / 2, Math.PI, -Math.PI / 2][rand(4)], col: null, on: true });
+      items.slice(9).forEach(i => room.push({ it: i, cell: -1, rot: 0, col: null, on: false }));
+      this.ITEMS.forEach(([m]) => C3D.load(Fk(m)).catch(() => {}));
+      H.gd = { ids, GX, GZ, room, r: 0, pts: Object.fromEntries(ids.map(i => [i, 0])), ok: Object.fromEntries(ids.map(i => [i, 0])), build3D: T => GAMES.qcambio.build(T), sid: rid() };
+      attachArena(H.gd); this.look();
+    },
+    look() { const gd = H.gd; gd.r++; gd.ans = {}; gd.change = null; setPhase('qc-look', 5500, () => GAMES.qcambio.dark(), 0, false); attachArena(gd); rtLoop(null, GAMES.qcambio.draw); SND.play('ui_open_002', .5); },
+    dark() {
+      const gd = H.gd, on = gd.room.filter(o => o.on), off = gd.room.filter(o => !o.on), used = new Set(on.map(o => o.cell)), free = Array.from({ length: gd.GX * gd.GZ }, (_, i) => i).filter(i => !used.has(i));
+      const kinds = ['gone', 'moved', 'turned', 'color']; if (off.length && free.length) kinds.push('new', 'new'); if (on.length <= 5) kinds.splice(0, 1);
+      const k = pickR(kinds); let o;
+      if (k === 'new') { o = pickR(off); o.on = true; o.cell = pickR(free); o.rot = rand(4) * Math.PI / 2; }
+      else { o = pickR(on); if (k === 'gone') o.on = false; else if (k === 'moved') o.cell = pickR(free); else if (k === 'turned') o.rot += pickR([Math.PI / 2, Math.PI, -Math.PI / 2]); else o.col = pickR(this.COLS.filter(c => c !== o.col)); }
+      const txt = (kk, oo) => ({ gone: `Desapareció ${this.ITEMS[oo.it][1]}`, new: `Apareció ${this.ITEMS[oo.it][1]}`, moved: `Se movió ${this.ITEMS[oo.it][1]}`, turned: `Giraron ${this.ITEMS[oo.it][1]}`, color: `Cambió el color de ${this.ITEMS[oo.it][1]}` })[kk];
+      const right = txt(k, o), opts = [right];
+      for (let t = 0; t < 40 && opts.length < 4; t++) { const oo = pickR(gd.room.filter(x => x !== o && (x.on || Math.random() < .3))), kk = pickR(['gone', 'moved', 'turned', 'color', 'new']); const s = txt(kk, oo); if (!opts.includes(s) && !(kk === 'new' && oo.on) && !(kk !== 'new' && !oo.on)) opts.push(s); }
+      gd.change = { k, o, right }; gd.opts = shuffle(opts); gd.okIdx = gd.opts.indexOf(right);
+      gd.dirty = true; setPhase('qc-dark', 1400, () => { gd.t0 = Date.now(); setPhase('qc-go', 10000, () => GAMES.qcambio.reveal()); attachArena(gd); rtLoop(null, GAMES.qcambio.draw); }, 0, false); attachArena(gd);
+      SND.play('ui_switch_002', .6);
+    },
+    onAct(p, m) {
+      const gd = H.gd; if (H.phase !== 'qc-go' || m.a !== 'qc' || !inGame(p) || gd.ans[p.id] != null) return;
+      gd.ans[p.id] = { i: m.i | 0, t: Date.now() - gd.t0 }; SFX.pop(); updateStrip(); sync();
+      checkAll(id => gd.ans[id] != null, () => GAMES.qcambio.reveal());
+    },
+    isDone(id) { return H.phase === 'qc-go' && H.gd.ans?.[id] != null; },
+    reveal() {
+      const gd = H.gd; if (H.phase !== 'qc-go') return; gd.delta = {};
+      for (const id of gd.ids) { const a = gd.ans[id]; let d = 0; if (a && a.i === gd.okIdx) { d = 80 + Math.round(Math.max(0, 1 - a.t / 12000) * 80); gd.ok[id]++; } gd.delta[id] = d; gd.pts[id] += d; }
+      SND.play(gd.ids.some(id => gd.delta[id] > 0) ? 'ui_confirmation_001' : 'ui_error_006', .5);
+      setPhase('qc-rev', 3500, () => { if (gd.r >= this.N) this.end(); else this.look(); }, 0, false); attachArena(gd); rtLoop(null, GAMES.qcambio.draw);
+    },
+    end() {
+      const gd = H.gd, g = rankGains(gd.ids, id => gd.pts[id], true);
+      gd.rows = gd.ids.slice().sort((a, b) => gd.pts[b] - gd.pts[a]).map(id => ({ id, val: `👀 ${gd.ok[id]} de ${this.N} · ⭐ ${gd.pts[id]}`, gain: g[id] || 0 }));
+      setPhase('qc-res', 5500, () => finishGame(g), 0, false); confetti(80); SFX.win();
+    },
+    view(p) {
+      const gd = H.gd;
+      if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
+      if (H.phase === 'qc-look') return { screen: 'msg', big: '👀', title: '¡Memorizá el cuarto!', text: 'Mirá bien la tele…' };
+      if (H.phase === 'qc-dark') return { screen: 'msg', big: '🌑', title: '¡Se fue la luz!', text: 'Algo está cambiando…' };
+      if (H.phase === 'qc-go') return { screen: 'qcambio', key: `qc${gd.r}-${gd.ans[p.id] ? 1 : 0}`, r: gd.r, N: this.N, opts: gd.opts, picked: gd.ans[p.id] ? gd.ans[p.id].i : -1, deadline: H.deadline };
+      if (H.phase === 'qc-rev') { const d = gd.delta[p.id] || 0; return { screen: 'msg', big: d ? '✅' : '❌', title: d ? `¡Bien! +${d}` : 'No era esa', text: `Era: ${gd.change.right}` }; }
+      return watch();
+    },
+    cellPos(c) { const gd = H.gd, x = c % gd.GX, z = Math.floor(c / gd.GX); return [(x - (gd.GX - 1) / 2) * 1.45, (z - (gd.GZ - 1) / 2) * 1.35 + .4]; },
+    build(T) {
+      const gd = H.gd, r = arena3D(T, { bg: '#1e1b4b', camY: 9.5, camZ: 8.5, lookZ: .2 }), add = o => { r.scene.add(o); return o; };
+      const W = gd.GX * 1.45 + 1, D = gd.GZ * 1.35 + 1.2;
+      const fl = checkerTex(T, '#e8c9a0', '#dcb98c', 8); fl.wrapS = fl.wrapT = T.RepeatWrapping; fl.repeat.set(2, 2);
+      const floor = add(new T.Mesh(new T.BoxGeometry(W, .2, D), new T.MeshStandardMaterial({ map: fl, roughness: .8 }))); floor.position.set(0, -.1, .4); floor.receiveShadow = true;
+      const wall = new T.MeshStandardMaterial({ color: '#c7d2fe', roughness: .9 });
+      const back = add(new T.Mesh(new T.BoxGeometry(W, 2.6, .15), wall)); back.position.set(0, 1.2, .4 - D / 2); back.receiveShadow = true;
+      const left = add(new T.Mesh(new T.BoxGeometry(.15, 2.6, D), wall)); left.position.set(-W / 2, 1.2, .4); left.receiveShadow = true;
+      const right = add(new T.Mesh(new T.BoxGeometry(.15, 2.6, D), wall)); right.position.set(W / 2, 1.2, .4);
+      const trim = new T.MeshStandardMaterial({ color: '#6366f1' }); [[0, .4 - D / 2 + .1, W, .15], [-W / 2 + .1, .4, .15, D], [W / 2 - .1, .4, .15, D]].forEach(([x, z, w, d]) => { const t = add(new T.Mesh(new T.BoxGeometry(w, .18, d), trim)); t.position.set(x, .09, z); });
+      fitModel(T, Fk('wallWindow'), { size: 1.4 }).then(o => { o.position.set(1.5, 0, .4 - D / 2 + .1); add(o); }).catch(() => {});
+      const lamp = add(new T.PointLight('#fff1c1', 6, 12)); lamp.position.set(0, 2.4, .6); r.lamp = lamp;
+      r.items = []; r.mk = {};
+      gd.room.forEach((o, k) => fitModel(T, Fk(this.ITEMS[o.it][0]), { size: this.ITEMS[o.it][2], clone: true }).then(m => { r.mk[k] = m; m.visible = false; add(m); gd.dirty = true; }).catch(() => {}));
+      const ring = add(new T.Mesh(new T.TorusGeometry(.75, .06, 10, 40), new T.MeshBasicMaterial({ color: '#facc15' }))); ring.rotation.x = Math.PI / 2; ring.visible = false; r.ring = ring;
+      r.cam.position.x = 2.5; r.cam.lookAt(0, .5, .4);
+      gd.dirty = true; return r;
+    },
+    sync3D() {
+      const gd = H.gd, r = gd.r3; if (!r) return;
+      gd.room.forEach((o, k) => { const m = r.mk[k]; if (!m) return; m.visible = o.on; if (!o.on) return; const [x, z] = this.cellPos(o.cell); m.position.set(x, 0, z); m.rotation.y = o.rot; m.traverse(q => { if (q.isMesh) [].concat(q.material).forEach(mm => { if (!mm.userData.c0) mm.userData.c0 = mm.color.getHex(); mm.color.setHex(o.col && !/metal|glass|lamp/i.test(mm.name) ? T3C(o.col) : mm.userData.c0); }); }); });
+    },
+    draw(ctx) {
+      const gd = H.gd, r = gd.r3, Q = GAMES.qcambio;
+      if (r && r.renderer.domElement.isConnected) {
+        if (gd.dirty && H.phase !== 'qc-dark') { gd.dirty = false; Q.sync3D(); }
+        r.lamp.intensity = H.phase === 'qc-dark' ? 0 : 6;
+        r.renderer.toneMappingExposure = H.phase === 'qc-dark' ? .02 : 1;
+        const show = H.phase === 'qc-rev' && gd.change; r.ring.visible = !!show;
+        if (show) { const o = gd.change.o, [x, z] = o.cell >= 0 ? Q.cellPos(o.cell) : [0, 0]; r.ring.position.set(x, .05, z); r.ring.scale.setScalar(1 + Math.sin(performance.now() / 150) * .1); }
+        r.renderer.render(r.scene, r.cam);
+        hud3D(H.phase === 'qc-look' ? `<span class="schip" style="--c:#0ea5e9">👀 Memorizá el cuarto · ${gd.r}/${Q.N}</span>` : H.phase === 'qc-dark' ? `<span class="schip" style="--c:#111">🌑 ¡Se fue la luz!</span>` : H.phase === 'qc-go' ? `<span class="schip" style="--c:#f59e0b">🤔 ¿Qué cambió? Respondé en tu cel</span>` : H.phase === 'qc-rev' ? `<span class="schip" style="--c:#22c55e">✅ ${esc(gd.change.right)}</span>` : '');
+        return;
+      }
+      ctx.fillStyle = H.phase === 'qc-dark' ? '#000' : '#e8c9a0'; ctx.fillRect(0, 0, 1000, 600);
+    },
+    render(ph) {
+      const gd = H.gd;
+      if (ph === 'qc-res') return `<h1 class="title-pop">🛋️ Los más observadores</h1>${resultsList(gd.rows)}`;
+      return canvasHTML(false) + (ph === 'qc-go' ? `<div class="qcopts">${gd.opts.map((o, i) => `<div class="qco"><b>${'ABCD'[i]}</b> ${esc(o)}</div>`).join('')}</div>` : '');
+    }
+  }
+});
+const T3C = c => parseInt(c.replace('#', ''), 16);
+GAME_TAGS.race3d = ['miniatures', 'stopwatch']; GAME_TAGS.golf = ['miniatures', 'puzzle']; GAME_TAGS.qcambio = ['puzzle'];
+
+XS.qcambio = function (v) {
+  app.innerHTML = shell(`<div class="pqc"><div class="pmn-top">Ronda ${v.r}/${v.N} · <b>¿Qué cambió?</b></div>${v.opts.map((o, i) => `<button class="btn big pqcb ${v.picked === i ? 'on' : ''}" data-i="${i}" ${v.picked >= 0 ? 'disabled' : ''}><b>${'ABCD'[i]}</b> ${esc(o)}</button>`).join('')}</div>`, true);
+  app.querySelectorAll('.pqcb').forEach(b => b.onclick = () => { if (b.disabled) return; send({ t: 'act', a: 'qc', i: +b.dataset.i }); app.querySelectorAll('.pqcb').forEach(x => { x.disabled = true; x.classList.toggle('on', x === b); }); if (navigator.vibrate) navigator.vibrate(20); });
+  P.onKey = (k, first) => { const m = { a: 0, b: 1, c: 2, d: 3, 1: 0, 2: 1, 3: 2, 4: 3 }; if (first && k in m) app.querySelectorAll('.pqcb')[m[k]]?.click(); };
+};
+
+(() => {
+  const ob = botBrain;
+  botBrain = function (p) {
+    const gd = H.gd;
+    if (H.game === GAMES.race3d && (H.phase === 'rc-go' || H.phase === 'rc-ready') && gd.ps) {
+      const s = gd.ps[p.id]; if (!s) return; const M = p._rc || (p._rc = { b: 0, look: 7 + rand(4), skill: .8 + Math.random() * .2 });
+      const tgt = gd.pts[(s.idx + M.look) % gd.M], dx = tgt[0] - s.x, dz = tgt[1] - s.z, d = Math.hypot(dx, dz) || 1, turn = Math.abs(angTo(s.a, Math.atan2(dx, dz)));
+      if (s.cd <= 0 && turn < .15 && Math.random() < .08) M.b++;
+      return joyAct(p, { a: 'joy', x: dx / d * M.skill, y: dz / d * M.skill, b: M.b });
+    }
+    if (H.game === GAMES.golf && H.phase === 'gf-go' && gd.b) {
+      const b = gd.b[p.id]; if (!b || b.in) return; const M = p._gf || (p._gf = { b: 0 });
+      if (Math.hypot(b.vx, b.vz) > .04) return joyAct(p, { a: 'joy', x: 0, y: 0, b: M.b });
+      const L = gd.L, G = GAMES.golf;
+      /* apunta al hoyo o a un punto intermedio visible (esquinas del recorrido) */
+      const vis = (tx, tz) => { for (let k = 1; k < 20; k++) { const x = b.x + (tx - b.x) * k / 20, z = b.z + (tz - b.z) * k / 20; if (!G.inside(x, z) || L.obs.some(o => o.k === 'circ' ? Math.hypot(x - o.x, z - o.z) < o.r + .15 : Math.abs(x - o.x) < o.w / 2 + .15 && Math.abs(z - o.z) < o.d / 2 + .15)) return false; } return true; };
+      let tx = L.cup[0], tz = L.cup[1];
+      if (!vis(tx, tz)) { let best = null, bd = 1e9; for (let k = 0; k < 60; k++) { const x = b.x + (Math.random() - .5) * 12, z = b.z + (Math.random() - .5) * 8; if (!G.inside(x, z) || !vis(x, z)) continue; const dd = Math.hypot(x - L.cup[0], z - L.cup[1]); if (dd < bd) { bd = dd; best = [x, z]; } } if (best) [tx, tz] = best; }
+      const dx = tx - b.x, dz = tz - b.z, d = Math.hypot(dx, dz) || 1, want = Math.min(1, d / 6.5 + .08), pw = .15 + G.power(b) * .85;
+      if (Math.abs(angTo(b.a, Math.atan2(dx, dz))) < .06 && Math.abs(pw - want) < .06 && Math.random() < .7) M.b++;
+      return joyAct(p, { a: 'joy', x: dx / d, y: dz / d, b: M.b });
+    }
+    if (H.game === GAMES.qcambio && H.phase === 'qc-go') {
+      const M = p._qc || (p._qc = {}); if (gd.ans[p.id] != null) return;
+      if (M.r !== gd.r) { M.r = gd.r; M.t = Date.now() + 2000 + rand(6000); } if (Date.now() < M.t) return;
+      return GAMES.qcambio.onAct(p, { a: 'qc', i: Math.random() < .55 ? gd.okIdx : rand(gd.opts.length) });
     }
     return ob(p);
   };
