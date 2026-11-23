@@ -2592,10 +2592,12 @@ Object.assign(GAMES, {
         const p = gd.ps[id]; if (gd.found.includes(id)) continue;
         const i = inp(id);
         if (p.stun > 0) { p.stun -= dt; p.lb = i.b; continue; }
-        p.x = Math.max(10, Math.min(990, p.x + i.x * 420 * dt)); p.y = Math.max(10, Math.min(590, p.y + i.y * 420 * dt));
-        if (i.b > p.lb) {
-          p.lb = i.b;
-          if (Math.hypot(p.x - t.x, p.y - t.y) < 30) {
+        /* mira con aceleración: arranca lento (para afinar) y si mantenés se va rápido */
+        const mag = Math.min(1, Math.hypot(i.x, i.y)); p.hold = mag > .15 ? Math.min(1, (p.hold || 0) + dt * 1.6) : 0;
+        const sp = 110 + 360 * p.hold * p.hold; p.x = Math.max(10, Math.min(990, p.x + i.x * sp * dt)); p.y = Math.max(10, Math.min(590, p.y + i.y * sp * dt));
+        if (i.b !== p.lb) {
+          const pressed = i.b > p.lb || i.b === 1; p.lb = i.b; if (!pressed) continue;
+          if (Math.hypot(p.x - t.x, p.y - t.y) < Math.max(38, t.s * .75)) {
             gd.found.push(id); const pts = [300, 200, 120, 80][gd.found.length - 1] || 50;
             gd.pts[id] = (gd.pts[id] || 0) + pts; SFX.win(); sync(); updateStrip();
             if (onlineIn(gd.ids).every(x => gd.found.includes(x))) { const tok = H.token; setTimeout(() => { if (tok === H.token) GAMES.find.subEnd(); }, 900); }
@@ -3670,7 +3672,10 @@ GAMES.find.sub = function () {
   const sc = document.createElement('canvas'); sc.width = 1000; sc.height = 600;
   const c = sc.getContext('2d'), bg = pickR(['#1e293b', '#14532d', '#1e1b4b', '#3f1d38', '#0c4a6e', '#422006']);
   c.fillStyle = bg; c.fillRect(0, 0, 1000, 600);
-  for (const it of shuffle(items)) { c.save(); c.translate(it.x, it.y); c.rotate(it.r); emo(c, it.e, 0, 0, it.s); c.restore(); }
+  const paint = () => { c.fillStyle = bg; c.fillRect(0, 0, 1000, 600); for (const it of items) { if (it === tgt) continue; c.save(); c.translate(it.x, it.y); c.rotate(it.r); emo(c, it.e, 0, 0, it.s); c.restore(); } c.save(); c.translate(tgt.x, tgt.y); c.rotate(tgt.r); emo(c, tgt.e, 0, 0, tgt.s); c.restore(); };
+  shuffle(items); paint();
+  /* que la tele dibuje los mismos emojis 3D que ve el cel (si no, el objetivo se ve distinto) */
+  if (window.feImg && typeof feSrc === 'function') { const srcs = [...new Set(items.map(it => feSrc(it.e)).filter(Boolean))].map(window.feImg); const sid0 = gd.r; Promise.race([Promise.all(srcs.map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; }))), new Promise(r => setTimeout(r, 2500))]).then(() => { if (H.gd === gd && gd.r === sid0) paint(); }); }
   gd.scene = sc; gd.ps = {}; gd.found = [];
   spreadStart(gd.ids, 500, 300, 150).forEach(([id, x, y]) => gd.ps[id] = { x, y, stun: 0, lb: inp(id).b, miss: 0 });
   gd.sid = rid();
@@ -9097,7 +9102,7 @@ if (FE_ON) {
   new MutationObserver(ms => { for (const m of ms) { if (m.type === 'characterData') q.add(m.target); else m.addedNodes.forEach(n => { if (n.nodeType === 1 || n.nodeType === 3) q.add(n); }); } if (!raf) raf = requestAnimationFrame(flush); }).observe(document.body, { childList: true, subtree: true, characterData: true });
   feParse(document.body);
   /* también en los juegos dibujados en canvas */
-  const imgs = {}; const oemo = emo;
+  const imgs = {}; const oemo = emo; window.feImg = src => { let im = imgs[src]; if (!im) { im = imgs[src] = new Image(); im.src = src; } return im; };
   emo = function (ctx, e, x, y, size) { const src = feSrc(e); if (src) { let im = imgs[src]; if (!im) { im = imgs[src] = new Image(); im.src = src; } if (im.complete && im.naturalWidth) { const s = size * 1.12; ctx.drawImage(im, x - s / 2, y - s / 2, s, s); return; } } return oemo(ctx, e, x, y, size); };
 }
 
