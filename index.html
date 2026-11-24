@@ -1062,7 +1062,7 @@ function onHostMsg(conn, m) {
     if (a.got < a.n) return; delete p._parts[k]; p._pdone.add(k); try { conn.send({ t: 'ack', k }); } catch (e) {}
     let o; try { o = JSON.parse(a.d.join('')); } catch (e) { return; } if (o && o.t === 'act' && H.game && H.game.onAct) H.game.onAct(p, o); return;
   }
-  if (m.t === 'act' && H.game && H.game.onAct) H.game.onAct(p, m);
+  if (m.t === 'act' && H.game && H.game.onAct) { H.game.onAct(p, m); if (m.rt) { H.lastSent.delete(p.id); sync(); } }
 }
 function onHostClose(conn) {
   const p = pl(conn._pid);
@@ -1159,6 +1159,8 @@ function resetGame() {
 function rankGains(ids, scoreFn, higherBetter, valid = () => true, pts = [500, 300, 200], rest = 100) {
   const arr = ids.filter(valid).sort((a, b) => higherBetter ? scoreFn(b) - scoreFn(a) : scoreFn(a) - scoreFn(b));
   const g = {}; let prevS = null, prevR = 0;
+  /* si todos quedaron igual (por ej. nadie hizo nada) nadie gana: todos se llevan lo mínimo */
+  if (arr.length > 1 && arr.every(id => scoreFn(id) === scoreFn(arr[0]))) { arr.forEach(id => g[id] = rest); return g; }
   arr.forEach((id, i) => { const s = scoreFn(id); const r = s === prevS ? prevR : i; prevS = s; prevR = r; g[id] = pts[r] ?? rest; });
   return g;
 }
@@ -1593,7 +1595,7 @@ function onPlayerMsg(m) {
     renderCtrl(m.v);
   }
 }
-function clearTimers() { P.timers.forEach(t => { clearTimeout(t); clearInterval(t); }); P.timers = []; P.unlock = null; P.onCut = null; P.onLive = null; }
+function clearTimers() { P.timers.forEach(t => { if (t && typeof t.clear === 'function') t.clear(); else { clearTimeout(t); clearInterval(t); } }); P.timers = []; P.unlock = null; P.onCut = null; P.onLive = null; }
 function shell(inner, timer) {
   return `<div class="ctrl"><div class="c-top"><span>${P.emoji} ${esc(P.name)}</span><span>⭐ ${P.score}</span></div>${timer ? '<div class="ctimer"><div id="ctf"></div></div>' : ''}<div class="c-body">${inner}</div></div>`;
 }
@@ -1662,8 +1664,10 @@ function chooseScreen(v) {
   if (!v.options.length) { ctrlMsg('🤷', 'Nada para elegir', 'Mirá la tele'); return; }
   app.innerHTML = shell(`<div class="c-prompt pop">${esc(v.title)}</div><div class="opts ${v.ab ? 'ab' : ''}">${v.options.map((o, i) => `<button class="opt" data-id="${esc(o.id)}" style="--c:${COLORS[(i + 1) % 8]};animation-delay:${i * .07}s">${v.ab ? (i ? 'B · ' : 'A · ') : ''}${esc(o.label)}</button>`).join('')}</div>`, true);
   app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
-    send({ t: 'act', a: 'choose', id: b.dataset.id });
+    const msg = { t: 'act', a: 'choose', id: b.dataset.id }; send(msg);
     app.querySelectorAll('.opt').forEach(x => x.disabled = true); b.classList.add('picked'); SFX.pop();
+    /* si la tele no responde, reintenta (por si el mensaje se perdió en la red) */
+    let n = 0; const iv = setInterval(() => { if (!b.isConnected || ++n > 8) return clearInterval(iv); send(Object.assign({ rt: n }, msg)); }, 2500); P.timers.push({ clear: () => clearInterval(iv) });
   });
 }
 function drawScreen(v) {
@@ -4006,8 +4010,8 @@ function paintScreen(v, mode) {
   $('#bClr').onclick = () => { save(); g.fillStyle = '#fff'; g.fillRect(0, 0, W, W); dirty = true; };
   P.timers.push({ clear: () => clearInterval(sprayIv) });
   if (live) {
-    const sm = document.createElement('canvas'); sm.width = sm.height = 320; const sg = sm.getContext('2d');
-    P.timers.push(setInterval(() => { if (!dirty) return; dirty = false; sg.drawImage(c, 0, 0, 320, 320); send({ t: 'act', a: 'live', img: sm.toDataURL('image/jpeg', .6) }); }, 600));
+    const sm = document.createElement('canvas'); sm.width = sm.height = 260; const sg = sm.getContext('2d');
+    P.timers.push(setInterval(() => { if (!dirty) return; dirty = false; sg.drawImage(c, 0, 0, 260, 260); send({ t: 'act', a: 'live', img: sm.toDataURL('image/jpeg', .55) }); }, 600));
   } else {
     const submit = auto => {
       if (sent || (auto && !strokes)) return; sent = true;
@@ -4148,29 +4152,31 @@ Object.assign(GAMES, {
     start() { libWait(this, 'matter', () => GAMES.tower.realStart()); },
     realStart() {
       const { Engine, Bodies, Composite } = Matter;
-      const ids = shuffle(onlineIds()), engine = Engine.create();
+      const ids = shuffle(onlineIds()), engine = Engine.create({ positionIterations: 12, velocityIterations: 10 });
       engine.gravity.y = 1;
+      /* regla: solo el PRIMER bloque puede tocar el piso; si otro lo toca, la torre se cayó */
+      Matter.Events.on(engine, 'collisionStart', ev => { const gd = H.gd; if (!gd || gd.engine !== engine || gd.state === 'over') return; for (const pr of ev.pairs) { const a = pr.bodyA, b = pr.bodyB, o = a.label === 'ground' ? b : b.label === 'ground' ? a : null; if (o && !o.isBase && !gd.floorHit) gd.floorHit = o; } });
       const ground = Bodies.rectangle(500, 560, 300, 30, { isStatic: true, friction: 1, label: 'ground' });
       Composite.add(engine.world, ground);
-      H.gd = { ids, engine, ground, blocks: [], turn: 0, drops: 0, max: Math.min(18, Math.max(6, ids.length * 3)), t: 0, acc: 0, state: 'aim', settle: 0, ok: {}, culprit: null, cam: 0, sid: rid() };
+      H.gd = { ids, engine, ground, blocks: [], turn: 0, drops: 0, max: Infinity, t: 0, acc: 0, state: 'aim', settle: 0, ok: {}, culprit: null, cam: 0, sid: rid() };
       this.newBlock();
       setPhase('tw-ready', 3000, () => { SFX.go(); GAMES.tower.go(); }, 0, false);
       rtLoop(null, GAMES.tower.draw);
     },
     newBlock() {
       const gd = H.gd, r = Math.random();
-      gd.next = r < .15 ? { w: 70, h: 70 } : r < .3 ? { w: 200, h: 28 } : { w: 90 + rand(90), h: 30 + rand(30) };
+      gd.next = gd.drops > 6 && r < .18 ? { w: 44 + rand(12), h: 76 } : r < .15 ? { w: 70, h: 70 } : r < .3 ? { w: 200, h: 28 } : { w: Math.max(60, 90 + rand(90) - gd.drops * 2), h: 30 + rand(30) }; /* con el tiempo salen piezas más raras */
       gd.aimT0 = gd.t; gd.state = 'aim'; gd.turnEnd = Date.now() + 7000;
     },
     cur() { const gd = H.gd; return gd.ids[gd.turn % gd.ids.length]; },
-    go() { setPhase('tw-go', 180000, () => GAMES.tower.end()); rtLoop(dt => GAMES.tower.step(dt), GAMES.tower.draw); },
+    go() { setPhase('tw-go', 600000, () => GAMES.tower.end()); rtLoop(dt => GAMES.tower.step(dt), GAMES.tower.draw); },
     top() { const gd = H.gd; let t = 545; for (const b of gd.blocks) if (b.position.y < 700) t = Math.min(t, b.bounds.min.y); return t; },
-    craneX() { const gd = H.gd, sp = 1.2 + gd.drops * .08; return 500 + Math.sin((gd.t - gd.aimT0) * sp + gd.drops) * 300; },
+    craneX() { const gd = H.gd, sp = Math.min(3.2, 1.2 + gd.drops * .09); return 500 + Math.sin((gd.t - gd.aimT0) * sp + gd.drops) * 300; },
     drop() {
       const gd = H.gd, { Bodies, Composite } = Matter; if (gd.state !== 'aim') return;
       const who_ = this.cur(), y = this.top() - 150, x = this.craneX();
-      const b = Bodies.rectangle(x, y, gd.next.w, gd.next.h, { friction: .9, frictionStatic: 1, restitution: .02, density: .002 });
-      b.owner = who_; Composite.add(gd.engine.world, b); gd.blocks.push(b);
+      const b = Bodies.rectangle(x, y, gd.next.w, gd.next.h, { friction: .85, frictionStatic: 1.15, frictionAir: .012, restitution: 0, density: .0016, slop: .02 });
+      b.owner = who_; b.isBase = gd.blocks.length === 0; Composite.add(gd.engine.world, b); gd.blocks.push(b);
       gd.state = 'fall'; gd.fallT = 0; gd.settle = 0; gd.dropper = who_; beep(400, .1, 'triangle', .07); sync();
     },
     view(p) {
@@ -4184,15 +4190,15 @@ Object.assign(GAMES, {
     onAct(p, m) { if (H.phase === 'tw-go' && m.a === 'drop' && this.cur() === p.id) this.drop(); },
     step(dt) {
       const gd = H.gd, { Engine } = Matter; gd.t += dt;
-      gd.acc += dt; while (gd.acc >= 1 / 60) { Engine.update(gd.engine, 1000 / 60); gd.acc -= 1 / 60; }
+      gd.acc += dt; let n = 0; while (gd.acc >= 1 / 120 && n++ < 12) { Engine.update(gd.engine, 1000 / 120); gd.acc -= 1 / 120; } if (n >= 12) gd.acc = 0;
+      /* la torre se cae si un bloque se va de la base o si alguno (que no sea la base) toca el piso; en cualquier momento */
+      if (gd.state !== 'over' && gd.blocks.length) { const fallen = gd.blocks.some(b => b.position.y > 640 || Math.abs(b.position.x - 500) > 520); if (fallen || gd.floorHit) { gd.state = 'over'; gd.culprit = gd.dropper; gd.why = gd.floorHit && !fallen ? 'piso' : 'cayo'; SFX.bad(); shakeScreen(); const tok = H.token; setTimeout(() => { if (tok === H.token) GAMES.tower.end(); }, 2200); updateStrip(); sync(); return; } }
       const targetCam = Math.max(0, 300 - this.top()); gd.cam += (targetCam - gd.cam) * Math.min(1, dt * 3);
       if (gd.state === 'aim' && Date.now() > gd.turnEnd) this.drop();
       if (gd.state === 'fall') {
         gd.fallT += dt;
         const still = gd.blocks.every(b => b.speed < .12 && Math.abs(b.angularSpeed) < .01);
         gd.settle = still ? gd.settle + dt : 0;
-        const fallen = gd.blocks.filter(b => b.position.y > 640 || Math.abs(b.position.x - 500) > 520);
-        if (fallen.length) { gd.state = 'over'; gd.culprit = gd.dropper; SFX.bad(); shakeScreen(); const tok = H.token; setTimeout(() => { if (tok === H.token) GAMES.tower.end(); }, 1800); updateStrip(); return; }
         if (gd.settle > .7 || gd.fallT > 4.5) {
           gd.ok[gd.dropper] = (gd.ok[gd.dropper] || 0) + 1; gd.drops++; gd.turn++; SFX.pop();
           if (gd.drops >= gd.max) { gd.state = 'over'; const tok = H.token; setTimeout(() => { if (tok === H.token) GAMES.tower.end(); }, 1000); return; }
@@ -4225,7 +4231,7 @@ Object.assign(GAMES, {
       if (H.phase !== 'tw-go') return;
       const gd = H.gd, g = {};
       gd.ids.forEach(id => { g[id] = id === gd.culprit ? 0 : (gd.ok[id] || 0) * 100 + 150; });
-      gd.rows = gd.ids.slice().sort((a, b) => g[b] - g[a]).map(id => ({ id, val: id === gd.culprit ? '💥 Tumbó la torre' : `🧱 ${gd.ok[id] || 0} bloques`, gain: g[id] }));
+      gd.rows = gd.ids.slice().sort((a, b) => g[b] - g[a]).map(id => ({ id, val: id === gd.culprit ? (gd.why === 'piso' ? '💥 Tocó el piso' : '💥 Tumbó la torre') : `🧱 ${gd.ok[id] || 0} legos`, gain: g[id] }));
       setPhase('tw-res', 6000, () => finishGame(g), 0, false); confetti(70);
     },
     render(ph) {
@@ -4416,9 +4422,9 @@ const _botBrain0 = botBrain;
 botBrain = function (p) {
   if (H.game === GAMES.tower && H.phase === 'tw-go') {
     const gd = H.gd; if (gd.state === 'aim' && GAMES.tower.cur() === p.id) {
-      if (!p._tw || p._tw.d !== gd.drops) p._tw = { d: gd.drops, t0: Date.now(), tol: 20 + rand(40) };
+      if (!p._tw || p._tw.d !== gd.drops) { const topB = gd.blocks.reduce((a, b) => !a || b.position.y < a.position.y ? b : a, null); p._tw = { d: gd.drops, t0: Date.now(), tol: 12 + rand(30) + gd.drops * 4, aim: topB ? topB.position.x + (Math.random() - .5) * gd.drops * 3 : 500 }; }
       const x = GAMES.tower.craneX();
-      if (Date.now() - p._tw.t0 > 1200 && Math.abs(x - 500) < p._tw.tol) GAMES.tower.onAct(p, { a: 'drop' });
+      if (Date.now() - p._tw.t0 > 1200 && Math.abs(x - p._tw.aim) < p._tw.tol) GAMES.tower.onAct(p, { a: 'drop' });
     }
     return;
   }
@@ -6392,7 +6398,7 @@ function confettiDOM(el, col) {
       const ids = [...H.players.keys()], best = Math.max(0, ...ids.map(i => gains[i] || 0));
       if (best <= 0) return;
       const wins = ids.filter(i => (gains[i] || 0) === best);
-      if (wins.length > 3) return;                      // empate masivo: nadie ganó de verdad
+      if (wins.length > 3 || (wins.length > 1 && wins.length === ids.filter(i => pl(i)?.online).length)) return;   // empate de todos: nadie ganó de verdad
       wins.forEach((id, k) => {
         const p = pl(id); if (!p) return;
         /* no siempre hay cofre: 40%, y si no sale sube a 70% y luego 100% (nunca te quedás sin nada 3 veces seguidas) */
@@ -7580,7 +7586,7 @@ XS.manos = function (v) {
   const od = GAMES.tower.realStart;
   GAMES.tower.realStart = function () { ['low', 'medium', 'high'].forEach(a => [1, 2, 4, 6].forEach(k => BR(`brick_${a}_${k}`))); return od.call(this); };
   GAMES.tower.name = 'Torre de Legos';
-  GAMES.tower.desc = 'Por turnos, cada uno suelta un LEGO de su color desde la grúa que se mueve 🏗️. ¡Hay física de verdad! El que haga caer la torre pierde 😱';
+  GAMES.tower.desc = 'Por turnos, cada uno suelta un LEGO desde la grúa 🏗️. El primero es la BASE: después todos tienen que caer ENCIMA de la torre. Si tu lego toca el piso o hace caer algo, perdés 😱. ¡Se juega hasta que la torre se caiga, y la grúa cada vez va más rápido!';
   GAMES.tower.draw = function (ctx) {
     const gd = H.gd, T = GAMES.tower;
     const sky = ctx.createLinearGradient(0, 0, 0, 600); sky.addColorStop(0, '#0ea5e9'); sky.addColorStop(1, '#fde68a'); ctx.fillStyle = sky; ctx.fillRect(0, 0, 1000, 600);
@@ -7592,7 +7598,7 @@ XS.manos = function (v) {
     if (bt) ctx.drawImage(bt, 350, 545 - 14, 300, 30 + 14); else { ctx.fillStyle = '#22c55e'; ctx.fillRect(350, 545, 300, 30); }
     for (const b of gd.blocks) {
       const pp = pl(b.owner), w = Math.hypot(b.vertices[1].x - b.vertices[0].x, b.vertices[1].y - b.vertices[0].y), h = Math.hypot(b.vertices[2].x - b.vertices[1].x, b.vertices[2].y - b.vertices[1].y);
-      ctx.save(); ctx.translate(b.position.x, b.position.y); ctx.rotate(b.angle); lego(ctx, w, h, pp?.color || '#888'); emo(ctx, pp?.emoji || '', 0, 3, Math.min(22, h * .7)); ctx.restore();
+      ctx.save(); ctx.translate(b.position.x, b.position.y); ctx.rotate(b.angle); lego(ctx, w, h, pp?.color || '#888'); emo(ctx, pp?.emoji || '', 0, 3, Math.min(22, h * .7)); if (b.isBase) { ctx.font = '900 13px Nunito, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.strokeStyle = '#1a1033'; ctx.lineWidth = 3; ctx.strokeText('BASE', 0, h / 2 - 4); ctx.fillText('BASE', 0, h / 2 - 4); } ctx.restore();
     }
     if (gd.state === 'aim' && H.phase === 'tw-go') {
       const x = T.craneX(), y = T.top() - 150, n = gd.next, pp = pl(T.cur());
@@ -7602,9 +7608,10 @@ XS.manos = function (v) {
       ctx.save(); ctx.translate(x, y); ctx.globalAlpha = .92; lego(ctx, n.w, n.h, pp?.color || '#888'); ctx.globalAlpha = 1; emo(ctx, pp?.emoji || '', 0, 3, Math.min(22, n.h * .7)); ctx.restore();
     }
     ctx.restore();
-    nameTag(ctx, `Legos: ${gd.drops}/${gd.max}`, 110, 30, 20);
+    nameTag(ctx, `🧱 ${gd.drops} legos · 📏 ${Math.max(0, Math.round((545 - T.top()) / 40 * 10) / 10)} m`, 150, 30, 20);
     if (H.phase === 'tw-go' && gd.state === 'aim') nameTag(ctx, `Turno: ${pl(T.cur())?.emoji || ''} ${pl(T.cur())?.name || ''}`, 500, 30, 26);
-    if (gd.culprit) nameTag(ctx, `💥 ¡${pl(gd.culprit)?.name || ''} tumbó la torre!`, 500, 300, 46);
+    if (H.phase === 'tw-go' && gd.state === 'aim' && !gd.blocks.length) nameTag(ctx, '⬇️ El primer lego es la BASE', 500, 72, 20);
+    if (gd.culprit) nameTag(ctx, gd.why === 'piso' ? `💥 ¡${pl(gd.culprit)?.name || ''} tocó el piso!` : `💥 ¡${pl(gd.culprit)?.name || ''} tumbó la torre!`, 500, 300, 46);
   };
 })();
 
