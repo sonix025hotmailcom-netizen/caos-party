@@ -10208,6 +10208,72 @@ const EMO = {
   /* los bots también reaccionan de vez en cuando */
 })();
 
+/* ================== v44 — ANIMACIÓN "VIVA": capa procedural encima de las animaciones ==================
+   giro suave, inclinación al correr/frenar/doblar, estirar-aplastar al saltar y caer, cabeza que mira,
+   caminar vs correr según la velocidad real, pies sincronizados y polvito al correr y al caer */
+const ALIVE = {
+  puffTex: null,
+  tex(T) { if (ALIVE.puffTex) return ALIVE.puffTex; const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,.95)'); gr.addColorStop(.5, 'rgba(235,230,225,.55)'); gr.addColorStop(1, 'rgba(235,230,225,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return ALIVE.puffTex = new T.CanvasTexture(c); },
+  scene(o) { while (o.parent) o = o.parent; return o.isScene ? o : null; },
+  puff(a, T, x, y, z, s, vx, vz) {
+    const sc = ALIVE.scene(a.obj); if (!sc || window.__lowq) return; const P = a._lv.puffs; if (P.length > 14) return;
+    const sp = new T.Sprite(new T.SpriteMaterial({ map: ALIVE.tex(T), transparent: true, depthWrite: false, opacity: .8 })); sp.position.set(x, y, z); sp.scale.setScalar(s * .5); sc.add(sp);
+    P.push({ sp, t: 0, s, vx: vx || 0, vz: vz || 0, vy: s * .6 });
+  },
+  rig(a) {
+    const T = C3D.T, L = a._lv = { puffs: [], pos: null, vel: new T.Vector3(), sq: 0, sqv: 0, lp: 0, lr: 0, hy: 0, yawD: null, yawT: null, yawW: null, gy: null, air: false, stride: 0, t: Math.random() * 100, w: new T.Vector3() };
+    a.obj.rotation.order = 'YXZ'; L.bs = a.obj.scale.x;
+    a.obj.traverse(o => { if (o.isBone && /^Head$/.test(o.name) && !L.head) L.head = o; if (o.isBone && /^Torso$/.test(o.name) && !L.torso) L.torso = o; });
+    if (L.head) L.hq = L.head.quaternion.clone();
+    const om = a.mixer.update.bind(a.mixer), Q = new T.Quaternion(), AX = new T.Vector3(0, 1, 0);
+    a.mixer.update = dt => {
+      dt = Math.min(dt || 0, .05); const o = a.obj;
+      /* quitar lo que sumamos el cuadro anterior (así no peleamos con el juego) */
+      if (o.rotation.x === L.wx) o.rotation.x -= L.lp; if (o.rotation.z === L.wz) o.rotation.z -= L.lr; if (L.sm && o.scale.y === L.wsy && o.scale.x === L.wsx) o.scale.set(o.scale.x / L.sm[0], o.scale.y / L.sm[1], o.scale.z / L.sm[0]);
+      if (L.head && L.hqSet) L.head.quaternion.copy(L.hq);
+      /* giro suave: el juego pone hacia dónde mirar, nosotros llegamos ahí con resorte */
+      const ry = o.rotation.y; if (L.yawW === null || Math.abs(ry - L.yawW) > 1e-6) L.yawT = ry; if (L.yawD === null) L.yawD = L.yawT;
+      let dy = ((L.yawT - L.yawD + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI; const yr = dy * Math.min(1, dt * 14); L.yawD += yr; o.rotation.y = L.yawD; L.yawW = L.yawD; const yawRate = dt ? yr / dt : 0;
+      /* velocidad real en el mundo, en "alturas de personaje" por segundo */
+      o.getWorldPosition(L.w); const h = Math.max(.2, (a._h || 1.7) * (o.parent ? o.parent.getWorldScale(new T.Vector3()).y : 1));
+      if (L.pos && dt > 0) { const vx = (L.w.x - L.pos.x) / dt, vy = (L.w.y - L.pos.y) / dt, vz = (L.w.z - L.pos.z) / dt, k = Math.min(1, dt * 10); if (Math.hypot(vx, vy, vz) / h < 60) { L.acc = ((Math.hypot(vx, vz) - Math.hypot(L.vel.x, L.vel.z)) / dt) / h; L.vel.x += (vx - L.vel.x) * k; L.vel.y += (vy - L.vel.y) * Math.min(1, dt * 16); L.vel.z += (vz - L.vel.z) * k; } else L.vel.set(0, 0, 0); }
+      if (!L.pos) L.pos = new T.Vector3(); L.pos.copy(L.w);
+      const spd = Math.hypot(L.vel.x, L.vel.z) / h, fy = L.yawD, fwd = (L.vel.x * Math.sin(fy) + L.vel.z * Math.cos(fy)) / h;
+      /* caminar o correr según la velocidad, y patitas al ritmo (menos patinaje) */
+      a._spd = spd;
+      const cur = a.cur, run = a.acts.Running || a.acts.Run, walk = a.acts.Walking || a.acts.Walk;
+      if (a.mixer.timeScale === 1 && cur && (cur === run || cur === walk)) cur.timeScale = Math.max(.65, Math.min(1.6, spd / (cur === run ? 2.4 : 1.1)));
+      om(dt);
+      /* aire / aterrizaje: estirar al subir, aplastar al caer */
+      const vyh = L.vel.y / h; if (vyh > 2.2) { L.air = true; L.sq += (-.12 - L.sq) * Math.min(1, dt * 12); }
+      if (vyh < -2.5) L.air = true;
+      if (L.air && Math.abs(vyh) < .6 && L.prevVy < -2) { L.air = false; L.sqv -= Math.min(4.5, -L.prevVy * .55); for (let k = 0; k < 6; k++) { const an = k / 6 * 6.28; ALIVE.puff(a, T, L.w.x + Math.sin(an) * h * .25, L.w.y + h * .05, L.w.z + Math.cos(an) * h * .25, h * .55, Math.sin(an) * h * .9, Math.cos(an) * h * .9); } }
+      L.prevVy = vyh;
+      L.sqv += (-L.sq * 170 - L.sqv * 13) * dt; L.sq += L.sqv * dt; L.sq = Math.max(-.22, Math.min(.3, L.sq));
+      const sy = 1 - L.sq, sxz = 1 + L.sq * .55; L.sm = [sxz, sy]; o.scale.set(o.scale.x * sxz, o.scale.y * sy, o.scale.z * sxz); L.wsx = o.scale.x; L.wsy = o.scale.y;
+      /* inclinarse: hacia adelante al correr, atrás al frenar, de lado al doblar */
+      const tp = Math.max(-.22, Math.min(.3, fwd * .045 + Math.max(-2, Math.min(2, L.acc || 0)) * .03)), tr = Math.max(-.3, Math.min(.3, -yawRate * Math.min(spd, 6) * .022));
+      L.lp += (tp - L.lp) * Math.min(1, dt * 8); L.lr += (tr - L.lr) * Math.min(1, dt * 8); o.rotation.x += L.lp; o.rotation.z += L.lr; L.wx = o.rotation.x; L.wz = o.rotation.z;
+      /* cabeza: mira hacia donde dobla; quieto, mira alrededor */
+      L.t += dt; if (L.head) { const idle = spd < .3; const tgt = idle ? Math.sin(L.t * .55) * .35 * Math.sin(L.t * .21 + 1) : Math.max(-.5, Math.min(.5, yawRate * .18)); L.hy += (tgt - L.hy) * Math.min(1, dt * 5); L.hq.copy(L.head.quaternion); Q.setFromAxisAngle(AX, L.hy); L.head.quaternion.multiply(Q); L.hqSet = true; }
+      /* polvito al correr */
+      if (spd > 1.6 && !L.air) { L.stride += spd * h * dt; if (L.stride > h * .8) { L.stride = 0; ALIVE.puff(a, T, L.w.x - Math.sin(fy) * h * .2 + (Math.random() - .5) * h * .2, L.w.y + h * .05, L.w.z - Math.cos(fy) * h * .2, h * .4, -L.vel.x * .15, -L.vel.z * .15); } }
+      for (let i = L.puffs.length - 1; i >= 0; i--) { const p = L.puffs[i]; p.t += dt; const u = p.t / .7; if (u >= 1 || !p.sp.parent) { p.sp.parent && p.sp.parent.remove(p.sp); p.sp.material.dispose(); L.puffs.splice(i, 1); continue; } p.sp.position.x += p.vx * dt; p.sp.position.z += p.vz * dt; p.sp.position.y += p.vy * dt; p.vx *= .92; p.vz *= .92; p.sp.scale.setScalar(p.s * (.5 + u * .9)); p.sp.material.opacity = .8 * (1 - u); }
+    };
+  }
+};
+(() => {
+  const om = C3D.make;
+  C3D.make = function (g, height) { const a = om.apply(this, arguments); a._h = height; try { ALIVE.rig(a); } catch (e) {} return a; };
+  /* cambios de animación más suaves y con caminar cuando va despacio */
+  const om2 = C3D.make;
+  C3D.make = function () {
+    const a = om2.apply(this, arguments), op = a.play;
+    a.play = (n, once, then) => { if (!once && (n === 'Running' || n === 'Run') && a._spd != null && a._spd < 1.1 && a._spd > .12 && (a.acts.Walking || a.acts.Walk)) n = 'Walking'; return op(n, once, then); };
+    return a;
+  };
+})();
+
 /* ---------- escala automática de la interfaz ---------- */
 function fitUI() {
   const w = innerWidth, h = innerHeight, land = w > h, ctrl = !!document.querySelector('#app > .ctrl');
