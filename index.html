@@ -4578,11 +4578,11 @@ const Stage3D = (() => {
       const orbit = S.mode === 'lobby' ? Math.sin(t * .15) * 1.6 : Math.sin(t * .25) * .8;
       const nar = cam.aspect < 1.2 ? 1.35 : 1; if (S.mode === 'solo') { cam.position.set(orbit * .5, 2.3, 6.4); cam.lookAt(0, 1.05, 0); } else { cam.position.set(orbit, (S.mode === 'podium' ? 4.2 : 4.3) * nar, (S.mode === 'podium' ? 10.5 : 13) * nar); cam.lookAt(0, S.mode === 'podium' ? 1.6 : 1.2, 0); }
       S.actors.forEach(a => { a.mixer.update(dt); const kk = Math.min(1, dt * 4), P = a.g.position;
-        if (P.y > a.target.y + .01 || a.vy) { a.vy = (a.vy || 0) - 26 * dt; P.y = Math.max(a.target.y, P.y + a.vy * dt); if (P.y <= a.target.y) a.vy = 0; } else P.y += (a.target.y - P.y) * kk;
+        if (P.y > a.target.y + .01 || a.vy) { a.vy = (a.vy || 0) - 26 * dt; P.y = Math.max(a.target.y, P.y + a.vy * dt); if (P.y <= a.target.y) { a.vy = 0; if (a.falling) { const nx = a.falling; a.falling = null; setTimeout(() => play(a, pickR(['Wave', 'Yes', 'ThumbsUp']), true, nx), 260); } } } else P.y += (a.target.y - P.y) * kk;
         P.x += (a.target.x - P.x) * kk; P.z += (a.target.z - P.z) * kk;
         if (S.mode === 'lobby') { a.gT = (a.gT ?? 3 + Math.random() * 8) - dt; if (a.turnT > 0 && (a.turnT -= dt) <= 0) a.rot = a.rot0 || 0;
-          if (a.gT <= 0 && P.y <= a.target.y + .01) { a.gT = 5 + Math.random() * 9; const idle = !a.cur || a.cur === a.acts.Idle, dance = a.cur === a.acts.Dance;
-            if (idle || dance) { const others = [...S.actors.values()].filter(o => o !== a), g = others.length && Math.random() < .55 ? 'Wave' : pickR(['Yes', 'ThumbsUp', 'Jump', 'Punch', 'Dance']);
+          if (a.gT <= 0 && P.y <= a.target.y + .01 && !a.falling && performance.now() > (S.gLock || 0)) { a.gT = 14 + Math.random() * 14; S.gLock = performance.now() + 5000; const idle = !a.cur || a.cur === a.acts.Idle, dance = a.cur === a.acts.Dance;
+            if (idle || dance) { const others = [...S.actors.values()].filter(o => o !== a), g = others.length && Math.random() < .55 ? 'Wave' : pickR(['Yes', 'ThumbsUp', 'Jump', 'Punch']);
               if (g === 'Wave' && others.length) { const o = pickR(others); a.rot0 = a.rot; a.rot = Math.atan2(o.g.position.x - P.x, o.g.position.z - P.z); a.turnT = 2.2; }
               play(a, g, g !== 'Dance', g === 'Dance' ? undefined : (dance ? 'Dance' : 'Idle')); } } } a.g.rotation.y += (a.rot - a.g.rotation.y) * Math.min(1, dt * 5); a.badge.position.y = (a.by || 2.35) + Math.sin(t * 2 + a.seed) * .05; });
       renderer.render(scene, cam);
@@ -4607,7 +4607,7 @@ const Stage3D = (() => {
     else {
       m = SU.clone(gltf.scene);
       m.traverse(o => { if (o.isMesh) { o.castShadow = true; if (o.material && o.material.name === 'Main') { o.material = o.material.clone(); o.material.color.set(p.color); o.material.roughness = .35; } } });
-      m.scale.setScalar(.42); mixer = new T.AnimationMixer(m); gltf.animations.forEach(cl => acts[cl.name] = mixer.clipAction(cl)); try { if (typeof ALIVE !== 'undefined') ALIVE.rig({ obj: m, mixer, acts, cur: null, _h: 1.75 }); } catch (e) {}
+      m.scale.setScalar(.42); mixer = new T.AnimationMixer(m); gltf.animations.forEach(cl => acts[cl.name] = mixer.clipAction(cl)); try { if (typeof ALIVE !== 'undefined') ALIVE.rig({ obj: m, mixer, acts, cur: null, _h: 1.75 }, T); } catch (e) {}
     }
     if (!cg && typeof dressRobot === 'function') dressRobot(m, p.eq, T);
     const g = new T.Group(); g.add(m); const b = badge(p); g.add(b);
@@ -4629,11 +4629,11 @@ const Stage3D = (() => {
       if (a && a.key !== akey(p)) { S.scene.remove(a.g); S.actors.delete(p.id); a = null; }
       const isNew = !a; if (!a) { a = actor(p); S.actors.set(p.id, a); }
       const n = players.length;
-      if (mode === 'solo') { a.target.set(0, 0, 0); a.rot = 0; if (isNew) { a.g.position.set(0, 4, 0); play(a, 'Wave', true, 'Dance'); } }
+      if (mode === 'solo') { a.target.set(0, 0, 0); a.rot = 0; if (isNew) { a.g.position.set(0, 7, 0); a.falling = 'Dance'; play(a, 'Jump', true); } }
       else if (mode === 'lobby') {
         const ang = n === 1 ? 0 : (i / (n - 1) - .5) * Math.min(1.9, .45 * n);
         a.target.set(Math.sin(ang) * 4.4, 0, -Math.cos(ang) * 4.4 + 3.6); a.rot = -ang * .6;
-        if (isNew) { a.g.position.set(a.target.x, 6, a.target.z); play(a, 'Wave', true, pickR(['Dance', 'Idle', 'Dance'])); }
+        if (isNew) { a.g.position.set(a.target.x, 9, a.target.z); a.falling = 'Idle'; a.gT = 8 + Math.random() * 8; play(a, 'Jump', true); }
         else if (!a.cur) play(a, 'Idle');
       } else {
         const slot = [[0, 1.6, 0], [-2.3, 1.05, .3], [2.3, .6, .3]][i] || [((i - 3) % 2 ? 1 : -1) * (4.3 + Math.floor((i - 3) / 2) * 1.3), 0, 1.4];
@@ -4659,6 +4659,7 @@ const Stage3D = (() => {
       if (!loading) loading = init().catch(e => { failed = true; console.log('Escenario 3D no disponible', e && e.message); });
       loading.then(() => { if (S) go(); });
     },
+    _s() { return S; },
     emo(id, anim, e) { if (!S) return; const a = S.actors.get(id); if (!a) return; play(a, anim, true, 'Idle'); a.gT = 6; try { EMO.sprite({ obj: a.m }, e); } catch (er) {} },
     cheer(id) { if (!S) return; const a = S.actors.get(id); if (a) play(a, pickR(['Jump', 'Wave', 'Yes']), true, 'Dance'); },
   };
@@ -10198,11 +10199,11 @@ const EMO = {
   const om = C3D.make;
   C3D.make = function (g, height, tint) {
     const id = window._dressId, a = om.apply(this, arguments);
-    a._op = a.play; a._idleT = performance.now(); a._fid = 6000 + Math.random() * 7000;
+    a._op = a.play; a._idleT = performance.now(); a._fid = 15000 + Math.random() * 15000;
     a.play = (n, once, then) => {
       if (!once) a._want = n; if (a._emoting) return;
       const now = performance.now();
-      if (n === 'Idle' && !once) { if (a.cur && a.cur !== (a.acts.Idle || a.acts[ANIM_ALIAS.Idle])) a._idleT = now; else if (now - a._idleT > a._fid) { a._idleT = now; a._fid = 7000 + Math.random() * 9000; EMO.doAnim(a, pickR(['Wave', 'Yes', 'ThumbsUp', 'Dance']), 'Idle'); return; } }
+      if (n === 'Idle' && !once) { if (a.cur && a.cur !== (a.acts.Idle || a.acts[ANIM_ALIAS.Idle])) a._idleT = now; else if (now - a._idleT > a._fid) { a._idleT = now; a._fid = 18000 + Math.random() * 18000; EMO.doAnim(a, pickR(['Wave', 'Yes', 'ThumbsUp', 'Dance']), 'Idle'); return; } }
       a._op(n, once, then);
     };
     if (id && pl(id)) EMO.reg(id, a);
@@ -10228,8 +10229,8 @@ const ALIVE = {
     const sp = new T.Sprite(new T.SpriteMaterial({ map: ALIVE.tex(T), transparent: true, depthWrite: false, opacity: .8 })); sp.position.set(x, y, z); sp.scale.setScalar(s * .5); sc.add(sp);
     P.push({ sp, t: 0, s, vx: vx || 0, vz: vz || 0, vy: s * .6 });
   },
-  rig(a) {
-    const T = C3D.T, L = a._lv = { puffs: [], pos: null, vel: new T.Vector3(), sq: 0, sqv: 0, lp: 0, lr: 0, hy: 0, yawD: null, yawT: null, yawW: null, gy: null, air: false, stride: 0, t: Math.random() * 100, w: new T.Vector3() };
+  rig(a, T0) {
+    const T = T0 || C3D.T, L = a._lv = { puffs: [], pos: null, vel: new T.Vector3(), sq: 0, sqv: 0, lp: 0, lr: 0, hy: 0, yawD: null, yawT: null, yawW: null, gy: null, air: false, stride: 0, t: Math.random() * 100, w: new T.Vector3() };
     a.obj.rotation.order = 'YXZ'; L.bs = a.obj.scale.x;
     a.obj.traverse(o => { if (o.isBone && /^Head$/.test(o.name) && !L.head) L.head = o; if (o.isBone && /^Torso$/.test(o.name) && !L.torso) L.torso = o; });
     if (L.head) L.hq = L.head.quaternion.clone();
@@ -10253,11 +10254,11 @@ const ALIVE = {
       if (a.mixer.timeScale === 1 && cur && (cur === run || cur === walk)) cur.timeScale = Math.max(.65, Math.min(1.6, spd / (cur === run ? 2.4 : 1.1)));
       om(dt);
       /* aire / aterrizaje: estirar al subir, aplastar al caer */
-      const vyh = L.vel.y / h; if (vyh > 2.2) { L.air = true; L.sq += (-.12 - L.sq) * Math.min(1, dt * 12); }
-      if (vyh < -2.5) L.air = true;
-      if (L.air && Math.abs(vyh) < .6 && L.prevVy < -2) { L.air = false; L.sqv -= Math.min(4.5, -L.prevVy * .55); for (let k = 0; k < 6; k++) { const an = k / 6 * 6.28; ALIVE.puff(a, T, L.w.x + Math.sin(an) * h * .25, L.w.y + h * .05, L.w.z + Math.cos(an) * h * .25, h * .55, Math.sin(an) * h * .9, Math.cos(an) * h * .9); } }
+      const vyh = L.vel.y / h; let rest = 0; if (vyh > 2.2) { L.air = true; rest = -.16; }
+      if (vyh < -2.5) { L.air = true; L.minVy = Math.min(L.minVy || 0, vyh); rest = Math.max(-.26, vyh * .03); }
+      if (L.air && vyh > -.8 && (L.minVy || 0) < -2.5) { L.air = false; L.sqv += Math.min(10, -L.minVy * .95); L.minVy = 0; for (let k = 0; k < 6; k++) { const an = k / 6 * 6.28; ALIVE.puff(a, T, L.w.x + Math.sin(an) * h * .25, L.w.y + h * .05, L.w.z + Math.cos(an) * h * .25, h * .55, Math.sin(an) * h * .9, Math.cos(an) * h * .9); } }
       L.prevVy = vyh;
-      L.sqv += (-L.sq * 170 - L.sqv * 13) * dt; L.sq += L.sqv * dt; L.sq = Math.max(-.22, Math.min(.3, L.sq));
+      L.sqv += (-(L.sq - rest) * 170 - L.sqv * 11) * dt; L.sq += L.sqv * dt; L.sq = Math.max(-.28, Math.min(.42, L.sq));
       const sy = 1 - L.sq, sxz = 1 + L.sq * .55; L.sm = [sxz, sy]; o.scale.set(o.scale.x * sxz, o.scale.y * sy, o.scale.z * sxz); L.wsx = o.scale.x; L.wsy = o.scale.y;
       /* inclinarse: hacia adelante al correr, atrás al frenar, de lado al doblar */
       const tp = Math.max(-.22, Math.min(.3, fwd * .045 + Math.max(-2, Math.min(2, L.acc || 0)) * .03)), tr = Math.max(-.3, Math.min(.3, -yawRate * Math.min(spd, 6) * .022));
