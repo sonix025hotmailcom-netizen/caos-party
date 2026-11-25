@@ -826,6 +826,9 @@ img.fe{width:1.15em;height:1.15em;vertical-align:-.22em;display:inline-block;obj
 /* v38: Papa Bomba 3D */
 .potmsg{position:absolute;left:50%;bottom:4%;transform:translateX(-50%);background:#000c;color:#fff;padding:.35em 1.1em;border-radius:999px;font-weight:800;font-size:1.15em;white-space:nowrap;box-shadow:0 .3em 1em #0006}
 .potflash{position:absolute;inset:0;background:#fff7d6;animation:potfl .7s ease-out forwards;pointer-events:none}@keyframes potfl{from{opacity:.95}to{opacity:0}}
+/* v39: QR decorado */
+.qr svg{width:150px;height:150px;display:block}
+.ticket .qr svg{width:132px;height:132px}
 /* ---------- v12: escala automática para cualquier pantalla ---------- */
 :root{--z:1;--vh:calc(1vh / var(--z));--vw:calc(1vw / var(--z));--dvh:calc(1dvh / var(--z))}
 #app>*{zoom:var(--z)}
@@ -1222,8 +1225,19 @@ function stripInner() {
   }).join('');
 }
 function updateStrip() { const s = $('#strip'); if (s) s.innerHTML = stripInner(); }
+let QRN = 0;
 function qrHTML() {
-  try { const q = qrcode(0, 'M'); q.addData(joinLink()); q.make(); return q.createImgTag(5, 6); } catch (e) { return '<div style="color:#2a0c55;padding:20px;line-height:1.2">📱<br>Usá el link</div>'; }
+  try {
+    const q = qrcode(0, 'H'); q.addData(joinLink()); q.make();
+    const n = q.getModuleCount(), P = 2, S = n + P * 2, id = 'qg' + (++QRN), eye = (r, c) => (r < 7 && c < 7) || (r < 7 && c >= n - 7) || (r >= n - 7 && c < 7);
+    const L = Math.ceil(n * .24), l0 = (n - L) / 2, inLogo = (r, c) => r + .5 > l0 - .4 && r + .5 < l0 + L + .4 && c + .5 > l0 - .4 && c + .5 < l0 + L + .4;
+    let dots = '';
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c) && !eye(r, c) && !inLogo(r, c)) dots += `<rect x="${c + P + .06}" y="${r + P + .06}" width=".88" height=".88" rx=".36"/>`;
+    const eyes = [[0, 0], [n - 7, 0], [0, n - 7]].map(([x, y]) => `<rect x="${x + P + .5}" y="${y + P + .5}" width="6" height="6" rx="1.3" fill="none" stroke="url(#${id})" stroke-width="1"/><rect x="${x + P + 2}" y="${y + P + 2}" width="3" height="3" rx="1" fill="#1a1033"/>`).join('');
+    const lx = l0 + P, fs = L * .3;
+    const logo = `<rect x="${lx - .2}" y="${lx - .2}" width="${L + .4}" height="${L + .4}" rx="${L * .28}" fill="#fff"/><rect x="${lx + .35}" y="${lx + .35}" width="${L - .7}" height="${L - .7}" rx="${L * .22}" fill="url(#${id})"/><text x="${lx + L / 2}" y="${lx + L * .47}" font-family="Bungee, system-ui, sans-serif" font-weight="900" font-size="${fs}" fill="#fff" text-anchor="middle">CAOS</text><text x="${lx + L / 2}" y="${lx + L * .76}" font-family="Bungee, system-ui, sans-serif" font-weight="900" font-size="${fs * .72}" fill="#fde047" text-anchor="middle">PARTY</text>`;
+    return `<svg class="qrsvg" viewBox="0 0 ${S} ${S}" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision"><defs><linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${S}" y2="${S}"><stop offset="0" stop-color="#5b21b6"/><stop offset=".55" stop-color="#be185d"/><stop offset="1" stop-color="#c2410c"/></linearGradient></defs><rect width="${S}" height="${S}" fill="#fff"/><g fill="url(#${id})">${dots}</g>${eyes}${logo}</svg>`;
+  } catch (e) { return '<div style="color:#2a0c55;padding:20px;line-height:1.2">📱<br>Usá el link</div>'; }
 }
 function lobbyHTML() {
   const ps = [...H.players.values()], n = ps.filter(p => p.online).length;
@@ -9792,10 +9806,10 @@ Object.assign(GAMES, {
       /* hexágonos (uno por instancia, con su color) */
       const geo = new T.CylinderGeometry(this.S * .93, this.S * .93, .45, 6); geo.rotateY(Math.PI / 6); geo.translate(0, -.225, 0);
       const mat = new T.MeshStandardMaterial({ color: '#ffffff', roughness: .45, metalness: .05 });
-      const im = new T.InstancedMesh(geo, mat, gd.tiles.length); im.castShadow = true; im.receiveShadow = true; add(im); r.im = im;
+      const cnt = this.LAYERS.map(() => 0); gd.tiles.forEach(t => { t.j = cnt[t.li]++; }); r.ims = this.LAYERS.map((y, li) => { const m = new T.InstancedMesh(geo, new T.MeshStandardMaterial({ color: '#ffffff', roughness: .45, metalness: .05, transparent: true, opacity: 1 }), cnt[li]); m.castShadow = true; m.receiveShadow = true; add(m); return m; }); r.op = this.LAYERS.map(() => 1);
       const PAL = [['#f472b6', '#f9a8d4', '#ec4899'], ['#60a5fa', '#93c5fd', '#3b82f6'], ['#fbbf24', '#fde68a', '#f59e0b']]; r.base = gd.tiles.map((t, k) => { const p = PAL[t.li]; return new T.Color(p[(Math.abs(t.q * 3 + t.r * 5)) % 3]); });
       const tmp = new T.Object3D(); r.tmp = tmp; r.col = new T.Color(); r.warnC = new T.Color('#ef4444'); r.whiteC = new T.Color('#ffffff');
-      gd.tiles.forEach((t, k) => { const [x, z] = this.pos(t); tmp.position.set(x, t.y, z); tmp.rotation.set(0, 0, 0); tmp.updateMatrix(); im.setMatrixAt(k, tmp.matrix); im.setColorAt(k, r.base[k]); });
+      gd.tiles.forEach((t, k) => { const [x, z] = this.pos(t); tmp.position.set(x, t.y, z); tmp.rotation.set(0, 0, 0); tmp.updateMatrix(); r.ims[t.li].setMatrixAt(t.j, tmp.matrix); r.ims[t.li].setColorAt(t.j, r.base[k]); });
       /* bordes dorados de cada piso */
       this.LAYERS.forEach(y => { const ring = add(new T.Mesh(new T.TorusGeometry(this.S * 1.5 * this.N + 1.3, .14, 8, 6), new T.MeshStandardMaterial({ color: '#facc15', emissive: '#facc15', emissiveIntensity: .4 }))); ring.rotation.x = Math.PI / 2; ring.rotation.z = Math.PI / 6; ring.position.y = y - .2; });
       /* abajo: mar de gelatina rosa */
@@ -9804,7 +9818,7 @@ Object.assign(GAMES, {
       /* nubes y islitas flotando */
       const cm = new T.MeshStandardMaterial({ color: '#ffffff', roughness: 1 }); for (let k = 0; k < 14; k++) { const g = add(new T.Group()), a = Math.PI * (.5 + k / 13), d = 30 + Math.random() * 16; g.position.set(Math.sin(a) * d * 1.2, -12 + Math.random() * 12, Math.cos(a) * d - 4); for (let q = 0; q < 4; q++) { const b = new T.Mesh(new T.SphereGeometry(1.4 + Math.random() * 1.2, 12, 10), cm); b.position.set(q * 1.6 - 2.4, Math.random() * .6, Math.random() - .5); g.add(b); } }
       r.bots = {};
-      gd.ids.forEach(id => C3D.load(charURL(charOf(pl(id)))).then(g => { if (H.gd !== gd) return; const a = C3D.make(g, hFor(g, 1.65), tintFor(g, id)); a.play('Idle'); const hold = new T.Group(); hold.add(a.obj); add(hold); const lb = GAMES.ovni.label(T, `${pl(id)?.emoji || ''} ${pl(id)?.name || ''}`, pl(id)?.color || '#fff'); lb.position.y = 2.45; lb.scale.set(2.8, .7, 1); hold.add(lb); const sh = new T.Mesh(new T.CircleGeometry(.5, 20), new T.MeshBasicMaterial({ color: '#000', transparent: true, opacity: .3, depthWrite: false })); sh.rotation.x = -Math.PI / 2; add(sh); a.hold = hold; a.sh = sh; r.bots[id] = a; }).catch(() => {}));
+      gd.ids.forEach(id => C3D.load(charURL(charOf(pl(id)))).then(g => { if (H.gd !== gd) return; const a = C3D.make(g, hFor(g, 1.65), tintFor(g, id)); a.play('Idle'); const hold = new T.Group(); hold.add(a.obj); add(hold); const lb = GAMES.ovni.label(T, `${pl(id)?.emoji || ''} ${pl(id)?.name || ''}`, pl(id)?.color || '#fff'); lb.position.y = 2.45; lb.scale.set(2.8, .7, 1); lb.material.depthTest = false; lb.renderOrder = 10; hold.add(lb); const sh = new T.Mesh(new T.CircleGeometry(.5, 20), new T.MeshBasicMaterial({ color: '#000', transparent: true, opacity: .3, depthWrite: false })); sh.rotation.x = -Math.PI / 2; add(sh); a.hold = hold; a.sh = sh; r.bots[id] = a; }).catch(() => {}));
       r.cy = 0; r.cx = 0; r.cz = 0; r.cd = 17;
       return r;
     },
@@ -9813,14 +9827,14 @@ Object.assign(GAMES, {
       if (r && r.renderer.domElement.isConnected) {
         const now = performance.now(), dt = Math.min(.05, (now - (r.last || now)) / 1000); r.last = now; const tt = now / 1000;
         r.sea.offset.x = (r.sea.offset.x + dt * .01) % 1;
-        let dirty = false;
+        const dirty = G.LAYERS.map(() => false);
         gd.tiles.forEach((t, k) => {
-          if (!t.t0 && !t.fall) return; if (t.dy < -30) return; dirty = true;
+          if (!t.t0 && !t.fall) return; if (t.dy < -30) return; dirty[t.li] = true;
           const [x, z] = G.pos(t), shake = t.t0 && !t.fall ? Math.min(1, (gd.t - t.t0) / G.FALL) : 0;
-          r.tmp.position.set(x + (shake > .4 ? (Math.random() - .5) * .12 * shake : 0), t.y + t.dy, z + (shake > .4 ? (Math.random() - .5) * .12 * shake : 0)); r.tmp.rotation.set(t.fall ? (gd.t - t.fall) * 1.5 : 0, 0, t.fall ? (gd.t - t.fall) : 0); r.tmp.updateMatrix(); r.im.setMatrixAt(k, r.tmp.matrix);
-          r.col.copy(r.base[k]).lerp(shake > .5 ? r.warnC : r.whiteC, t.fall ? .6 : shake * .75); r.im.setColorAt(k, r.col);
+          r.tmp.position.set(x + (shake > .4 ? (Math.random() - .5) * .12 * shake : 0), t.y + t.dy, z + (shake > .4 ? (Math.random() - .5) * .12 * shake : 0)); r.tmp.rotation.set(t.fall ? (gd.t - t.fall) * 1.5 : 0, 0, t.fall ? (gd.t - t.fall) : 0); r.tmp.updateMatrix(); r.ims[t.li].setMatrixAt(t.j, r.tmp.matrix);
+          r.col.copy(r.base[k]).lerp(shake > .5 ? r.warnC : r.whiteC, t.fall ? .6 : shake * .75); r.ims[t.li].setColorAt(t.j, r.col);
         });
-        if (dirty) { r.im.instanceMatrix.needsUpdate = true; if (r.im.instanceColor) r.im.instanceColor.needsUpdate = true; }
+        r.ims.forEach((m, li) => { if (!dirty[li]) return; m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; });
         let ax = 0, az = 0, ay = 0, n = 0, mnx = 1e9, mxx = -1e9, mnz = 1e9, mxz = -1e9;
         for (const id of gd.ids) {
           const a = r.bots[id], s = gd.ps[id]; if (!a) continue; a.hold.visible = !s.out || s.y > G.DEAD - 2; a.hold.position.set(s.x, s.y, s.z); a.obj.rotation.y = s.face;
@@ -9829,9 +9843,11 @@ Object.assign(GAMES, {
           a.sh.visible = gy != null && !s.out; if (gy != null) { a.sh.position.set(s.x, gy + .02, s.z); a.sh.scale.setScalar(Math.max(.4, 1 - (s.y - gy) / 6)); }
           if (!s.out) { ax += s.x; az += s.z; ay += Math.max(G.LAYERS[G.LAYERS.length - 1], s.y); n++; mnx = Math.min(mnx, s.x); mxx = Math.max(mxx, s.x); mnz = Math.min(mnz, s.z); mxz = Math.max(mxz, s.z); }
         }
-        const ty = n ? ay / n : 0, kk = Math.min(1, dt * 1.6), span = n ? Math.max(mxx - mnx, (mxz - mnz) * 1.4) : 12, cdT = Math.max(10.5, Math.min(19, 8 + span * .62));
-        r.cy += (ty - r.cy) * kk; r.cx += ((n ? (mnx + mxx) / 2 : 0) * .6 - r.cx) * kk; r.cz += ((n ? (mnz + mxz) / 2 : 0) * .6 - r.cz) * kk; r.cd += (cdT - r.cd) * kk * .7;
-        r.cam.position.set(r.cx, r.cy + r.cd * 1.12, r.cz + r.cd); r.cam.lookAt(r.cx, r.cy - .6, r.cz + .4);
+        /* cámara fija que siempre muestra el piso completo; solo baja (suave) cuando los robots caen a otro piso */
+        const cntL = G.LAYERS.map(() => 0); for (const id of gd.ids) { const s = gd.ps[id]; if (!s.out) cntL[s.li || 0]++; } let bl = 0; cntL.forEach((c, li) => { if (c >= cntL[bl] && c > 0) bl = li; }); const lo = G.LAYERS[bl];
+        const kk = Math.min(1, dt * 1.4); r.cy += (lo - r.cy) * kk;
+        r.cam.position.set(0, r.cy + 24, 20.5); r.cam.lookAt(0, r.cy - 1.2, 1.2);
+        G.LAYERS.forEach((y, li) => { const tgt = y > r.cy + 1 ? .18 : 1; r.op[li] += (tgt - r.op[li]) * Math.min(1, dt * 4); const m = r.ims[li].material; m.opacity = r.op[li]; m.depthWrite = r.op[li] > .95; r.ims[li].castShadow = r.op[li] > .95; });
         r.renderer.render(r.scene, r.cam);
         const alive = gd.ids.filter(id => !gd.ps[id].out).length, msgs = gd.msgs.filter(m => gd.t - m.k < 3).slice(-3);
         CARX.overlay(r, `<div class="cxtop"><span class="cxpill" style="--c:#ec4899">🕳️ Quedan ${alive}</span>${gd.ids.map(id => { const s = gd.ps[id], p = pl(id); return `<span class="cxpill${s.out ? ' off' : ''}" style="--c:${p?.color || '#888'}">${p?.emoji || ''} ${esc(p?.name || '')}${s.out ? ' 🕳️' : (s.li ? ' ⬇️' : '')}</span>`; }).join('')}</div>${H.phase === 'hx-go' && gd.t < 2 ? '<div class="cxbig" style="top:82%;font-size:1.7em">🏃 ¡Muévanse! Lo que pisan se cae</div>' : ''}<div class="cxmsgs">${msgs.map(m => `<div class="cxmsg">${m.t}</div>`).join('')}</div>`);
