@@ -829,6 +829,19 @@ img.fe{width:1.15em;height:1.15em;vertical-align:-.22em;display:inline-block;obj
 /* v39: QR decorado */
 .qr svg{width:150px;height:150px;display:block}
 .ticket .qr svg{width:132px;height:132px}
+/* v41: emotes */
+.emob{position:fixed;z-index:9999;transform:translate(-50%,-100%);pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:2px;animation:emoup 2.2s ease-out forwards}
+.emob .emoi{font-size:56px;line-height:1;filter:drop-shadow(0 4px 6px #0006)}.emob .emoi img{width:64px;height:64px;display:block}
+.emob .emon{background:var(--c);color:#fff;font-weight:900;font-size:14px;padding:1px 9px;border-radius:999px;border:2px solid #fff}
+@keyframes emoup{0%{opacity:0;transform:translate(-50%,-60%) scale(.3)}12%{opacity:1;transform:translate(-50%,-100%) scale(1.15)}22%{transform:translate(-50%,-105%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-230%) scale(.9)}}
+#emobtn{position:fixed;right:10px;top:calc(max(10px,env(safe-area-inset-top)) + 52px);z-index:900;width:50px;height:50px;border-radius:50%;border:3px solid #fff;background:#1a1033cc;box-shadow:0 4px 0 #0006;padding:6px;font-size:26px;line-height:1;cursor:pointer;touch-action:manipulation}
+#emobtn img,#emopad img{width:100%;height:100%;display:block;pointer-events:none}
+#emobtn.cd{animation:emocd 2s linear}#emobtn.cd::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:3px solid #facc15;animation:emocd2 2s linear forwards}
+@keyframes emocd{0%{opacity:.45}99%{opacity:.45}100%{opacity:1}}@keyframes emocd2{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(100% 0 0 0)}}
+#emopad{position:fixed;right:66px;top:calc(max(10px,env(safe-area-inset-top)) + 46px);z-index:901;display:none;grid-template-columns:repeat(4,52px);gap:6px;padding:8px;background:#1a1033ee;border:3px solid #fff;border-radius:18px;box-shadow:0 6px 0 #0006}
+#emopad.on{display:grid;animation:cxpop2 .18s ease-out}
+#emopad button{width:52px;height:52px;border:0;border-radius:12px;background:#ffffff1a;padding:6px;font-size:28px;cursor:pointer;touch-action:manipulation}
+#emopad button:active{transform:scale(.9);background:#ffffff40}
 /* ---------- v12: escala automática para cualquier pantalla ---------- */
 :root{--z:1;--vh:calc(1vh / var(--z));--vw:calc(1vw / var(--z));--dvh:calc(1dvh / var(--z))}
 #app>*{zoom:var(--z)}
@@ -841,7 +854,7 @@ img.fe{width:1.15em;height:1.15em;vertical-align:-.22em;display:inline-block;obj
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
 <script>
 /* ================== CAOS PARTY ================== */
 const PREFIX = 'caospartycr-v1-';
@@ -1221,7 +1234,7 @@ function topBar() {
 function stripInner() {
   return [...H.players.values()].map(p => {
     const d = H.game && H.game.isDone ? H.game.isDone(p.id) : false;
-    return `<div class="schip ${p.online ? '' : 'off'} ${d ? 'done' : ''}" style="--c:${p.color}">${p.emoji} ${esc(p.name)}${d ? ' ✅' : ''}<b>${p.score}</b></div>`;
+    return `<div class="schip ${p.online ? '' : 'off'} ${d ? 'done' : ''}" data-id="${p.id}" style="--c:${p.color}">${p.emoji} ${esc(p.name)}${d ? ' ✅' : ''}<b>${p.score}</b></div>`;
   }).join('');
 }
 function updateStrip() { const s = $('#strip'); if (s) s.innerHTML = stripInner(); }
@@ -3960,7 +3973,7 @@ function loadScript(src) {
     document.head.appendChild(s);
   }));
 }
-const LIBS = { matter: 'https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js', gsap: 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js' };
+const LIBS = { matter: 'https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js', gsap: 'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js' };
 let _three = null;
 function getTHREE() { return _three || (_three = import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js').catch(e => { _three = null; throw e; })); }
 function preloadHostLibs() { loadScript(LIBS.matter).catch(() => {}); if (!window.gsap) loadScript(LIBS.gsap).catch(() => {}); getTHREE().catch(() => {}); }
@@ -10109,6 +10122,77 @@ function potAdd(r, o) { r.scene.add(o); return o; }
   G.round = function () { oRound.apply(this, arguments); live(); };
   G.boom = function () { oBoom.apply(this, arguments); live(); };
   G.render = function (ph) { if (ph === 'pot-go' || ph === 'pot-boom') return canvasHTML(false); return oRender.call(this, ph); };
+})();
+
+/* ================== v41 — EMOTES / REACCIONES + más animaciones de los personajes ================== */
+const EMO = {
+  L: [['😂', 'Yes'], ['😎', 'Dance'], ['❤️', 'Wave'], ['🔥', 'Punch'], ['👍', 'ThumbsUp'], ['😱', 'Jump'], ['😭', 'No'], ['💀', 'Death']],
+  CD: 2000, ACT: new Map(), last: {}, tex: {},
+  h(e) { const s = typeof feSrc === 'function' ? feSrc(e) : null; return s ? `<img src="${s}" alt="${e}" draggable="false">` : e; },
+  /* registro de los personajes 3D de cada jugador (cualquier juego o el lobby) */
+  reg(id, a) { if (!id) return; let s = EMO.ACT.get(id); if (!s) EMO.ACT.set(id, s = new Set()); s.add(a); if (s.size > 6) s.delete(s.values().next().value); },
+  live(a) { let o = a.obj; while (o.parent) o = o.parent; return !!o.isScene; },
+  doAnim(a, anim, back) {
+    const nx = a.acts[anim] || a.acts[ANIM_ALIAS[anim]] || a.acts[ANIM_ALIAS[ANIM_ALIAS[anim]]]; if (!nx || a._emoting) return;
+    a._emoting = true; a._op(anim, true);
+    const done = () => { if (!a._emoting) return; a._emoting = false; a.mixer.removeEventListener('finished', f); a.cur = null; a._idleT = performance.now(); a._op(a._want || back || 'Idle'); };
+    const f = e => { if (e.action === nx) done(); }; a.mixer.addEventListener('finished', f); setTimeout(done, 3200);
+  },
+  sprite(a, e) {
+    const T = C3D.T; if (!T) return; const src = typeof feSrc === 'function' ? feSrc(e) : null;
+    let tx = EMO.tex[e]; if (!tx) { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); tx = EMO.tex[e] = new T.CanvasTexture(c); tx.colorSpace = T.SRGBColorSpace;
+      const txt = () => { g.font = '100px system-ui, "Apple Color Emoji", "Segoe UI Emoji"'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(e, 64, 70); tx.needsUpdate = true; };
+      if (src) { const im = new Image(); im.onload = () => { g.drawImage(im, 8, 8, 112, 112); tx.needsUpdate = true; }; im.onerror = txt; im.src = src; } else txt(); }
+    const sp = new T.Sprite(new T.SpriteMaterial({ map: tx, depthTest: false, transparent: true })); sp.renderOrder = 20;
+    const k = 1 / (a.obj.scale.x || 1); sp.scale.setScalar(.9 * k); sp.position.set(0, 2.25 * k, 0); a.obj.add(sp);
+    const t0 = performance.now(), tick = () => { const u = (performance.now() - t0) / 1900; if (u >= 1 || !sp.parent) { sp.parent && sp.parent.remove(sp); sp.material.dispose(); return; } sp.position.y = (2.25 + u * .9) * k; const s = (u < .15 ? u / .15 * 1.15 : 1.15 - Math.min(.15, (u - .15))) * .9 * k; sp.scale.setScalar(s); sp.material.opacity = u > .75 ? (1 - u) / .25 : 1; requestAnimationFrame(tick); }; tick();
+  },
+  bubble(p, e) {
+    const pill = document.querySelector(`.schip[data-id="${p.id}"]`), r = pill ? pill.getBoundingClientRect() : null, d = document.createElement('div');
+    d.className = 'emob'; d.innerHTML = `<span class="emoi">${EMO.h(e)}</span><span class="emon" style="--c:${p.color}">${esc(p.name)}</span>`;
+    if (r && r.width) { d.style.left = (r.left + r.width / 2) + 'px'; d.style.top = (r.top - 4) + 'px'; } else { d.style.left = (12 + Math.random() * 76) + '%'; d.style.top = '88%'; }
+    document.body.appendChild(d); setTimeout(() => d.remove(), 2300);
+  },
+  fire(p, i) {
+    const now = Date.now(), em = EMO.L[i]; if (!p || !em || now - (EMO.last[p.id] || 0) < EMO.CD - 250) return; EMO.last[p.id] = now;
+    EMO.bubble(p, em[0]); try { SND.play('ui_pluck_001', .25, 1.3 + Math.random() * .3); } catch (e) {}
+    const s = EMO.ACT.get(p.id); if (s) for (const a of [...s]) { if (!EMO.live(a)) { s.delete(a); continue; } EMO.doAnim(a, em[1], a._want); EMO.sprite(a, em[0]); }
+  },
+  /* lado del cel: botón flotante 😀 con 8 reacciones y su enfriamiento */
+  ctrl() {
+    if (document.getElementById('emobtn')) return;
+    const b = document.createElement('button'); b.id = 'emobtn'; b.type = 'button'; b.innerHTML = EMO.h('😎');
+    const pad = document.createElement('div'); pad.id = 'emopad'; pad.innerHTML = EMO.L.map(([e], i) => `<button type="button" data-i="${i}">${EMO.h(e)}</button>`).join('');
+    document.body.append(b, pad); let cdT = 0;
+    b.onclick = ev => { ev.stopPropagation(); if (Date.now() < cdT) return; pad.classList.toggle('on'); };
+    pad.onclick = ev => { const t = ev.target.closest('button'); if (!t) return; ev.stopPropagation(); send({ t: 'emo', i: +t.dataset.i }); pad.classList.remove('on'); cdT = Date.now() + EMO.CD; b.classList.remove('cd'); void b.offsetWidth; b.classList.add('cd'); if (navigator.vibrate) navigator.vibrate(25); };
+    document.addEventListener('pointerdown', ev => { if (!pad.contains(ev.target) && ev.target !== b && !b.contains(ev.target)) pad.classList.remove('on'); });
+    /* PC: teclas 1-8 abren reacciones directo (solo si no se está escribiendo) */
+    document.addEventListener('keydown', ev => { if (/INPUT|TEXTAREA/.test(document.activeElement?.tagName || '') || ev.repeat) return; const k = +ev.key; if (k >= 1 && k <= 8 && ev.altKey) { pad.querySelector(`[data-i="${k - 1}"]`)?.click(); } });
+  }
+};
+/* cada personaje 3D: se anota de quién es y gana animaciones extra (gestos cuando está quieto) */
+(() => {
+  const om = C3D.make;
+  C3D.make = function (g, height, tint) {
+    const id = window._dressId, a = om.apply(this, arguments);
+    a._op = a.play; a._idleT = performance.now(); a._fid = 6000 + Math.random() * 7000;
+    a.play = (n, once, then) => {
+      if (!once) a._want = n; if (a._emoting) return;
+      const now = performance.now();
+      if (n === 'Idle' && !once) { if (a.cur && a.cur !== (a.acts.Idle || a.acts[ANIM_ALIAS.Idle])) a._idleT = now; else if (now - a._idleT > a._fid) { a._idleT = now; a._fid = 7000 + Math.random() * 9000; EMO.doAnim(a, pickR(['Wave', 'Yes', 'ThumbsUp', 'Dance']), 'Idle'); return; } }
+      a._op(n, once, then);
+    };
+    if (id && pl(id)) EMO.reg(id, a);
+    return a;
+  };
+  const oh = onHostMsg;
+  onHostMsg = function (conn, m) { if (m && m.t === 'emo') { const p = pl(conn._pid); if (p && p.conn === conn) EMO.fire(p, m.i | 0); return; } return oh.apply(this, arguments); };
+  const orc = renderCtrl;
+  renderCtrl = function () { const r = orc.apply(this, arguments); try { EMO.ctrl(); } catch (e) {} return r; };
+  const on = nextRound; nextRound = function () { EMO.ACT.forEach(s => { for (const a of [...s]) if (!EMO.live(a)) s.delete(a); }); return on.apply(this, arguments); };
+  /* los bots también reaccionan de vez en cuando */
+  setInterval(() => { if (typeof H === 'undefined' || !H.players) return; for (const p of H.players.values()) if (p.isBot && Math.random() < .07) EMO.fire(p, rand(EMO.L.length)); }, 3000);
 })();
 
 /* ---------- escala automática de la interfaz ---------- */
