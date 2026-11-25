@@ -842,6 +842,8 @@ img.fe{width:1.15em;height:1.15em;vertical-align:-.22em;display:inline-block;obj
 #emopad.on{display:grid;animation:cxpop2 .18s ease-out}
 #emopad button{width:52px;height:52px;border:0;border-radius:12px;background:#ffffff1a;padding:6px;font-size:28px;cursor:pointer;touch-action:manipulation}
 #emopad button:active{transform:scale(.9);background:#ffffff40}
+.hxpip{position:absolute;border:3px solid #fff;border-radius:12px;box-shadow:0 4px 0 #0005,0 0 0 2px #0003;pointer-events:none}
+.hxpip span{position:absolute;left:6px;top:4px;background:#000b;color:#fff;font-weight:900;font-size:13px;padding:1px 8px;border-radius:999px}
 /* ---------- v12: escala automática para cualquier pantalla ---------- */
 :root{--z:1;--vh:calc(1vh / var(--z));--vw:calc(1vw / var(--z));--dvh:calc(1dvh / var(--z))}
 #app>*{zoom:var(--z)}
@@ -9824,7 +9826,7 @@ Object.assign(GAMES, {
       const tmp = new T.Object3D(); r.tmp = tmp; r.col = new T.Color(); r.warnC = new T.Color('#ef4444'); r.whiteC = new T.Color('#ffffff');
       gd.tiles.forEach((t, k) => { const [x, z] = this.pos(t); tmp.position.set(x, t.y, z); tmp.rotation.set(0, 0, 0); tmp.updateMatrix(); r.ims[t.li].setMatrixAt(t.j, tmp.matrix); r.ims[t.li].setColorAt(t.j, r.base[k]); });
       /* bordes dorados de cada piso */
-      this.LAYERS.forEach(y => { const ring = add(new T.Mesh(new T.TorusGeometry(this.S * 1.5 * this.N + 1.3, .14, 8, 6), new T.MeshStandardMaterial({ color: '#facc15', emissive: '#facc15', emissiveIntensity: .4 }))); ring.rotation.x = Math.PI / 2; ring.rotation.z = Math.PI / 6; ring.position.y = y - .2; });
+      r.rings = []; this.LAYERS.forEach(y => { const ring = add(new T.Mesh(new T.TorusGeometry(this.S * 1.5 * this.N + 1.3, .14, 8, 6), new T.MeshStandardMaterial({ color: '#facc15', emissive: '#facc15', emissiveIntensity: .4 }))); ring.rotation.x = Math.PI / 2; ring.rotation.z = Math.PI / 6; ring.position.y = y - .2; r.rings.push(ring); });
       /* abajo: mar de gelatina rosa */
       const sl = CARX.tex(T, 256, 256, (g, w, h) => { g.fillStyle = '#db2777'; g.fillRect(0, 0, w, h); for (let k = 0; k < 40; k++) { const x = Math.random() * w, y = Math.random() * h, rr = 6 + Math.random() * 22, gr = g.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, '#fbcfe8cc'); gr.addColorStop(1, '#fbcfe800'); g.fillStyle = gr; g.fillRect(x - rr, y - rr, rr * 2, rr * 2); } }, [12, 12]);
       const sea = add(new T.Mesh(new T.PlaneGeometry(300, 300), new T.MeshStandardMaterial({ map: sl, emissive: '#be185d', emissiveIntensity: .35, roughness: .3 }))); sea.rotation.x = -Math.PI / 2; sea.position.y = this.DEAD - 3; r.sea = sl;
@@ -9850,24 +9852,36 @@ Object.assign(GAMES, {
         r.ims.forEach((m, li) => { if (!dirty[li]) return; m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; });
         let ax = 0, az = 0, ay = 0, n = 0, mnx = 1e9, mxx = -1e9, mnz = 1e9, mxz = -1e9;
         for (const id of gd.ids) {
-          const a = r.bots[id], s = gd.ps[id]; if (!a) continue; a.hold.visible = !s.out || s.y > G.DEAD - 2; a.hold.position.set(s.x, s.y, s.z); a.obj.rotation.y = s.face;
+          const a = r.bots[id], s = gd.ps[id]; if (!a) continue; a._v = a.hold.visible = !s.out || s.y > G.DEAD - 2; a.hold.position.set(s.x, s.y, s.z); a.obj.rotation.y = s.face;
           const sp = Math.hypot(s.vx, s.vz); a.play(!s.gr ? 'Jump' : sp > 1 ? 'Running' : 'Idle'); a.mixer.timeScale = s.gr && sp > 1 ? Math.max(.7, sp / 5) : 1; a.mixer.update(dt);
           let gy = null; for (let li = 0; li < G.LAYERS.length; li++) if (G.LAYERS[li] <= s.y + .05 && G.solidAt(li, s.x, s.z)) { gy = G.LAYERS[li]; break; }
           a.sh.visible = gy != null && !s.out; if (gy != null) { a.sh.position.set(s.x, gy + .02, s.z); a.sh.scale.setScalar(Math.max(.4, 1 - (s.y - gy) / 6)); }
           if (!s.out) { ax += s.x; az += s.z; ay += Math.max(G.LAYERS[G.LAYERS.length - 1], s.y); n++; mnx = Math.min(mnx, s.x); mxx = Math.max(mxx, s.x); mnz = Math.min(mnz, s.z); mxz = Math.max(mxz, s.z); }
         }
-        /* cámara fija que siempre muestra el piso completo; solo baja (suave) cuando los robots caen a otro piso */
-        const cntL = G.LAYERS.map(() => 0); for (const id of gd.ids) { const s = gd.ps[id]; if (!s.out) cntL[s.li || 0]++; } let bl = 0; cntL.forEach((c, li) => { if (c >= cntL[bl] && c > 0) bl = li; }); const lo = G.LAYERS[bl];
-        const kk = Math.min(1, dt * 1.4); r.cy += (lo - r.cy) * kk;
-        r.cam.position.set(0, r.cy + 24, 20.5); r.cam.lookAt(0, r.cy - 1.2, 1.2);
-        /* rayos X: solo se transparentan los hexágonos de arriba que tapan a un robot que está más abajo */
-        const below = gd.ids.map(id => gd.ps[id]).filter(s => !s.out); const touched = G.LAYERS.map(() => false);
-        for (const t of gd.tiles) { let tg = 1; const ly = G.LAYERS[t.li]; for (const s of below) { if (s.y > ly - 1) continue; const [x, z] = G.pos(t), d = Math.hypot(x - s.x, z - (s.z + (ly - s.y) * .85)); if (d < 4.6) tg = Math.min(tg, d < 2.6 ? .12 : .12 + (d - 2.6) / 2 * .88); }
-          const a = t.al ?? 1, na = a + (tg - a) * Math.min(1, dt * 6); if (Math.abs(na - a) > .002 || (t.al == null)) { t.al = na; r.ims[t.li].aA.array[t.j] = na; touched[t.li] = true; } }
-        touched.forEach((v, li) => { if (v) r.ims[li].aA.needsUpdate = true; });
-        r.renderer.render(r.scene, r.cam);
+        /* cámara principal: el piso donde hay más robots. Los pisos de arriba se esconden en esa vista,
+           y cada otro piso con robots vivos sale en su propia ventanita (así nadie se pierde) */
+        const cntL = G.LAYERS.map(() => 0); for (const id of gd.ids) { const s = gd.ps[id]; if (!s.out) cntL[s.li || 0]++; }
+        let mL = 0; cntL.forEach((c, li) => { if (c > cntL[mL]) mL = li; }); if (!cntL[mL]) mL = r.mL ?? 0; r.mL = mL;
+        const kk = Math.min(1, dt * 1.4); r.cy += (G.LAYERS[mL] - r.cy) * kk;
+        const vis = L => { r.ims.forEach((m, li) => m.visible = li >= L); r.rings.forEach((m, li) => m.visible = li >= L); for (const id of gd.ids) { const a = r.bots[id]; if (a) a.hold.visible = a._v && ((gd.ps[id].li || 0) === L || gd.ps[id].out); } };
+        const R0 = r.renderer, sz = R0.getSize(r.v2 || (r.v2 = new r.T.Vector2())), W = sz.x, Hh = sz.y;
+        vis(mL); r.cam.position.set(0, r.cy + 24, 20.5); r.cam.lookAt(0, r.cy - 1.2, 1.2); R0.setViewport(0, 0, W, Hh); R0.render(r.scene, r.cam);
+        const others = cntL.map((c, li) => li).filter(li => li !== mL && cntL[li] > 0); let pip = '';
+        if (others.length) {
+          const cam2 = r.cam2 || (r.cam2 = new r.T.PerspectiveCamera(48, 1, .5, 200)), pw = Math.round(W * .3), ph = Math.round(Hh * .32), M = 10;
+          cam2.aspect = pw / ph; cam2.updateProjectionMatrix(); R0.setScissorTest(true);
+          others.forEach((L, k) => {
+            let ax = 0, az = 0, n2 = 0; for (const id of gd.ids) { const s = gd.ps[id]; if (!s.out && (s.li || 0) === L) { ax += s.x; az += s.z; n2++; } } ax /= n2; az /= n2;
+            const pk = r.pk || (r.pk = {}), P = pk[L] || (pk[L] = { x: ax, z: az }); P.x += (ax - P.x) * kk; P.z += (az - P.z) * kk; const y = G.LAYERS[L];
+            cam2.position.set(P.x, y + 11, P.z + 9.5); cam2.lookAt(P.x, y, P.z + .3); vis(L);
+            const x0 = W - pw - M, y0 = M + k * (ph + M); R0.setScissor(x0, y0, pw, ph); R0.setViewport(x0, y0, pw, ph); R0.render(r.scene, cam2);
+            pip += `<div class="hxpip" style="right:${M}px;bottom:${y0}px;width:${pw}px;height:${ph}px"><span>${['🩷', '💙', '💛'][L]} Piso ${L + 1}</span></div>`;
+          });
+          R0.setScissorTest(false); R0.setViewport(0, 0, W, Hh);
+        }
+        r.pip = pip;
         const alive = gd.ids.filter(id => !gd.ps[id].out).length, msgs = gd.msgs.filter(m => gd.t - m.k < 3).slice(-3);
-        CARX.overlay(r, `<div class="cxtop"><span class="cxpill" style="--c:#ec4899">🕳️ Quedan ${alive}</span>${gd.ids.map(id => { const s = gd.ps[id], p = pl(id); return `<span class="cxpill${s.out ? ' off' : ''}" style="--c:${p?.color || '#888'}">${p?.emoji || ''} ${esc(p?.name || '')}${s.out ? ' 🕳️' : (s.li ? ' ⬇️' : '')}</span>`; }).join('')}</div>${H.phase === 'hx-go' && gd.t < 2 ? '<div class="cxbig" style="top:82%;font-size:1.7em">🏃 ¡Muévanse! Lo que pisan se cae</div>' : ''}<div class="cxmsgs">${msgs.map(m => `<div class="cxmsg">${m.t}</div>`).join('')}</div>`);
+        CARX.overlay(r, `<div class="cxtop"><span class="cxpill" style="--c:#ec4899">🕳️ Quedan ${alive}</span>${gd.ids.map(id => { const s = gd.ps[id], p = pl(id); return `<span class="cxpill${s.out ? ' off' : ''}" style="--c:${p?.color || '#888'}">${p?.emoji || ''} ${esc(p?.name || '')}${s.out ? ' 🕳️' : (s.li ? ' ⬇️' : '')}</span>`; }).join('')}</div>${H.phase === 'hx-go' && gd.t < 2 ? '<div class="cxbig" style="top:82%;font-size:1.7em">🏃 ¡Muévanse! Lo que pisan se cae</div>' : ''}${r.pip || ''}<div class="cxmsgs">${msgs.map(m => `<div class="cxmsg">${m.t}</div>`).join('')}</div>`);
         return;
       }
       ctx.fillStyle = '#fbcfe8'; ctx.fillRect(0, 0, 1000, 600); const S = 22;
