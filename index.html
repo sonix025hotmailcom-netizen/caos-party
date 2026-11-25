@@ -4577,14 +4577,30 @@ const Stage3D = (() => {
       bulbs.forEach((b, i) => b.material.emissiveIntensity = ((i + Math.floor(t * 6)) % 3 === 0) ? 3 : .4);
       const orbit = S.mode === 'lobby' ? Math.sin(t * .15) * 1.6 : Math.sin(t * .25) * .8;
       const nar = cam.aspect < 1.2 ? 1.35 : 1; if (S.mode === 'solo') { cam.position.set(orbit * .5, 2.3, 6.4); cam.lookAt(0, 1.05, 0); } else { cam.position.set(orbit, (S.mode === 'podium' ? 4.2 : 4.3) * nar, (S.mode === 'podium' ? 10.5 : 13) * nar); cam.lookAt(0, S.mode === 'podium' ? 1.6 : 1.2, 0); }
-      S.actors.forEach(a => { a.mixer.update(dt); const kk = Math.min(1, dt * 4), P = a.g.position;
-        if (P.y > a.target.y + .01 || a.vy) { a.vy = (a.vy || 0) - 26 * dt; P.y = Math.max(a.target.y, P.y + a.vy * dt); if (P.y <= a.target.y) { a.vy = 0; if (a.falling) { const nx = a.falling; a.falling = null; setTimeout(() => play(a, pickR(['Wave', 'Yes', 'ThumbsUp']), true, nx), 260); } } } else P.y += (a.target.y - P.y) * kk;
-        P.x += (a.target.x - P.x) * kk; P.z += (a.target.z - P.z) * kk;
-        if (S.mode === 'lobby') { a.gT = (a.gT ?? 3 + Math.random() * 8) - dt; if (a.turnT > 0 && (a.turnT -= dt) <= 0) a.rot = a.rot0 || 0;
-          if (a.gT <= 0 && P.y <= a.target.y + .01 && !a.falling && performance.now() > (S.gLock || 0)) { a.gT = 14 + Math.random() * 14; S.gLock = performance.now() + 5000; const idle = !a.cur || a.cur === a.acts.Idle, dance = a.cur === a.acts.Dance;
-            if (idle || dance) { const others = [...S.actors.values()].filter(o => o !== a), g = others.length && Math.random() < .55 ? 'Wave' : pickR(['Yes', 'ThumbsUp', 'Jump', 'Punch']);
-              if (g === 'Wave' && others.length) { const o = pickR(others); a.rot0 = a.rot; a.rot = Math.atan2(o.g.position.x - P.x, o.g.position.z - P.z); a.turnT = 2.2; }
-              play(a, g, g !== 'Dance', g === 'Dance' ? undefined : (dance ? 'Dance' : 'Idle')); } } } a.g.rotation.y += (a.rot - a.g.rotation.y) * Math.min(1, dt * 5); a.badge.position.y = (a.by || 2.35) + Math.sin(t * 2 + a.seed) * .05; });
+      S.actors.forEach(a => { a.mixer.update(dt); const kk = Math.min(1, dt * 4), P = a.g.position, LV = a.m.userData.fa && a.m.userData.fa._lv;
+        /* física caricaturesca: saltitos con gravedad; para cambiar de lugar dan un brinquito (no se deslizan) */
+        const dx = a.target.x - P.x, dz = a.target.z - P.z, far = Math.hypot(dx, dz) > .25, onG = P.y <= a.target.y + .01 && !a.vy;
+        if (far && onG) { a.vy = 6.5; play(a, 'Jump', true); a.backTo = a.backTo || 'Idle'; }
+        if (P.y > a.target.y + .01 || a.vy) { a.vy = (a.vy || 0) - 26 * dt; P.y = Math.max(a.target.y, P.y + a.vy * dt);
+          if (P.y <= a.target.y) { a.vy = 0; a.spinA = 0;
+            if (a.falling) { const nx = a.falling; a.falling = null; setTimeout(() => play(a, pickR(['Wave', 'Yes', 'ThumbsUp', 'Dance']), true, nx), 260); }
+            else if (a.hops > 0) { a.hops--; a.vy = 6; play(a, 'Jump', true); }
+            else if (a.backTo) { const b = a.backTo; a.backTo = null; play(a, b); } } }
+        else P.y += (a.target.y - P.y) * kk;
+        const km = P.y > a.target.y + .01 ? Math.min(1, dt * 5) : kk; P.x += dx * km; P.z += dz * km;
+        if (a.vy && a.spin) a.spinA = Math.min(Math.PI * 2, (a.spinA || 0) + dt * Math.PI * 2 / .7);
+        if (S.mode === 'lobby') { a.gT = (a.gT ?? 4 + Math.random() * 8) - dt; if (a.turnT > 0 && (a.turnT -= dt) <= 0) a.rot = a.rot0 || 0;
+          if (a.danceT > 0) { a.danceT -= dt; a.beat = (a.beat || 0) + dt; if (a.beat > .46) { a.beat = 0; if (LV) LV.sqv += 3.2; } if (a.danceT <= 0) play(a, 'Idle'); }
+          if (a.gT <= 0 && onG && !a.falling && !(a.danceT > 0) && performance.now() > (S.gLock || 0)) { a.gT = 12 + Math.random() * 12; S.gLock = performance.now() + 4500;
+            const others = [...S.actors.values()].filter(o => o !== a), mv = pickR(['wave', 'wave', 'dance', 'dance', 'spin', 'spin', 'hops', 'boing', 'thumbs', 'yes']);
+            if (mv === 'wave') { if (others.length) { const o = pickR(others); a.rot0 = a.rot; a.rot = Math.atan2(o.g.position.x - P.x, o.g.position.z - P.z); a.turnT = 2.2; } play(a, 'Wave', true, 'Idle'); }
+            else if (mv === 'dance') { play(a, 'Dance'); a.danceT = 3.7; a.beat = 0; }
+            else if (mv === 'spin') { a.spin = true; a.spinA = 0; a.vy = 9; play(a, 'Jump', true); a.backTo = 'Idle'; setTimeout(() => a.spin = false, 1400); }
+            else if (mv === 'hops') { a.hops = 2; a.vy = 6; play(a, 'Jump', true); a.backTo = 'Idle'; }
+            else if (mv === 'boing') { if (LV) LV.sqv += 9; play(a, 'Yes', true, 'Idle'); }
+            else play(a, mv === 'thumbs' ? 'ThumbsUp' : 'Yes', true, 'Idle'); } }
+        a.ry = (a.ry ?? a.g.rotation.y) + (a.rot - (a.ry ?? a.g.rotation.y)) * Math.min(1, dt * 5); a.g.rotation.y = a.ry + (a.spinA || 0) * (a.spinA < Math.PI * 2 ? 1 : 0);
+        a.badge.position.y = (a.by || 2.35) + Math.sin(t * 2 + a.seed) * .05; });
       renderer.render(scene, cam);
     };
     loop();
@@ -4607,7 +4623,7 @@ const Stage3D = (() => {
     else {
       m = SU.clone(gltf.scene);
       m.traverse(o => { if (o.isMesh) { o.castShadow = true; if (o.material && o.material.name === 'Main') { o.material = o.material.clone(); o.material.color.set(p.color); o.material.roughness = .35; } } });
-      m.scale.setScalar(.42); mixer = new T.AnimationMixer(m); gltf.animations.forEach(cl => acts[cl.name] = mixer.clipAction(cl)); try { if (typeof ALIVE !== 'undefined') ALIVE.rig({ obj: m, mixer, acts, cur: null, _h: 1.75 }, T); } catch (e) {}
+      m.scale.setScalar(.42); mixer = new T.AnimationMixer(m); gltf.animations.forEach(cl => acts[cl.name] = mixer.clipAction(cl)); try { if (typeof ALIVE !== 'undefined') { const fa = { obj: m, mixer, acts, cur: null, _h: 1.75 }; ALIVE.rig(fa, T); m.userData.fa = fa; } } catch (e) {}
     }
     if (!cg && typeof dressRobot === 'function') dressRobot(m, p.eq, T);
     const g = new T.Group(); g.add(m); const b = badge(p); g.add(b);
