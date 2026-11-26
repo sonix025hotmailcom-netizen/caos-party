@@ -845,6 +845,7 @@ img.fe{width:1.15em;height:1.15em;vertical-align:-.22em;display:inline-block;obj
 .hxpip{position:absolute;border:4px solid var(--c,#fff);outline:2px solid #fff;border-radius:12px;box-shadow:0 4px 0 #0005,0 0 0 2px #0003;pointer-events:none}
 .hxpip span{position:absolute;left:6px;top:4px;background:#000b;color:#fff;font-weight:900;font-size:13px;padding:1px 8px;border-radius:999px}
 .pt3bar{position:absolute;left:3%;right:3%;bottom:3%;height:14px;border-radius:999px;background:#0005;border:2px solid #fff;display:flex;overflow:hidden}.pt3bar i{display:block;height:100%;transition:width .3s}
+.fut3sb{position:absolute;top:2.5%;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:.5em;background:#0f172ae6;border:3px solid #fff;border-radius:999px;padding:.2em .5em;font-weight:900;color:#fff;font-size:1.35em;box-shadow:0 .3em 0 #0006}.fut3sb b{background:var(--c);border-radius:999px;padding:.05em .7em;font-size:.75em}.fut3sb span{min-width:3.2em;text-align:center;font-size:1.15em}
 /* ---------- v12: escala automática para cualquier pantalla ---------- */
 :root{--z:1;--vh:calc(1vh / var(--z));--vw:calc(1vw / var(--z));--dvh:calc(1dvh / var(--z))}
 #app>*{zoom:var(--z)}
@@ -10740,6 +10741,135 @@ const JUMP3 = {
   const G = GAMES.jump, oStart = G.start, oGo = G.go; JUMP3.o2d = G.draw;
   G.draw = JUMP3.draw; G.name = 'Salta la Cuerda 3D';
   G.start = function () { preloadChars(onlineIds().map(id => charOf(pl(id)))); oStart.apply(this, arguments); H.gd.build3D = T => JUMP3.build(T); attachArena(H.gd); };
+  G.go = function () { oGo.apply(this, arguments); attachArena(H.gd); };
+})();
+
+/* ================== v50b — FÚTBOL LOCO en 3D: estadio, robots con camiseta de equipo y pelota de verdad ================== */
+const FUT3 = {
+  X: v => (v - 500) / 40, Z: v => (v - 300) / 40,
+  build(T) {
+    const gd = H.gd, r = arena3D(T, { bg: '#0f172a' }), add = o => (r.scene.add(o), o), M = (c, o = {}) => new T.MeshStandardMaterial(Object.assign({ color: c, roughness: .7 }, o));
+    r.scene.background = CARX.sky(T, ['#0b1026', '#1e3a8a', '#3b82f6', '#93c5fd']);
+    r.cam.fov = 42; r.cam.far = 240; r.cam.updateProjectionMatrix();
+    const sun = r.scene.children.find(c => c.isDirectionalLight); if (sun) { sun.position.set(-6, 24, 10); Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 11, bottom: -11, near: .5, far: 70 }); sun.shadow.camera.updateProjectionMatrix(); }
+    /* césped a rayas con líneas */
+    const fld = CARX.tex(T, 1000, 600, (g, w, h) => { for (let k = 0; k < 10; k++) { g.fillStyle = k % 2 ? '#15803d' : '#16a34a'; g.fillRect(k * 100, 0, 100, h); } for (let k = 0; k < 4000; k++) { g.fillStyle = Math.random() < .5 ? '#22c55e33' : '#14532d33'; g.fillRect(Math.random() * w, Math.random() * h, 2, 4); } g.strokeStyle = '#ffffffdd'; g.lineWidth = 5; g.strokeRect(4, 4, 992, 592); g.beginPath(); g.moveTo(500, 4); g.lineTo(500, 596); g.stroke(); g.beginPath(); g.arc(500, 300, 80, 0, 7); g.stroke(); g.strokeRect(4, 160, 120, 280); g.strokeRect(876, 160, 120, 280); g.fillStyle = '#fff'; g.beginPath(); g.arc(500, 300, 6, 0, 7); g.fill(); });
+    const f = add(new T.Mesh(new T.PlaneGeometry(25, 15), new T.MeshStandardMaterial({ map: fld, roughness: .9 }))); f.rotation.x = -Math.PI / 2; f.receiveShadow = true;
+    const around = add(new T.Mesh(new T.PlaneGeometry(80, 60), M('#166534', { roughness: 1 }))); around.rotation.x = -Math.PI / 2; around.position.y = -.01; around.receiveShadow = true;
+    /* paredes bajas tipo vallas publicitarias */
+    const ad = CARX.tex(T, 1024, 64, (g, w, h) => { const C = ['#f43f5e', '#facc15', '#3b82f6', '#22c55e', '#a855f7']; for (let x = 0; x < w; x += 256) { g.fillStyle = C[(x / 256) % C.length]; g.fillRect(x, 0, 256, h); g.fillStyle = '#fff'; g.font = '900 40px system-ui'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('CAOS PARTY', x + 128, h / 2 + 2); } }, [3, 1]);
+    const adM = new T.MeshStandardMaterial({ map: ad, emissive: '#ffffff', emissiveMap: ad, emissiveIntensity: .35 });
+    [[0, -7.9, 27, 0], [0, 7.9, 27, 0]].forEach(([x, z, L]) => { const m = add(new T.Mesh(new T.BoxGeometry(L, .7, .15), adM)); m.position.set(x, .35, z); });
+    /* arcos con red */
+    const net = CARX.tex(T, 128, 128, (g, w, h) => { g.strokeStyle = '#ffffffcc'; g.lineWidth = 2; for (let k = 0; k <= w; k += 16) { g.beginPath(); g.moveTo(k, 0); g.lineTo(k, h); g.stroke(); g.beginPath(); g.moveTo(0, k); g.lineTo(w, k); g.stroke(); } }, [4, 2]);
+    const netM = new T.MeshStandardMaterial({ map: net, transparent: true, side: T.DoubleSide, depthWrite: false }), post = M('#ffffff', { roughness: .3 });
+    [[-1, '#3b82f6'], [1, '#ef4444']].forEach(([s, c]) => { const g = add(new T.Group()); g.position.x = s * 12.5; const H2 = 1.6, W2 = 2.4, D2 = 1.6;
+      [[-W2], [W2]].forEach(([z]) => { const p = new T.Mesh(new T.CylinderGeometry(.08, .08, H2, 10), post); p.position.set(0, H2 / 2, z); p.castShadow = true; g.add(p); });
+      const cb = new T.Mesh(new T.CylinderGeometry(.08, .08, W2 * 2, 10), post); cb.rotation.x = Math.PI / 2; cb.position.y = H2; g.add(cb);
+      const back = new T.Mesh(new T.PlaneGeometry(W2 * 2, H2), netM); back.rotation.y = Math.PI / 2; back.position.set(s * D2, H2 / 2, 0); g.add(back);
+      const topN = new T.Mesh(new T.PlaneGeometry(D2, W2 * 2), netM); topN.rotation.x = Math.PI / 2; topN.position.set(s * D2 / 2, H2, 0); g.add(topN);
+      [-W2, W2].forEach(z => { const sd = new T.Mesh(new T.PlaneGeometry(D2, H2), netM); sd.position.set(s * D2 / 2, H2 / 2, z); g.add(sd); });
+      const pad = new T.Mesh(new T.PlaneGeometry(D2, W2 * 2), new T.MeshBasicMaterial({ color: c, transparent: true, opacity: .35 })); pad.rotation.x = -Math.PI / 2; pad.position.set(s * D2 / 2, .02, 0); g.add(pad); });
+    /* tribunas con público y focos */
+    const crowdCols = ['#ef4444', '#3b82f6', '#facc15', '#ffffff', '#22c55e', '#f97316', '#a855f7'], cg = new T.CapsuleGeometry(.22, .35, 3, 6), cm = new T.MeshStandardMaterial({ roughness: .8 }), N = 700, im = new T.InstancedMesh(cg, cm, N), tmp = new T.Object3D(), col = new T.Color(); r.crowd = { im, base: [] };
+    const standM = M('#334155'); [[-1], [1]].forEach(([s]) => { for (let row = 0; row < 5; row++) { const st = add(new T.Mesh(new T.BoxGeometry(30, .5, 1), standM)); st.position.set(0, .25 + row * .5, s * (9.2 + row * .9)); st.receiveShadow = true; } });
+    for (let k = 0; k < N; k++) { const s = k % 2 ? 1 : -1, row = Math.floor(Math.random() * 5), x = -14.5 + Math.random() * 29, y = .5 + row * .5 + .45, z = s * (9.2 + row * .9); tmp.position.set(x, y, z); tmp.updateMatrix(); im.setMatrixAt(k, tmp.matrix); im.setColorAt(k, col.set(crowdCols[k % crowdCols.length])); r.crowd.base.push([x, y, z, Math.random() * 6]); }
+    add(im);
+    [[-14, -10], [14, -10], [-14, 10], [14, 10]].forEach(([x, z]) => { const g = add(new T.Group()); g.position.set(x, 0, z); const p = new T.Mesh(new T.CylinderGeometry(.15, .2, 9, 8), M('#94a3b8', { metalness: .6 })); p.position.y = 4.5; g.add(p); const lt = new T.Mesh(new T.BoxGeometry(1.6, .9, .3), M('#f8fafc', { emissive: '#fef9c3', emissiveIntensity: 1.2 })); lt.position.y = 9.2; lt.lookAt(0, 0, 0); g.add(lt); });
+    /* pelota con textura de fútbol */
+    const bt = CARX.tex(T, 256, 128, (g, w, h) => { g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h); g.fillStyle = '#111827'; for (let k = 0; k < 12; k++) { const x = (k % 6) * 44 + (k > 5 ? 22 : 0) + 10, y = k > 5 ? 90 : 34; g.beginPath(); for (let q = 0; q < 5; q++) { const a = q / 5 * 6.283 - 1.57; g.lineTo(x + Math.cos(a) * 13, y + Math.sin(a) * 13); } g.fill(); } });
+    r.ball = add(new T.Mesh(new T.SphereGeometry(.38, 24, 18), M('#ffffff', { map: bt, roughness: .45 }))); r.ball.castShadow = true;
+    r.bsh = add(new T.Mesh(new T.CircleGeometry(.36, 20), new T.MeshBasicMaterial({ color: '#000', transparent: true, opacity: .35, depthWrite: false }))); r.bsh.rotation.x = -Math.PI / 2; r.bsh.position.y = .02;
+    r.ax = new T.Vector3(); r.qq = new T.Quaternion(); r.lp = null; r.T = T;
+    CARX.sparks(T, r, 120); r.bots = {};
+    gd.ids.forEach(id => C3D.load(charURL(charOf(pl(id)))).then(g => { if (H.gd !== gd) return; const tc = gd.team[id] ? '#ef4444' : '#3b82f6', a = C3D.make(g, hFor(g, 1.45), tintFor(g, id)); a.play('Idle'); const hold = new T.Group(); hold.add(a.obj); add(hold);
+      const ring = new T.Mesh(new T.RingGeometry(.48, .62, 28), new T.MeshBasicMaterial({ color: tc, transparent: true, opacity: .9, depthWrite: false })); ring.rotation.x = -Math.PI / 2; ring.position.y = .03; hold.add(ring);
+      const lb = GAMES.ovni.label(T, `${gd.team[id] ? '🔴' : '🔵'} ${pl(id)?.name || ''}`, tc); lb.position.y = 2.15; lb.scale.set(2.5, .62, 1); lb.material.depthTest = false; lb.renderOrder = 10; hold.add(lb);
+      a.hold = hold; a.lcd = 0; r.bots[id] = a; }).catch(() => {}));
+    return r;
+  },
+  draw(ctx) {
+    const gd = H.gd, r = gd.r3;
+    if (!(r && r.renderer.domElement.isConnected)) return FUT3.o2d.call(GAMES.futbol, ctx);
+    const now = performance.now(), dt = Math.min(.05, (now - (r.last || now)) / 1000); r.last = now; const tt = now / 1000;
+    const bl = gd.ball, bx = FUT3.X(bl.position.x), bz = FUT3.Z(bl.position.y);
+    if (r.lp) { const vx = bx - r.lp[0], vz = bz - r.lp[1], d = Math.hypot(vx, vz); if (d > 1e-4 && d < 3) { r.ax.set(vz, 0, -vx).normalize(); r.qq.setFromAxisAngle(r.ax, d / .38); r.ball.quaternion.premultiply(r.qq); } } r.lp = [bx, bz];
+    r.ball.position.set(bx, .38, bz); r.bsh.position.set(bx, .02, bz);
+    /* público que salta (más cuando hay gol) */
+    const hype = gd.msg ? 1 : .25, c = r.crowd, tmp = r.tmp || (r.tmp = new r.T.Object3D());
+    for (let k = 0; k < c.base.length; k += 1) { const b = c.base[k]; tmp.position.set(b[0], b[1] + Math.max(0, Math.sin(tt * (5 + hype * 6) + b[3])) * .22 * hype, b[2]); tmp.updateMatrix(); c.im.setMatrixAt(k, tmp.matrix); } c.im.instanceMatrix.needsUpdate = true;
+    if (gd.msg && !r.goalFx) { r.goalFx = 1; CARX.burst(r, bx, 1, bz, 70, 9, '#fde047'); CARX.burst(r, bx, 1, bz, 50, 8, '#ffffff'); } if (!gd.msg) r.goalFx = 0;
+    for (const id of gd.ids) {
+      const a = r.bots[id], b = gd.bodies[id]; if (!a) continue; const x = FUT3.X(b.position.x), z = FUT3.Z(b.position.y), vx = b.velocity.x, vz = b.velocity.y, sp = Math.hypot(vx, vz);
+      a.hold.position.set(x, 0, z); if (sp > .3) a.obj.rotation.y = Math.atan2(vx, vz); else a.obj.rotation.y = Math.atan2(bx - x, bz - z);
+      const kicked = (gd.cd[id] || 0) > a.lcd + .05; a.lcd = gd.cd[id] || 0; if (kicked) { a.kT = .35; CARX.burst(r, x, .4, z, 10, 4, '#ffffff'); }
+      a.kT = (a.kT || 0) - dt; a.play(a.kT > 0 ? 'Punch' : gd.msg ? (gd.lastTeam === gd.team[id] ? 'Dance' : 'No') : sp > 2 ? 'Running' : sp > .4 ? 'Walking' : 'Idle'); a.mixer.update(dt);
+    }
+    CARX.tickSparks(r, dt);
+    const cx = Math.max(-3.5, Math.min(3.5, bx * .3)); r.cx = (r.cx || 0) + (cx - (r.cx || 0)) * Math.min(1, dt * 2);
+    r.cam.position.set(0, 19.2, 15.6); r.cam.lookAt(0, -.8, .9); r.renderer.render(r.scene, r.cam);
+    CARX.overlay(r, `<div class="fut3sb"><b style="--c:#3b82f6">🔵 AZUL</b><span>${gd.score[0]} - ${gd.score[1]}</span><b style="--c:#ef4444">ROJO 🔴</b></div>${gd.msg ? `<div class="cxbig" style="top:45%">${esc(gd.msg)}</div>` : ''}`);
+  }
+};
+(() => {
+  const G = GAMES.futbol, oReal = G.realStart, oGo = G.go, oStep = G.step; FUT3.o2d = G.draw;
+  G.draw = FUT3.draw; G.name = 'Fútbol Loco 3D';
+  G.realStart = function () { preloadChars(onlineIds().map(id => charOf(pl(id)))); oReal.apply(this, arguments); H.gd.build3D = T => FUT3.build(T); attachArena(H.gd); };
+  G.go = function () { oGo.apply(this, arguments); attachArena(H.gd); };
+  G.step = function (dt) { const s0 = H.gd.score.slice(), r = oStep.apply(this, arguments); const s1 = H.gd.score; if (s1[0] !== s0[0]) H.gd.lastTeam = 0; else if (s1[1] !== s0[1]) H.gd.lastTeam = 1; return r; };
+})();
+
+/* ================== v50c — LLUVIA DE MONEDAS en 3D: vista de lado, monedas que giran, gemas y bombas ================== */
+const COIN3 = {
+  X: v => (v - 500) / 40, Y: v => (505 - v) / 40,
+  build(T) {
+    const gd = H.gd, r = arena3D(T, { bg: '#bae6fd' }), add = o => (r.scene.add(o), o), M = (c, o = {}) => new T.MeshStandardMaterial(Object.assign({ color: c, roughness: .6 }, o));
+    r.scene.background = CARX.sky(T, ['#38bdf8', '#7dd3fc', '#e0f2fe', '#fef3c7']); r.scene.fog = new T.Fog('#e0f2fe', 30, 80);
+    r.cam.fov = 50; r.cam.far = 200; r.cam.updateProjectionMatrix();
+    const sun = r.scene.children.find(c => c.isDirectionalLight); if (sun) { sun.position.set(6, 16, 12); Object.assign(sun.shadow.camera, { left: -15, right: 15, top: 10, bottom: -4, near: .5, far: 60 }); sun.shadow.camera.updateProjectionMatrix(); }
+    /* suelo: pasto encima, tierra con piedritas al frente */
+    const dirt = CARX.tex(T, 256, 128, (g, w, h) => { g.fillStyle = '#92400e'; g.fillRect(0, 0, w, h); for (let k = 0; k < 120; k++) { g.fillStyle = ['#78350f', '#b45309', '#a8a29e'][k % 3]; g.beginPath(); g.ellipse(Math.random() * w, Math.random() * h, 3 + Math.random() * 6, 2 + Math.random() * 4, 0, 0, 7); g.fill(); } g.fillStyle = '#22c55e'; g.fillRect(0, 0, w, 16); for (let x = 0; x < w; x += 12) { g.beginPath(); g.moveTo(x, 16); g.lineTo(x + 6, 26); g.lineTo(x + 12, 16); g.fill(); } }, [8, 1]);
+    const ground = add(new T.Mesh(new T.BoxGeometry(40, 3, 6), [M('#92400e'), M('#92400e'), M('#4ade80'), M('#92400e'), M('#ffffff', { map: dirt }), M('#92400e')])); ground.position.set(0, -1.5, 0); ground.receiveShadow = true;
+    const back = add(new T.Mesh(new T.PlaneGeometry(200, 60), M('#86efac'))); back.rotation.x = -Math.PI / 2; back.position.set(0, -.02, -33);
+    /* colinas, castillo y nubes al fondo */
+    const hillM = [M('#4ade80'), M('#22c55e'), M('#16a34a')]; for (let k = 0; k < 9; k++) { const h = add(new T.Mesh(new T.SphereGeometry(4 + Math.random() * 4, 20, 14), hillM[k % 3])); h.position.set(-26 + k * 6.5, -2, -10 - Math.random() * 8); h.scale.y = .7; }
+    const cst = add(new T.Group()); cst.position.set(7, 0, -16); const wall = M('#e7e5e4'), roof = M('#ef4444'); [-2, 0, 2].forEach((x, k) => { const t = new T.Mesh(new T.CylinderGeometry(.9, .9, k === 1 ? 6 : 4.5, 12), wall); t.position.set(x, (k === 1 ? 6 : 4.5) / 2, 0); cst.add(t); const rf = new T.Mesh(new T.ConeGeometry(1.15, 1.8, 12), roof); rf.position.set(x, (k === 1 ? 6 : 4.5) + .9, 0); cst.add(rf); });
+    const cm = M('#ffffff', { roughness: 1 }); r.clouds = []; for (let k = 0; k < 7; k++) { const g = add(new T.Group()); for (let q = 0; q < 4; q++) { const b = new T.Mesh(new T.SphereGeometry(1 + Math.random() * .8, 12, 10), cm); b.position.set(q * 1.3 - 2, Math.random() * .5, 0); g.add(b); } g.position.set(-24 + k * 8, 9 + Math.random() * 3, -14 - Math.random() * 6); r.clouds.push(g); }
+    /* objetos que caen */
+    r.geo = { coin: new T.CylinderGeometry(.42, .42, .1, 24), gem: new T.OctahedronGeometry(.42), bomb: new T.SphereGeometry(.4, 18, 14) };
+    r.mat = { coin: M('#facc15', { metalness: .85, roughness: .25, emissive: '#a16207', emissiveIntensity: .35 }), gem: M('#22d3ee', { metalness: .3, roughness: .1, emissive: '#0891b2', emissiveIntensity: .5 }), bomb: M('#111827', { metalness: .4, roughness: .3 }) };
+    r.fuse = M('#fb923c', { emissive: '#f97316', emissiveIntensity: 1.5 }); r.items = new Map();
+    CARX.sparks(T, r, 140); r.bots = {};
+    gd.ids.forEach(id => C3D.load(charURL(charOf(pl(id)))).then(g => { if (H.gd !== gd) return; const a = C3D.make(g, hFor(g, 1.9), tintFor(g, id)); a.play('Idle'); const hold = new T.Group(); hold.add(a.obj); add(hold); hold.position.z = .6;
+      const lb = GAMES.ovni.label(T, `${pl(id)?.emoji || ''} ${pl(id)?.name || ''}`, pl(id)?.color || '#fff'); lb.position.y = 2.3; lb.scale.set(2.4, .6, 1); lb.material.depthTest = false; lb.renderOrder = 10; hold.add(lb);
+      a.hold = hold; a.lc = 0; r.bots[id] = a; }).catch(() => {}));
+    return r;
+  },
+  draw(ctx) {
+    const gd = H.gd, r = gd.r3;
+    if (!(r && r.renderer.domElement.isConnected)) return COIN3.o2d.call(GAMES.coins, ctx);
+    const now = performance.now(), dt = Math.min(.05, (now - (r.last || now)) / 1000); r.last = now; const tt = now / 1000;
+    r.clouds.forEach((c, k) => { c.position.x += dt * (.3 + k * .05); if (c.position.x > 30) c.position.x = -30; });
+    const seen = new Set();
+    for (const it of gd.items) { seen.add(it); let m = r.items.get(it); if (!m) { m = new r.T.Mesh(r.geo[it.type], r.mat[it.type]); m.castShadow = true; if (it.type === 'bomb') { const f = new r.T.Mesh(new r.T.SphereGeometry(.12, 8, 6), r.fuse); f.position.y = .45; m.add(f); } r.scene.add(m); r.items.set(it, m); }
+      m.position.set(COIN3.X(it.x), COIN3.Y(it.y), .6); if (it.type === 'coin') { m.rotation.set(Math.PI / 2, 0, it.rot * 1.5); } else m.rotation.set(it.rot * .5, it.rot, 0); }
+    for (const [it, m] of r.items) if (!seen.has(it)) { if (it.dead) CARX.burst(r, m.position.x, m.position.y, .6, it.type === 'bomb' ? 34 : 14, it.type === 'bomb' ? 7 : 4, it.type === 'coin' ? '#facc15' : it.type === 'gem' ? '#22d3ee' : '#f97316'); r.scene.remove(m); r.items.delete(it); }
+    for (const id of gd.ids) {
+      const a = r.bots[id], p = gd.ps[id]; if (!a) continue; const x = COIN3.X(p.x), mv = Math.abs(x - a.hold.position.x) / Math.max(dt, .001); a.hold.position.x = x;
+      a.obj.rotation.y = p.stun > 0 ? 0 : p.face > 0 ? Math.PI / 2 : -Math.PI / 2;
+      if (p.coins > a.lc) a.hop = .35; a.lc = p.coins; a.hop = (a.hop || 0) - dt; a.hold.position.y = a.hop > 0 ? Math.sin(a.hop / .35 * Math.PI) * .35 : 0;
+      a.play(p.stun > 0 ? 'No' : mv > 1 ? 'Running' : 'Idle'); a.mixer.update(dt);
+    }
+    CARX.tickSparks(r, dt);
+    r.cam.position.set(0, 2.3, 15.4); r.cam.lookAt(0, 3.1, 0); r.renderer.render(r.scene, r.cam);
+    const srt = gd.ids.slice().sort((a, b) => gd.ps[b].coins - gd.ps[a].coins);
+    CARX.overlay(r, `<div class="cxtop">${srt.map((id, k) => { const p = pl(id); return `<span class="cxpill${gd.ps[id].stun > 0 ? ' off' : ''}" style="--c:${p?.color || '#888'}">${k === 0 && gd.ps[id].coins ? '👑 ' : ''}${p?.emoji || ''} ${esc(p?.name || '')} 🪙${gd.ps[id].coins}</span>`; }).join('')}</div>`);
+  }
+};
+(() => {
+  const G = GAMES.coins, oStart = G.start, oGo = G.go; COIN3.o2d = G.draw;
+  G.draw = COIN3.draw; G.name = 'Lluvia de Monedas 3D';
+  G.start = function () { preloadChars(onlineIds().map(id => charOf(pl(id)))); oStart.apply(this, arguments); H.gd.build3D = T => COIN3.build(T); attachArena(H.gd); };
   G.go = function () { oGo.apply(this, arguments); attachArena(H.gd); };
 })();
 
