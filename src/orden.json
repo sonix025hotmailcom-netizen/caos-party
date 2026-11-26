@@ -214,7 +214,8 @@
       "js/sistema/b11-47-v48c-juego-nuevo-rey-de-la-corona-3d-quedate-sol.js",
       "js/sistema/b11-48-v49-sumo-galactico-en-3d-robots-dentro-de-bolas-.js",
       "js/sistema/b11-49-escala-automatica-de-la-interfaz.js",
-      "js/sistema/seguridad.js"
+      "js/sistema/seguridad.js",
+      "js/sistema/auto-siguiente.js"
     ]
   ]
 }
