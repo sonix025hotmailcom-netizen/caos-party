@@ -10689,6 +10689,60 @@ const SUMO3 = {
   G.go = function () { oGo.apply(this, arguments); attachArena(H.gd); };
 })();
 
+/* ================== v50 — SALTA LA CUERDA en 3D: robots saltando una cuerda gigante en un parque ================== */
+const JUMP3 = {
+  X: v => (v - 500) / 56,
+  build(T) {
+    const gd = H.gd, r = arena3D(T, { bg: '#7dd3fc' }), add = o => (r.scene.add(o), o), M = (c, o = {}) => new T.MeshStandardMaterial(Object.assign({ color: c, roughness: .7 }, o));
+    r.scene.background = CARX.sky(T, ['#0284c7', '#38bdf8', '#bae6fd', '#fef9c3']); r.scene.fog = new T.Fog('#dbeafe', 30, 90);
+    r.cam.fov = 44; r.cam.far = 200; r.cam.updateProjectionMatrix();
+    const sun = r.scene.children.find(c => c.isDirectionalLight); if (sun) { sun.position.set(5, 18, 12); Object.assign(sun.shadow.camera, { left: -13, right: 13, top: 8, bottom: -8, near: .5, far: 60 }); sun.shadow.camera.updateProjectionMatrix(); }
+    const grass = CARX.tex(T, 256, 256, (g, w, h) => { g.fillStyle = '#4ade80'; g.fillRect(0, 0, w, h); for (let k = 0; k < 1500; k++) { g.fillStyle = ['#22c55e', '#86efac', '#16a34a'][k % 3]; g.fillRect(Math.random() * w, Math.random() * h, 2, 4 + Math.random() * 4); } for (let k = 0; k < 30; k++) { g.fillStyle = ['#fde047', '#ffffff', '#f9a8d4'][k % 3]; g.beginPath(); g.arc(Math.random() * w, Math.random() * h, 2.5, 0, 7); g.fill(); } }, [40, 40]);
+    const gm = add(new T.Mesh(new T.PlaneGeometry(240, 240), new T.MeshStandardMaterial({ map: grass, roughness: 1 }))); gm.rotation.x = -Math.PI / 2; gm.receiveShadow = true;
+    /* pista de arena donde saltan */
+    const sand = CARX.tex(T, 256, 128, (g, w, h) => { g.fillStyle = '#f5d0a9'; g.fillRect(0, 0, w, h); for (let k = 0; k < 900; k++) { g.fillStyle = ['#e7b98b', '#fde4c8'][k % 2]; g.fillRect(Math.random() * w, Math.random() * h, 2, 2); } }, [6, 1.5]);
+    const pad = add(new T.Mesh(new T.PlaneGeometry(17.5, 4.2), new T.MeshStandardMaterial({ map: sand, roughness: 1 }))); pad.rotation.x = -Math.PI / 2; pad.position.y = .01; pad.receiveShadow = true;
+    /* árboles, banca y columpio de fondo */
+    const leaf = M('#16a34a'), trunk = M('#92400e'); for (let k = 0; k < 16; k++) { const x = -26 + k * 3.5 + Math.random() * 2, z = -9 - Math.random() * 10, g = add(new T.Group()); const t1 = new T.Mesh(new T.CylinderGeometry(.22, .3, 2, 8), trunk); t1.position.y = 1; const c1 = new T.Mesh(new T.SphereGeometry(1.4 + Math.random() * .6, 12, 10), leaf); c1.position.y = 2.8; c1.castShadow = true; g.add(t1, c1); g.position.set(x, 0, z); }
+    const sw = add(new T.Group()); sw.position.set(9, 0, -6); const pm = M('#ef4444', { metalness: .4 }); [[-1.4, 1], [1.4, 1]].forEach(([x]) => { [-.8, .8].forEach(z => { const p = new T.Mesh(new T.CylinderGeometry(.08, .08, 3.4, 8), pm); p.position.set(x, 1.6, z * .7); p.rotation.x = z > 0 ? -.25 : .25; sw.add(p); }); }); const bar = new T.Mesh(new T.CylinderGeometry(.09, .09, 3, 8), pm); bar.rotation.z = Math.PI / 2; bar.position.y = 3.2; sw.add(bar);
+    /* los dos que mueven la cuerda: robots grises grandotes */
+    r.hold = []; [-8.3, 8.3].forEach((x, k) => C3D.load('assets/robot.glb').then(g => { if (H.gd !== gd) return; const a = C3D.make(g, 2.3); a.obj.position.set(x, 0, 0); a.obj.rotation.y = k ? -Math.PI / 2 : Math.PI / 2; a.obj.traverse(o => { if (o.isMesh && o.material) { o.material = o.material.clone(); o.material.color && o.material.color.multiplyScalar(.6); } }); a.play('Idle'); add(a.obj); r.hold.push(a); }).catch(() => {}));
+    r.ropeM = M('#c2410c', { roughness: .5 }); r.rope = null; r.T = T;
+    CARX.sparks(T, r, 80); r.bots = {};
+    gd.ids.forEach(id => C3D.load(charURL(charOf(pl(id)))).then(g => { if (H.gd !== gd) return; const a = C3D.make(g, hFor(g, 1.6), tintFor(g, id)); a.play('Idle'); const hold = new T.Group(); hold.add(a.obj); add(hold); hold.position.set(JUMP3.X(gd.ps[id].x), 0, .2); a.obj.rotation.y = 0;
+      const lb = GAMES.ovni.label(T, `${pl(id)?.emoji || ''} ${pl(id)?.name || ''}`, pl(id)?.color || '#fff'); lb.position.y = 2.4; lb.scale.set(2.5, .62, 1); lb.material.depthTest = false; lb.renderOrder = 10; hold.add(lb);
+      const sh = add(new T.Mesh(new T.CircleGeometry(.45, 20), new T.MeshBasicMaterial({ color: '#000', transparent: true, opacity: .3, depthWrite: false }))); sh.rotation.x = -Math.PI / 2; sh.position.set(JUMP3.X(gd.ps[id].x), .02, .2);
+      a.hold = hold; a.sh = sh; a.lb = lb; r.bots[id] = a; }).catch(() => {}));
+    return r;
+  },
+  draw(ctx) {
+    const gd = H.gd, r = gd.r3;
+    if (!(r && r.renderer.domElement.isConnected)) return JUMP3.o2d.call(GAMES.jump, ctx);
+    const now = performance.now(), dt = Math.min(.05, (now - (r.last || now)) / 1000); r.last = now; const T = r.T, a = gd.ph * Math.PI * 2;
+    /* cuerda: arco que gira alrededor del eje de las manos */
+    const pts = []; for (let k = 0; k <= 24; k++) { const u = k / 24, x = -7.7 + u * 15.4, sag = Math.sin(u * Math.PI); pts.push(new T.Vector3(x, 1.75 - Math.cos(a) * 1.7 * sag, Math.sin(a) * 1.7 * sag)); }
+    if (r.rope) { r.scene.remove(r.rope); r.rope.geometry.dispose(); } r.rope = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts), 40, .07, 6), r.ropeM); r.rope.castShadow = true; r.scene.add(r.rope);
+    r.hold.forEach(h => { h.play('Punch'); h.mixer.timeScale = 1.8 / gd.period * .7; h.mixer.update(dt); });
+    if (gd.ph > 0 && Math.floor(gd.ph) !== r.lastTurn) { r.lastTurn = Math.floor(gd.ph); CARX.burst(r, 0, .05, 0, 10, 3, '#e7b98b'); }
+    for (const id of gd.ids) {
+      const A = r.bots[id], s = gd.ps[id]; if (!A) continue; const air = gd.t - s.airT, up = s.alive && air >= 0 && air <= .55 ? Math.sin(air / .55 * Math.PI) * 1.25 : 0;
+      A.hold.position.y = up; A.sh.scale.setScalar(Math.max(.4, 1 - up * .4));
+      if (!s.alive) { if (!A._dead) { A._dead = 1; A.play('Death', true); A.lb.material.opacity = .35; CARX.burst(r, A.hold.position.x, .8, .2, 20, 5, pl(id)?.color); } }
+      else A.play(up > .02 ? 'Jump' : 'Idle');
+      A.mixer.update(dt);
+    }
+    CARX.tickSparks(r, dt);
+    r.cam.position.set(0, 3.4, 11.8); r.cam.lookAt(0, 1.45, -.6); r.renderer.render(r.scene, r.cam);
+    CARX.overlay(r, `<div class="cxtop"><span class="cxpill" style="--c:#f97316">🪢 Velocidad x${(1.8 / gd.period).toFixed(1)}</span>${gd.ids.map(id => { const p = pl(id), s = gd.ps[id]; return `<span class="cxpill${s.alive ? '' : ' off'}" style="--c:${p?.color || '#888'}">${s.alive ? p?.emoji || '' : '🤕'} ${esc(p?.name || '')} · ${s.jumps}</span>`; }).join('')}</div>`);
+  }
+};
+(() => {
+  const G = GAMES.jump, oStart = G.start, oGo = G.go; JUMP3.o2d = G.draw;
+  G.draw = JUMP3.draw; G.name = 'Salta la Cuerda 3D';
+  G.start = function () { preloadChars(onlineIds().map(id => charOf(pl(id)))); oStart.apply(this, arguments); H.gd.build3D = T => JUMP3.build(T); attachArena(H.gd); };
+  G.go = function () { oGo.apply(this, arguments); attachArena(H.gd); };
+})();
+
 /* ---------- escala automática de la interfaz ---------- */
 function fitUI() {
   const w = innerWidth, h = innerHeight, land = w > h, ctrl = !!document.querySelector('#app > .ctrl');
