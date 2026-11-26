@@ -33,7 +33,7 @@ const GFX = (() => {
 (() => {
   /* todas las arenas 3D (Chef, Paintball, Sumo, Defensa Ovni…) reciben la mejora */
   const oa = arena3D;
-  arena3D = function (T, o = {}) { const r = oa(T, o); GFX.lights(r.renderer, r.scene, T); if (o.bloom) GFX.post(r, T, { bloom: o.bloom }); return r; };
+  arena3D = function (T, o = {}) { const r = oa(T, o); GFX.lights(r.renderer, r.scene, T); if (o.bloom && QUAL().fx) GFX.post(r, T, { bloom: o.bloom }); return r; };
   const ob = addBloom;
   addBloom = function (r, T, s) { if (r._post) return; return ob(r, T, s); };
 })();

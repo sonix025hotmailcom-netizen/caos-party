@@ -4,7 +4,7 @@ async function bg3D() {
   try {
     const T = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
     const r = new T.WebGLRenderer({ antialias: true, alpha: true });
-    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5, QUAL().pr));
     const cvs = r.domElement; cvs.id = 'bg3d'; document.body.prepend(cvs);
     const sc = new T.Scene(), cam = new T.PerspectiveCamera(60, 1, .1, 100); cam.position.z = 14;
     sc.add(new T.AmbientLight(0xffffff, .7)); const dl = new T.DirectionalLight(0xffffff, 1.3); dl.position.set(5, 8, 10); sc.add(dl);

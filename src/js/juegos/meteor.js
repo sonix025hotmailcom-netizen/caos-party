@@ -18,7 +18,7 @@ Object.assign(GAMES, {
       getTHREE().then(T => { if (H.gd !== gd) return; gd.r3 = this.build3D(T); put(); }).catch(() => {});
     },
     build3D(T) {
-      const renderer = new T.WebGLRenderer({ antialias: true }); renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); renderer.setSize(1000, 600, false);
+      const renderer = new T.WebGLRenderer({ antialias: QUAL().aa }); renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, QUAL().pr)); renderer.setSize(1000, 600, false);
       renderer.shadowMap.enabled = true;
       const scene = new T.Scene(); scene.background = new T.Color('#0b0620'); scene.fog = new T.Fog('#0b0620', 25, 60);
       const cam = new T.PerspectiveCamera(50, 1000 / 600, .1, 200); cam.position.set(0, 17, 15); cam.lookAt(0, 0, 1);

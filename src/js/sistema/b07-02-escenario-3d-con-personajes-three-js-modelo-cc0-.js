@@ -7,9 +7,9 @@ const Stage3D = (() => {
     const { GLTFLoader } = await import(TV + 'examples/jsm/loaders/GLTFLoader.js');
     const SU = await import(TV + 'examples/jsm/utils/SkeletonUtils.js');
     const gltf = await new GLTFLoader().loadAsync('assets/robot.glb');
-    const renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
-    renderer.toneMapping = T.ACESFilmicToneMapping; renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
+    const renderer = new T.WebGLRenderer({ antialias: QUAL().aa, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6, QUAL().pr));
+    renderer.toneMapping = T.ACESFilmicToneMapping; renderer.shadowMap.enabled = QUAL().sh > 0; renderer.shadowMap.type = T.PCFSoftShadowMap;
     renderer.domElement.className = 'stage-canvas';
     const scene = new T.Scene(), cam = new T.PerspectiveCamera(40, 16 / 9, .1, 100);
     scene.add(new T.HemisphereLight(0xc9b8ff, 0x1a1033, 1.3));

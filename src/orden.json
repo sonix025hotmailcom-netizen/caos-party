@@ -18,6 +18,7 @@
   ],
   "js": [
     [
+      "js/sistema/config.js",
       "js/sistema/b01-01-caos-party.js",
       "js/sistema/b01-02-contenido.js",
       "js/sistema/b01-03-utilidades.js",
@@ -215,7 +216,8 @@
       "js/sistema/b11-48-v49-sumo-galactico-en-3d-robots-dentro-de-bolas-.js",
       "js/sistema/b11-49-escala-automatica-de-la-interfaz.js",
       "js/sistema/seguridad.js",
-      "js/sistema/auto-siguiente.js"
+      "js/sistema/auto-siguiente.js",
+      "js/sistema/ui-config.js"
     ]
   ]
 }
