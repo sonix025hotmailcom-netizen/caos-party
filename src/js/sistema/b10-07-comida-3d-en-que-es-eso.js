@@ -1,0 +1,3 @@
+/* ---------- comida 3D en ¿Qué Es Eso? ---------- */
+[['Hamburguesa', 'Burger'], ['Pizza', 'Pizza_Slice'], ['Dona', 'Donut1'], ['Helado', 'IceCream_Cone'], ['Muslo de pollo', 'ChickenLeg'], ['Panqueques', 'Pancakes_Stack'], ['Croissant', 'Croissant'], ['Wafle', 'Waffle'], ['Sushi', 'Food_SalmonNigiri'], ['Ramen', 'Food_Ramen'], ['Onigiri', 'Food_Onigiri'], ['Dango', 'Food_Dango'], ['Gyoza', 'Food_Gyoza'], ['Hot dog', 'Hotdog'], ['Papas fritas', 'Fries'], ['Brócoli', 'Broccoli'], ['Huevo frito', 'Egg_Fried'], ['Paleta', 'Popsicle_Strawberry']]
+  .forEach(([n, f]) => ZOOMS.push([`<img class="zimg" src="assets/props/thumbs/${f}.png" alt="">`, n]));

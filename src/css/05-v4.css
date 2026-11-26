@@ -1,0 +1,46 @@
+/* ---------- v4 ---------- */
+.tgrid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:1000px}
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:1000px}
+.qopt{background:var(--c);border-radius:20px;padding:16px 18px;display:flex;align-items:center;gap:12px;font-size:clamp(18px,calc(2.6 * var(--vw)),28px);box-shadow:0 6px 0 #0006;text-align:left;transition:opacity .3s,transform .3s}
+.qopt b{font-family:'Lilita One';font-size:1.3em;background:#0003;border-radius:12px;padding:2px 12px}
+.qopt span{flex:1}.qopt em{font-style:normal;font-size:28px}
+.qopt.wrong{opacity:.3;transform:scale(.95)}
+.qopt.right{box-shadow:0 0 0 6px var(--yellow),0 0 40px var(--yellow);transform:scale(1.04)}
+.tiles{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.tile{width:clamp(48px,calc(7 * var(--vw)),84px);aspect-ratio:1;background:#fff;color:#2a0c55;border-radius:16px;display:flex;align-items:center;justify-content:center;font-family:'Lilita One';font-size:clamp(30px,calc(5 * var(--vw)),56px);box-shadow:0 7px 0 #0006}
+.pwrap{display:flex;gap:20px;width:100%;max-width:1150px;align-items:stretch;justify-content:center;flex-wrap:wrap}
+.pboxx{background:#fff;border-radius:20px;padding:8px;box-shadow:0 8px 0 #0006;width:min(100%,calc(60 * var(--vh)));aspect-ratio:1;display:flex}
+.pimg{width:100%;height:100%;object-fit:contain;border-radius:14px}
+.pside{flex:1;min-width:240px;max-width:440px;display:flex;flex-direction:column;gap:12px}
+.phint{font-family:'Lilita One';font-size:clamp(26px,calc(4 * var(--vw)),46px);letter-spacing:4px;background:#0004;border-radius:18px;padding:12px}
+.phint small{font-family:'Nunito';font-size:16px;letter-spacing:0;opacity:.8}
+.pfeed{display:flex;flex-direction:column;gap:6px;text-align:left}
+.fd{background:#ffffff16;border-radius:12px;padding:8px 12px;font-size:20px;animation:pop .3s both}
+.fd.ok{background:#16a34a}
+/* ---------- v5: responsive y controles cómodos ---------- */
+#bg3d{position:fixed;inset:0;z-index:0;pointer-events:none;transition:opacity .6s}
+body{overscroll-behavior:none}
+button{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.screen{justify-content:flex-start;padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom))}
+.screen>:first-child{margin-top:auto}.screen>:last-child{margin-bottom:auto}
+.emojis{grid-template-columns:repeat(auto-fill,minmax(48px,1fr));max-width:480px;gap:8px}
+.emo{font-size:30px;padding:8px 0;aspect-ratio:1}
+.ctrl{min-height:calc(100 * var(--dvh));height:calc(100 * var(--dvh))}
+.c-top{padding:max(10px,env(safe-area-inset-top)) 16px 10px}
+.c-body{overflow-y:auto;justify-content:flex-start;padding:16px 16px max(16px,env(safe-area-inset-bottom))}
+.c-body>:first-child{margin-top:auto}.c-body>:last-child{margin-bottom:auto}
+.topbar{flex-wrap:wrap}
+/* joystick flotante */
+.ctrl.joy .c-body{padding:0;position:relative;display:block;overflow:hidden}
+.jhint{position:absolute;top:10px;left:0;right:0;text-align:center;font-size:15px;opacity:.75;pointer-events:none;z-index:2;padding:0 12px}
+.jarea{position:absolute;inset:0;touch-action:none}
+.jarea.hasbtn{right:0}
+.jbase{--js:min(calc(48 * var(--vw)),calc(40 * var(--vh)),240px);position:absolute;width:var(--js);height:var(--js);transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#ffffff2a,#ffffff08 70%);border:5px solid #ffffff55;left:50%;top:55%;box-shadow:inset 0 0 30px #0006}
+.jarea.hasbtn .jbase{left:32%;top:62%}
+.jbase.idle{opacity:.55}
+.jbase .knob{left:50%;top:50%;width:44%;height:44%;margin:-22% 0 0 -22%}
+.ctrl.joy .actbtn{position:absolute;right:max(calc(5 * var(--vw)),14px);bottom:max(calc(5 * var(--vh)),18px);width:min(calc(34 * var(--vw)),calc(28 * var(--vh)),170px);z-index:3}
+.actbtn .albl{position:relative;z-index:1}
+.cdov{position:absolute;inset:0;border-radius:50%;display:none;align-items:center;justify-content:center;font-family:'Lilita One';font-size:clamp(22px,calc(6 * var(--vw)),34px);color:#fff;background:conic-gradient(#000b var(--p,100%),#0005 0);z-index:2;text-shadow:0 2px 0 #000}
+.actbtn.cool .cdov{display:flex}
+.actbtn.cool{filter:grayscale(.8)}.actbtn.cool .albl{opacity:0}

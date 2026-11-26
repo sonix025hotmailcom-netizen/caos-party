@@ -1,0 +1,52 @@
+/* v15: generala loca */
+.dctop{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin-bottom:10px}
+.dclucky{display:flex;align-items:center;gap:8px;background:#0006;border:3px solid #22c55e;border-radius:99px;padding:6px 16px;font:800 clamp(15px,1.6vw,20px) Nunito,sans-serif}
+.dclucky img{width:clamp(30px,3vw,42px)}.dclucky small{opacity:.75;font-size:.8em}
+.dcgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:clamp(8px,1.2vw,16px);width:min(100%,1300px);margin:0 auto}
+.dcp{background:#1a1033cc;border:4px solid var(--c);border-radius:20px;padding:10px 12px;box-shadow:0 6px 0 #0007;transition:transform .3s,opacity .3s}
+.dcp.done{opacity:.8}.dcp.win{transform:scale(1.04);box-shadow:0 0 0 4px #facc15,0 6px 0 #0007}
+.dcn{display:flex;justify-content:space-between;align-items:center;font:900 clamp(15px,1.5vw,20px) Nunito,sans-serif;margin-bottom:6px}.dcn span{color:var(--lemon,#facc15)}
+.dcds{display:flex;gap:6px;justify-content:center}
+.dcd{width:clamp(36px,4.2vw,58px);aspect-ratio:1;filter:drop-shadow(0 4px 0 #0007);transition:transform .2s}
+.dcd.held{transform:translateY(-8px);filter:drop-shadow(0 0 6px #facc15) drop-shadow(0 4px 0 #0007)}
+.dch{text-align:center;margin-top:6px;font:800 clamp(14px,1.4vw,18px) Nunito,sans-serif;opacity:.9}.dch.big{color:#facc15;font-family:'Lilita One',sans-serif;font-size:clamp(18px,1.9vw,26px)}
+.dclegend{margin-top:12px;text-align:center;font:700 clamp(12px,1.2vw,15px) Nunito,sans-serif;opacity:.7}
+.pdc{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:520px;margin:0 auto}
+.pdc-top{display:flex;justify-content:space-between;align-items:center;width:100%;font:900 17px Nunito,sans-serif}.pdc-top img{width:30px;vertical-align:middle}
+.pdc-dice{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%}
+.pdie{background:#ffffff12;border:3px solid transparent;border-radius:16px;padding:6px 2px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:#fff;transition:transform .15s}
+.pdie img{width:100%;max-width:74px;aspect-ratio:1;filter:drop-shadow(0 4px 0 #0007)}
+.pdie small{font:900 9px Nunito,sans-serif;letter-spacing:.04em;min-height:11px;opacity:.75}
+.pdie.held{border-color:#facc15;background:#facc1533;transform:translateY(-6px)}.pdie.held small{color:#facc15;opacity:1}
+.pdie:disabled{cursor:default}
+.pdc-hand{font:400 clamp(22px,6vw,30px) 'Lilita One',sans-serif;color:var(--lemon,#facc15);text-shadow:0 3px 0 #0008;text-align:center}
+.pdc-roll{width:100%;max-width:360px}.pdc-roll small{font-size:.6em;opacity:.85}.pdc-stand{width:100%;max-width:360px}
+.pdc-done{font:900 20px Nunito,sans-serif;background:#22c55e33;border:3px solid #22c55e;border-radius:16px;padding:12px 18px}
+.pdc-tip{font:700 13px Nunito,sans-serif;opacity:.7;text-align:center;min-height:16px}
+@media (max-height:520px){.pdc{gap:6px}.pdie img{max-width:calc(15 * var(--vh))}.pdc-hand{font-size:22px}.pdc-roll,.pdc-stand{padding-top:8px!important;padding-bottom:8px!important;font-size:20px!important}.pdc-tip{display:none}}
+@media (min-width:700px) and (min-height:600px){.pdc{max-width:640px}.pdie img{max-width:100px}}
+/* v16: mayor o menor */
+.hlwrap{display:flex;gap:clamp(14px,2vw,30px);align-items:center;justify-content:center;flex-wrap:wrap;width:min(100%,1300px);margin:0 auto}
+.hltable{position:relative;display:flex;align-items:center;gap:clamp(14px,2.4vw,36px);background:radial-gradient(ellipse at center,#15803d,#14532d);border:6px solid #713f12;border-radius:40px;padding:clamp(18px,3vw,40px) clamp(24px,4vw,60px);box-shadow:inset 0 0 40px #0008,0 8px 0 #0007}
+.hlhist{position:absolute;left:16px;top:10px;display:flex}.hlhist img{width:34px;margin-right:-18px;filter:drop-shadow(0 2px 0 #0006);opacity:.85}
+.hlcard{width:clamp(110px,12vw,190px);filter:drop-shadow(0 8px 0 #0007)}
+.hlcard.next{perspective:900px;aspect-ratio:140/190}
+.hlin{position:relative;width:100%;height:100%;transition:transform .7s cubic-bezier(.2,1.4,.4,1);transform-style:preserve-3d}
+.hlcard.next.flip .hlin{transform:rotateY(180deg)}
+.hlin img{position:absolute;inset:0;width:100%;height:100%;backface-visibility:hidden}.hlin .hlf{transform:rotateY(180deg)}
+.hlq{font:400 clamp(22px,3vw,42px) 'Lilita One',sans-serif;color:#facc15;text-shadow:0 4px 0 #0008;text-align:center;max-width:220px}
+.hlpl{display:flex;flex-direction:column;gap:8px;min-width:min(100%,280px)}
+.hlp{display:flex;align-items:flex-end;gap:12px;background:#1a1033cc;border-left:8px solid var(--c);border-radius:16px;padding:8px 14px}
+.hlp>div{text-align:left}.hln{font:900 clamp(15px,1.4vw,19px) Nunito,sans-serif}.hlc{font:700 clamp(13px,1.2vw,16px) Nunito,sans-serif;opacity:.9}.hlc b{margin-left:6px}.hlc b.ok{color:#4ade80}.hlc b.no{color:#f87171}
+.chips{position:relative;display:inline-block;width:40px}.chips img{position:absolute;left:0;width:40px}
+.phl{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:480px;margin:0 auto}
+.phl-top{display:flex;justify-content:space-between;width:100%;font:900 17px Nunito,sans-serif}
+.phl-card{width:min(36vw,150px);filter:drop-shadow(0 6px 0 #0007)}
+.phl-bets{display:flex;gap:12px}
+.phl-chip{position:relative;background:none;border:3px solid transparent;border-radius:50%;padding:2px;cursor:pointer;transition:transform .15s}
+.phl-chip img{width:62px;display:block}.phl-chip b{position:absolute;inset:0;display:grid;place-items:center;font:900 22px Nunito,sans-serif;color:#fff;text-shadow:0 2px 0 #000}
+.phl-chip.on{border-color:#facc15;transform:scale(1.15) translateY(-4px)}.phl-chip:disabled{opacity:.3}
+.phl-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.phl-up{background:#16a34a!important}.phl-dn{background:#dc2626!important}.phl-eq{width:100%}.phl-eq small{opacity:.8;font-size:.7em}
+@media (max-height:520px){.phl{gap:6px}.phl-card{width:calc(22 * var(--vh))}.phl-chip img{width:44px}}
+@media (max-height:520px) and (orientation:landscape){.phl{display:grid;grid-template-columns:auto 1fr;grid-template-areas:'top top' 'card bets' 'card btns' 'card eq';max-width:720px;column-gap:18px;align-items:center}.phl-top{grid-area:top}.phl-card{grid-area:card;width:calc(40 * var(--vh))}.phl-bets{grid-area:bets;justify-content:center}.phl-btns{grid-area:btns}.phl-eq{grid-area:eq}}

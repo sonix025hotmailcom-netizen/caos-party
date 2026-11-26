@@ -1,0 +1,42 @@
+/* conecta 4 tocando el hoyo */
+.pboard.c4 .c4c{aspect-ratio:1;border-radius:50%;border:0;background:#0b1f5c;font-size:min(calc(7 * var(--vw)),30px);padding:0;display:flex;align-items:center;justify-content:center}
+.pboard.c4 .c4c.hl{background:#1e40af;box-shadow:inset 0 0 0 3px #facc15}
+.pboard.c4 .c4c:disabled{opacity:1}
+/* topos en el cel */
+.pgrid button{position:relative;transition:transform .08s}
+.pgrid button span{font-size:clamp(34px,calc(11 * var(--vw)),56px);display:inline-block}
+.pgrid button.up span{animation:moleUp .18s ease-out}
+.pgrid button.gold{box-shadow:0 0 0 4px #facc15,0 6px 0 #0006}
+.pgrid button.bomb{box-shadow:0 0 0 4px #ef4444,0 6px 0 #0006}
+.pgrid button.f{transform:scale(.9)}
+.pgrid.locked{filter:grayscale(1) brightness(.6)}
+@keyframes moleUp{from{transform:translateY(60%) scale(.5)}to{transform:none}}
+/* basta: jueces */
+.jlist{width:100%;max-width:480px;display:flex;flex-direction:column;gap:6px}
+.jcat{font-size:15px;opacity:.75;margin-top:8px;text-align:left}
+.jrow{display:flex;justify-content:space-between;align-items:center;border:0;border-radius:14px;padding:12px 14px;font-size:20px;color:#fff;background:#ffffff1c;font-family:inherit;font-weight:800}
+.jrow.no{background:#b91c1c;text-decoration:line-through}
+/* salto */
+.jwrap{position:relative;display:flex;align-items:center;justify-content:center}
+.beat{position:absolute;left:50%;top:50%;width:min(calc(78 * var(--vw)),340px);aspect-ratio:1;border-radius:50%;border:8px solid #facc15;transform:translate(-50%,-50%) scale(1.9);opacity:0;pointer-events:none}
+/* horizontal (cel acostado) */
+@media (orientation:landscape) and (max-height:520px){
+  .c-top{padding:6px 14px;font-size:16px}
+  .c-body{flex-direction:row;flex-wrap:wrap;justify-content:center;align-content:center;gap:10px}
+  .c-body>:first-child,.c-body>:last-child{margin:0}
+  .c-prompt{max-width:calc(44 * var(--vw));font-size:18px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;max-width:calc(52 * var(--vw))}
+  .opts.ab{grid-template-columns:1fr 1fr}
+  .colbtns{grid-template-columns:repeat(3,1fr);max-width:calc(60 * var(--vw))}
+  .tapbtn{width:min(calc(60 * var(--vh)),300px)}
+  .spads,.pgrid{width:min(calc(70 * var(--vh)),360px)}
+  .pboard.ttt,.pboard.c4{width:min(calc(70 * var(--vh)),420px)}
+  .mash{max-height:calc(70 * var(--vh))}
+  .ctrl.joy .c-body{display:block}
+  .jarea.hasbtn .jbase{left:26%;top:56%}
+  .jbase{--js:min(calc(56 * var(--vh)),230px)}
+  .ctrl.joy .actbtn{top:50%;bottom:auto;transform:translateY(-50%);right:calc(6 * var(--vw));width:min(calc(40 * var(--vh)),160px)}
+  .ctrl.joy .actbtn.hit{animation:none}
+  textarea{min-height:70px}
+}
+@media (max-width:380px){.btn.big{font-size:20px;padding:14px 20px}.c-prompt{font-size:19px}.big{font-size:70px}}

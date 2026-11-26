@@ -1,0 +1,48 @@
+/* ---------- v6: dibujo pro + pulido visual ---------- */
+.cvwrap{width:min(calc(92 * var(--vw)),calc(52 * var(--vh)),480px);aspect-ratio:1;border-radius:18px;overflow:hidden;box-shadow:0 8px 0 #0006,0 0 0 3px #ffffff22;background:#fff}
+.cvwrap #cv{width:100%;height:100%;display:block;touch-action:none;border-radius:0;box-shadow:none}
+.ptools{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;width:100%;max-width:480px}
+.ptool{border:0;border-radius:14px;background:#ffffff1c;color:#fff;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:transform .12s,background .12s}
+.ptool span{font-size:24px;line-height:1}.ptool small{font-size:10px;font-weight:800;opacity:.85}
+.ptool.sel{background:#ff4d8d;transform:translateY(-3px);box-shadow:0 4px 0 #0006}
+.pcolors{display:flex;gap:8px;overflow-x:auto;width:100%;max-width:480px;padding:6px 4px;scrollbar-width:none;justify-content:flex-start}
+.pcolors::-webkit-scrollbar{display:none}
+.pcolors .sw{flex:0 0 auto;width:40px;height:40px}
+.sw.custom{position:relative;display:flex;align-items:center;justify-content:center;background:conic-gradient(#ef4444,#facc15,#22c55e,#3b82f6,#a855f7,#ec4899,#ef4444);overflow:hidden;cursor:pointer}
+.sw.custom input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.sw.custom span{font-size:18px;pointer-events:none;filter:drop-shadow(0 1px 1px #000)}
+.psize{display:flex;align-items:center;gap:10px;width:100%;max-width:480px}
+.psize input[type=range]{flex:1;accent-color:#ff4d8d;height:28px;padding:0;border:0;background:none}
+.dotprev{flex:0 0 auto;border-radius:50%;border:2px solid #fff8;display:inline-block;min-width:4px;min-height:4px}
+.zbox{width:min(calc(80 * var(--vw)),calc(58 * var(--vh)),520px);aspect-ratio:1;border-radius:32px;overflow:hidden;background:radial-gradient(circle,#ffffff22,#0004);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 0 #0006,0 0 0 4px #ffffff33}
+.zemo{font-size:min(calc(60 * var(--vw)),calc(44 * var(--vh)),380px);line-height:1;will-change:transform}
+.gc3d{width:min(100%,calc(calc(66 * var(--vh))*1.6667))!important;height:auto!important;aspect-ratio:5/3}
+.g-name .ch{display:inline-block}
+/* pulido visual general */
+.btn{position:relative;overflow:hidden;background:linear-gradient(180deg,color-mix(in srgb,var(--b,#3b82f6) 85%,#fff),var(--b,#3b82f6))}
+.btn::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,#ffffff55,transparent);transform:skewX(-20deg);animation:shine 3.5s ease-in-out infinite;pointer-events:none}
+.btn.small::after{display:none}
+@keyframes shine{0%,70%{left:-60%}100%{left:130%}}
+.join-box,.rrow,.duel,.av,.acard{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.join-box{background:linear-gradient(135deg,#ffffff22,#ffffff08);box-shadow:0 20px 60px #0006,inset 0 1px 0 #ffffff44}
+.topbar .chip{backdrop-filter:blur(6px);background:#ffffff26;box-shadow:inset 0 1px 0 #ffffff33}
+.rrow{box-shadow:0 6px 20px #0004}
+.c-top{background:linear-gradient(90deg,var(--me),color-mix(in srgb,var(--me) 70%,#000));}
+.prompt-card{background:linear-gradient(180deg,#fff,#f1ecff)}
+/* ================== v7: identidad "estudio de TV" ================== */
+:root{--ink:#1a1033;--grape:#2b1366;--gum:#ff3d8b;--lemon:#ffd23f;--mint:#3ee6b0;--sky:#4cc9ff}
+svg.lucide{width:1.1em;height:1.1em;vertical-align:-.18em;stroke-width:2.5}
+/* botones tipo sticker con borde de tinta */
+.btn{border:3px solid var(--ink);box-shadow:0 6px 0 var(--ink);text-shadow:0 2px 0 #0004}
+.btn:active{box-shadow:0 2px 0 var(--ink)}
+.btn.small{border-width:2.5px;box-shadow:0 4px 0 var(--ink);display:inline-flex;align-items:center;gap:6px}
+/* marquesina con focos */
+.marquee{position:relative;display:inline-flex;flex-direction:column;align-items:center;padding:22px 34px 18px;background:linear-gradient(180deg,#3b1a8f,#22104f);border:4px solid var(--ink);border-radius:26px;box-shadow:0 10px 0 var(--ink),0 0 60px #ff3d8b55,inset 0 0 30px #0007;transform:rotate(-2deg)}
+.marquee .bulbs{position:absolute;inset:6px;border-radius:20px;padding:7px;background:radial-gradient(circle,#fff6c9 0 3.5px,#ffd23f55 4.5px,transparent 6px) 0 0/20px 20px;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:bulbs .9s steps(2) infinite;pointer-events:none}
+@keyframes bulbs{50%{background-position:10px 10px}}
+.mq-word{font-family:'Bungee',sans-serif;font-size:clamp(54px,calc(11 * var(--vw)),118px);line-height:.95;letter-spacing:2px;color:var(--lemon);text-shadow:0 5px 0 var(--ink),0 0 24px #ffd23f88}
+.mq-word.party{color:var(--gum);text-shadow:0 5px 0 var(--ink),0 0 24px #ff3d8b88;font-size:clamp(44px,calc(9 * var(--vw)),96px)}
+.mq-word span{display:inline-block}
+.marquee.sm{padding:14px 22px 12px;border-radius:20px;transform:rotate(-1.5deg)}
+.marquee.sm .mq-word{font-size:clamp(34px,calc(6 * var(--vw)),56px)}.marquee.sm .mq-word.party{font-size:clamp(28px,calc(5 * var(--vw)),46px)}
+@media (prefers-reduced-motion:reduce){.marquee .bulbs,.btn::after,.logo span,.code span{animation:none!important}}

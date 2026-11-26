@@ -1,0 +1,30 @@
+/* v38: Toque Turbo 3D */
+.tpn{position:absolute;transform:translate(-50%,-100%);background:var(--c);color:#fff;font-weight:900;font-size:1.45em;line-height:1.25;padding:.06em .6em;border-radius:999px;border:.13em solid #fff;box-shadow:0 .2em .55em #0006;white-space:nowrap;text-shadow:0 .08em 0 #0005;pointer-events:none}
+.tpn.lead{font-size:1.8em;z-index:2;animation:tpbump .45s ease-out}@keyframes tpbump{from{transform:translate(-50%,-100%) scale(1.4)}}
+.tpw,.tpm{position:absolute;inset:0;pointer-events:none}
+/* v38: Papa Bomba 3D */
+.potmsg{position:absolute;left:50%;bottom:4%;transform:translateX(-50%);background:#000c;color:#fff;padding:.35em 1.1em;border-radius:999px;font-weight:800;font-size:1.15em;white-space:nowrap;box-shadow:0 .3em 1em #0006}
+.potflash{position:absolute;inset:0;background:#fff7d6;animation:potfl .7s ease-out forwards;pointer-events:none}@keyframes potfl{from{opacity:.95}to{opacity:0}}
+/* v39: QR decorado */
+.qr svg{width:150px;height:150px;display:block}
+.ticket .qr svg{width:132px;height:132px}
+/* v41: emotes */
+.emob{position:fixed;z-index:9999;transform:translate(-50%,-100%);pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:2px;animation:emoup 2.2s ease-out forwards}
+.emob .emoi{font-size:56px;line-height:1;filter:drop-shadow(0 4px 6px #0006)}.emob .emoi img{width:64px;height:64px;display:block}
+.emob .emon{background:var(--c);color:#fff;font-weight:900;font-size:14px;padding:1px 9px;border-radius:999px;border:2px solid #fff}
+@keyframes emoup{0%{opacity:0;transform:translate(-50%,-60%) scale(.3)}12%{opacity:1;transform:translate(-50%,-100%) scale(1.15)}22%{transform:translate(-50%,-105%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-230%) scale(.9)}}
+#emobtn{position:fixed;right:10px;top:calc(max(10px,env(safe-area-inset-top)) + 52px);z-index:900;width:50px;height:50px;border-radius:50%;border:3px solid #fff;background:#1a1033cc;box-shadow:0 4px 0 #0006;padding:6px;font-size:26px;line-height:1;cursor:pointer;touch-action:manipulation}
+#emobtn img,#emopad img{width:100%;height:100%;display:block;pointer-events:none}
+#emobtn.cd{animation:emocd 2s linear}#emobtn.cd::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:3px solid #facc15;animation:emocd2 2s linear forwards}
+@keyframes emocd{0%{opacity:.45}99%{opacity:.45}100%{opacity:1}}@keyframes emocd2{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(100% 0 0 0)}}
+#emopad{position:fixed;right:66px;top:calc(max(10px,env(safe-area-inset-top)) + 46px);z-index:901;display:none;grid-template-columns:repeat(4,52px);gap:6px;padding:8px;background:#1a1033ee;border:3px solid #fff;border-radius:18px;box-shadow:0 6px 0 #0006}
+#emopad.on{display:grid;animation:cxpop2 .18s ease-out}
+#emopad button{width:52px;height:52px;border:0;border-radius:12px;background:#ffffff1a;padding:6px;font-size:28px;cursor:pointer;touch-action:manipulation}
+#emopad button:active{transform:scale(.9);background:#ffffff40}
+.hxpip{position:absolute;border:4px solid var(--c,#fff);outline:2px solid #fff;border-radius:12px;box-shadow:0 4px 0 #0005,0 0 0 2px #0003;pointer-events:none}
+.hxpip span{position:absolute;left:6px;top:4px;background:#000b;color:#fff;font-weight:900;font-size:13px;padding:1px 8px;border-radius:999px}
+.pt3bar{position:absolute;left:3%;right:3%;bottom:3%;height:14px;border-radius:999px;background:#0005;border:2px solid #fff;display:flex;overflow:hidden}.pt3bar i{display:block;height:100%;transition:width .3s}
+/* ---------- v12: escala automática para cualquier pantalla ---------- */
+:root{--z:1;--vh:calc(1vh / var(--z));--vw:calc(1vw / var(--z));--dvh:calc(1dvh / var(--z))}
+#app>*{zoom:var(--z)}
+
