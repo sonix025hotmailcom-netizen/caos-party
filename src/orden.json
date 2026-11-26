@@ -217,7 +217,8 @@
       "js/sistema/b11-49-escala-automatica-de-la-interfaz.js",
       "js/sistema/seguridad.js",
       "js/sistema/auto-siguiente.js",
-      "js/sistema/ui-config.js"
+      "js/sistema/ui-config.js",
+      "js/sistema/pantalla-sin-saltos.js"
     ]
   ]
 }
