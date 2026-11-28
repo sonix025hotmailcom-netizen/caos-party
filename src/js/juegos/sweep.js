@@ -2,7 +2,7 @@
 Object.assign(GAMES, {
   sweep: {
     name: 'Barredora Loca 3D', emoji: '🌀', color: '#06b6d4', R: 7.2, PR: 1.05,
-    desc: '¡Una barra gigante gira en el centro y barre la plataforma! 🌀 SALTÁ con el botón (ESPACIO) cuando llegue o salís volando. Cada vez gira más rápido, cambia de sentido y después salen DOS barras. ¡El último robot en pie gana!',
+    desc: '¡Una barra gigante gira en el centro y barre la plataforma! 🌀 SALTÁ con el botón (ESPACIO) cuando llegue o salís volando. Cada vez gira más rápido, cambia de sentido sin avisar y a los 18 segundos salen DOS barras. ¡El último robot en pie gana!',
     start() {
       const ids = onlineIds(); preloadChars(ids.map(id => charOf(pl(id))));
       const ps = {}; ids.forEach((id, k) => { const a = k / ids.length * 6.28 + .3; ps[id] = { id, x: Math.sin(a) * 4.6, z: Math.cos(a) * 4.6, y: 0, vx: 0, vz: 0, vy: 0, gr: true, lb: 0, out: 0, face: a + Math.PI, fly: null }; });
@@ -27,9 +27,9 @@ Object.assign(GAMES, {
     step(dt) {
       const gd = H.gd, go = H.phase === 'sw-go', G = GAMES.sweep; gd.t += dt;
       if (go) {
-        gd.w = Math.min(3.1, 1.15 + gd.t * .028) * Math.min(1, gd.t / 2.5) * gd.dir;
-        if (gd.t > gd.flipT) { gd.dir *= -1; gd.flipT = gd.t + 9 + Math.random() * 9; gd.msgs.push({ t: '🔄 ¡Cambió de sentido!', k: gd.t }); SND.play('ui_pluck_002', .4, .6); }
-        if (gd.bars < 2 && gd.t > 30) { gd.bars = 2; gd.msgs.push({ t: '⚠️ ¡Ahora son DOS barras!', k: gd.t }); SFX.bad(); }
+        gd.w = Math.min(3.7, 1.45 + gd.t * .042) * Math.min(1, gd.t / 2) * gd.dir;
+        if (gd.t > gd.flipT) { gd.dir *= -1; gd.flipT = gd.t + 5 + Math.random() * 7; gd.msgs.push({ t: '🔄 ¡Cambió de sentido!', k: gd.t }); SND.play('ui_pluck_002', .4, .6); }
+        if (gd.bars < 2 && gd.t > 18) { gd.bars = 2; gd.msgs.push({ t: '⚠️ ¡Ahora son DOS barras!', k: gd.t }); SFX.bad(); }
       }
       const th0 = gd.th; if (go) gd.th += gd.w * dt;
       const live = [];
@@ -95,7 +95,7 @@ Object.assign(GAMES, {
       CARX.sparks(T, r, 140); r.bots = {}; r.rings = [];
       /* zona de peligro delante de cada barra + estela de la barra */
       const wedgeG = (() => { const g = new T.BufferGeometry(), v = [0, 0, 0], L = .6, N = 18; for (let k = 0; k <= N; k++) { const f = k / N * L; v.push(Math.sin(f) * G.R, 0, Math.cos(f) * G.R); } const idx = []; for (let k = 1; k <= N; k++) idx.push(0, k, k + 1); g.setAttribute('position', new T.Float32BufferAttribute(v, 3)); g.setIndex(idx); return g; })();
-      r.bars.forEach(b => { const wm = new T.MeshBasicMaterial({ color: '#ef4444', transparent: true, opacity: .2, depthWrite: false, side: T.DoubleSide }); const w = new T.Mesh(wedgeG, wm); w.position.y = .03; b.add(w); b.wedge = w;
+      r.bars.forEach(b => { const wm = new T.MeshBasicMaterial({ color: '#ef4444', transparent: true, opacity: .2, depthWrite: false, side: T.DoubleSide }); const w = new T.Mesh(wedgeG, wm); w.position.y = .03; w.visible = false; b.add(w); b.wedge = w;
         b.ghosts = [1, 2, 3].map(k => { const gb = new T.Mesh(new T.BoxGeometry(.4, .4, G.R), new T.MeshBasicMaterial({ color: '#fecaca', transparent: true, opacity: .22 / k, depthWrite: false })); gb.position.set(0, .34, G.R / 2); const piv = new T.Group(); piv.add(gb); b.add(piv); return piv; }); });
       /* luces que corren alrededor del borde */
       r.bulbs = [M('#fde047', { emissive: '#fde047', emissiveIntensity: 1.4 }), M('#f472b6', { emissive: '#f472b6', emissiveIntensity: .15 })]; const bgeo = new T.SphereGeometry(.11, 8, 6); for (let k = 0; k < 40; k++) { const a = k / 40 * 6.28, b = add(new T.Mesh(bgeo, r.bulbs[k % 2])); b.position.set(Math.sin(a) * (G.R + .02), .2, Math.cos(a) * (G.R + .02)); }
@@ -125,7 +125,7 @@ Object.assign(GAMES, {
         CARX.tickSparks(r, dt);
         r.cam.position.set(0, 13.2, 11.6); r.cam.lookAt(0, -.4, .7);
         r.renderer.render(r.scene, r.cam);
-        const alive = gd.ids.filter(id => !gd.ps[id].out).length, msgs = gd.msgs.filter(m => gd.t - m.k < 2.6).slice(-3), spd = Math.round(Math.abs(gd.w) / 3.1 * 100);
+        const alive = gd.ids.filter(id => !gd.ps[id].out).length, msgs = gd.msgs.filter(m => gd.t - m.k < 2.6).slice(-3), spd = Math.round(Math.abs(gd.w) / 3.7 * 100);
         CARX.overlay(r, `<div class="cxtop"><span class="cxpill" style="--c:#06b6d4">🌀 Quedan ${alive}</span><span class="cxpill" style="--c:#ef4444">⚡ Velocidad ${spd}%</span>${gd.ids.map(id => { const s = gd.ps[id], p = pl(id); return `<span class="cxpill${s.out ? ' off' : ''}" style="--c:${p?.color || '#888'}">${p?.emoji || ''} ${esc(p?.name || '')}${s.out ? ' 💦' : ''}</span>`; }).join('')}</div><div class="cxmsgs">${msgs.map(m => `<div class="cxmsg">${m.t}</div>`).join('')}</div>`);
         return;
       }

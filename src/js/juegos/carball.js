@@ -6,7 +6,7 @@ Object.assign(GAMES, {
     name: 'Fútbol de Autos 3D', emoji: '⚽', color: '#16a34a', FW: 21, FH: 12.5, GW: 4.8, GH: 4, CR: 1.15, BR: 1.3,
     P: { acc: 27, max: 14.5, turbo: 24, turn: 4.6, grip: 7.5, kick: 12, cd: 2.2 },
     TEAMS: [{ n: 'ROJO', c: '#ef4444', e: '🔴' }, { n: 'AZUL', c: '#3b82f6', e: '🔵' }],
-    desc: '¡Fútbol con autos! ⚽🚗 Se arman dos equipos: ROJO ataca hacia la derecha y AZUL hacia la izquierda. Mové el joystick (o WASD) hacia donde querés ir y chocá la pelota gigante. El botón (ESPACIO) es TURBO 💨 para pegarle más fuerte (y hasta hacerla volar). ¡Gana el equipo con más goles!',
+    desc: '¡Fútbol con autos! ⚽🚗 Se arman dos equipos: ROJO ataca hacia la derecha y AZUL hacia la izquierda. Mové el joystick (o WASD) hacia donde querés ir y chocá la pelota gigante. El botón (ESPACIO) hace SALTAR el auto ⬆️ para cabecear la pelota en el aire, y si lo volvés a tocar en el aire es TURBO 💨 para pegarle más fuerte (y hasta hacerla volar). ¡Gana el equipo con más goles!',
     start() {
       const ids = shuffle(onlineIds()); CARX.MODELS.concat(['grandStandCovered', 'grandStand', 'lightPostLarge', 'billboard', 'flagCheckers']).forEach(n => C3D.load(Rk(n)).catch(() => {}));
       const team = {}; ids.forEach((id, k) => team[id] = k % 2);
@@ -23,7 +23,7 @@ Object.assign(GAMES, {
     },
     view(p) {
       if (!inGame(p)) return watch('Entrás en el próximo juego 😉');
-      if (H.phase === 'cb-ready' || H.phase === 'cb-go') { const t = this.TEAMS[H.gd.team[p.id] || 0]; return joyView(p, `${t.e} Sos del ${t.n} · atacás hacia la ${H.gd.team[p.id] ? 'IZQUIERDA ⬅️' : 'DERECHA ➡️'} · 🕹️ mové hacia donde querés ir · Botón = TURBO`, '💨 TURBO', this.P.cd); }
+      if (H.phase === 'cb-ready' || H.phase === 'cb-go') { const t = this.TEAMS[H.gd.team[p.id] || 0]; return joyView(p, `${t.e} Sos del ${t.n} · atacás hacia la ${H.gd.team[p.id] ? 'IZQUIERDA ⬅️' : 'DERECHA ➡️'} · 🕹️ mové hacia donde querés ir · Botón = SALTAR (y en el aire otra vez = TURBO)`, '⬆️ SALTAR / 💨', this.P.cd); }
       return watch();
     },
     onAct(p, m) { if (H.phase === 'cb-ready' || H.phase === 'cb-go') joyAct(p, m); },
@@ -35,7 +35,9 @@ Object.assign(GAMES, {
       const list = gd.ids.map(id => gd.ps[id]);
       for (const s of list) {
         const i = go ? inp(s.id) : { x: 0, y: 0, b: s.lb }; s.cd -= dt; s.turbo -= dt; s.hit -= dt;
-        if (go) CARX.dash(s, i, P);
+        /* botón: en el piso SALTA; en el aire, TURBO (impulso hacia adelante) */
+        if (go && i.b !== s.lb) { const pr = i.b > s.lb || i.b === 1; s.lb = i.b; if (pr) { if (!(s.cy > 0)) { s.cvy = 9.5; s.cy = .02; s.dj = 1; SND.play('ui_pluck_002', .3, 1.4); } else if (s.dj && s.cd <= 0) { s.dj = 0; s.cd = P.cd; s.turbo = .55; s.vx += Math.sin(s.a) * P.kick; s.vz += Math.cos(s.a) * P.kick; s.cvy = Math.max(s.cvy, 2.5); SND.play('sf_thrusterFire_000', .55, 1.1, 0); } } }
+        if (s.cy > 0 || s.cvy) { s.cvy -= 24 * dt; s.cy = Math.max(0, (s.cy || 0) + s.cvy * dt); if (s.cy <= 0) { if (s.cvy < -6) SND.play('impactSoft_heavy_000', .2, 1.5, 30); s.cvy = 0; } }
         CARX.drive(s, i, dt, P);
         if (Math.abs(s.x) > FW - CR) { s.x = Math.sign(s.x) * (FW - CR); s.vx *= -.35; } if (Math.abs(s.z) > FH - CR) { s.z = Math.sign(s.z) * (FH - CR); s.vz *= -.35; }
       }
@@ -53,10 +55,10 @@ Object.assign(GAMES, {
         if (inMouth && Math.abs(b.x) > FW + 3.2 - BR) { b.x = Math.sign(b.x) * (FW + 3.2 - BR); b.vx *= -.3; }
         if (b.y > 14) { b.y = 14; b.vy = -Math.abs(b.vy) * .5; }
         for (const s of list) {
-          const dx = b.x - s.x, dz = b.z - s.z, d = Math.hypot(dx, dz); if (d >= CR + BR || b.y > 2.7 || d < 1e-4) continue;
+          const dx = b.x - s.x, dz = b.z - s.z, d = Math.hypot(dx, dz); if (d >= CR + BR || Math.abs(b.y - (s.cy || 0) - .55) > 1.9 || d < 1e-4) continue;
           const nx = dx / d, nz = dz / d; b.x = s.x + nx * (CR + BR); b.z = s.z + nz * (CR + BR);
           const rel = (s.vx - b.vx) * nx + (s.vz - b.vz) * nz; if (rel <= -.5) continue;
-          const pw = Math.max(0, rel) * 1.3 + 3.5 + (s.turbo > 0 ? 6 : 0); b.vx += nx * pw; b.vz += nz * pw; b.vy = Math.min(14, Math.max(b.vy, (s.turbo > 0 ? 6 : 1.5) + rel * .22));
+          const pw = Math.max(0, rel) * 1.3 + 3.5 + (s.turbo > 0 ? 6 : 0); b.vx += nx * pw; b.vz += nz * pw; b.vy = Math.min(15, Math.max(b.vy, (s.turbo > 0 ? 6 : 1.5) + rel * .22 + (s.cvy > 0 ? s.cvy * .6 : 0)));
           s.vx -= nx * rel * .25; s.vz -= nz * rel * .25;
           if (gd.lastT !== s.id || gd.t - (gd.lastK || 0) > .25) { gd.touch[s.id] = (gd.touch[s.id] || 0) + 1; SND.play(pw > 16 ? 'impactPunch_heavy_000' : 'impactSoft_heavy_000', Math.min(.7, .2 + pw / 40), 1.2, 40); if (pw > 15) { gd.hits = gd.hits || []; gd.hits.push({ x: b.x, z: b.z, rel: pw * .6 }); } }
           gd.last = s.id; gd.lastT = s.id; gd.lastK = gd.t;
@@ -152,7 +154,7 @@ Object.assign(GAMES, {
         if (gd.hits) { gd.hits.forEach(h => CARX.burst(r, h.x, .9, h.z, Math.min(12, 3 + h.rel / 2 | 0), Math.min(8, 2 + h.rel * .25))); gd.hits = null; }
         if (gd.boom) { CARX.burst(r, gd.boom.x, Math.max(1, gd.boom.y), gd.boom.z, 70, 12, gd.boom.c); gd.boom = null; }
         CARX.tickSparks(r, dt);
-        for (const id of gd.ids) { const g = r.cars[id], s = gd.ps[id]; if (!g) continue; g.position.set(s.x, 0, s.z); g.rotation.y = s.a; g.userData.fl.visible = s.turbo > 0; g.userData.fl.scale.set(1, .8 + Math.random() * .6, 1); }
+        for (const id of gd.ids) { const g = r.cars[id], s = gd.ps[id]; if (!g) continue; g.position.set(s.x, s.cy || 0, s.z); g.rotation.y = s.a; g.rotation.x = -Math.max(-.35, Math.min(.35, (s.cvy || 0) * .035)); g.userData.fl.visible = s.turbo > 0; g.userData.fl.scale.set(1, .8 + Math.random() * .6, 1); }
         if (r.crowd && Math.floor(tt * 8) % 2 === 0) { const tmp = new r.T.Object3D(), mm = new r.T.Matrix4(); const hype = gd.freeze > 0 ? .5 : .08; for (let k = 0; k < 260; k += 3) { r.crowd.getMatrixAt(k, mm); tmp.position.setFromMatrixPosition(mm); tmp.position.y += (Math.random() - .5) * hype; tmp.position.y = Math.max(1.2, Math.min(6, tmp.position.y)); tmp.updateMatrix(); r.crowd.setMatrixAt(k, tmp.matrix); } r.crowd.instanceMatrix.needsUpdate = true; }
         const want = Math.max(-9, Math.min(9, (b.y > -5 ? b.x : 0) * .6)); r.cx += (want - r.cx) * Math.min(1, dt * 2.2);
         r.cam.position.set(r.cx, 22.5, 20.5); r.cam.lookAt(r.cx, 0, 1.4);
