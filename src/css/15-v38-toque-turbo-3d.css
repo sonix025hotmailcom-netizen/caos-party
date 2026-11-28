@@ -59,8 +59,8 @@ body,#app{min-height:100vh;min-height:100dvh}
 @media (max-width:900px){.lob-head{align-items:center}.lob-head>:first-child{margin-right:0}.lob-head>:not(:first-child){margin-top:0}}
 /* presentación del juego decorada */
 /* ===== presentación del juego (show de TV) ===== */
-.ixst{position:relative;overflow:hidden;justify-content:center}
-.ixst::before{content:'';position:absolute;left:-10%;top:-20%;width:70%;height:120%;background:radial-gradient(closest-side,color-mix(in srgb,var(--gc) 45%,transparent),transparent);pointer-events:none;animation:ixglow 4s ease-in-out infinite}
+.ixst{position:relative;justify-content:center}
+.ixst::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 55% 70% at 27% 52%,color-mix(in srgb,var(--gc) 42%,transparent),transparent 100%);pointer-events:none;animation:ixglow 4s ease-in-out infinite}
 .ixst .intro{position:relative;z-index:1;width:100%;max-width:1180px;gap:18px}
 .ix{display:grid;grid-template-columns:minmax(300px,.9fr) 1.2fr;gap:22px;width:100%;align-items:stretch}
 .ix-poster{position:relative;border-radius:30px;padding:22px 20px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:linear-gradient(160deg,color-mix(in srgb,var(--gc) 92%,#fff) 0,var(--gc) 45%,color-mix(in srgb,var(--gc) 55%,#0b0620) 100%);box-shadow:0 10px 0 color-mix(in srgb,var(--gc) 40%,#000),0 18px 40px #0007;border:4px solid #ffffffcc;overflow:hidden;animation:ixin .5s cubic-bezier(.2,1.4,.4,1) both}

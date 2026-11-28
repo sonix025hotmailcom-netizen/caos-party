@@ -1,0 +1,56 @@
+/* ===== resultados de cada juego (marcador tipo TV) ===== */
+.results.rsx{width:100%;max-width:min(980px,94vw);gap:clamp(6px,calc(1.2 * var(--vh)),12px);counter-reset:none}
+.rsx .rrow{position:relative;display:grid;grid-template-columns:auto auto 1fr auto auto;align-items:center;gap:clamp(8px,1.4vw,16px);
+  padding:clamp(5px,calc(.9 * var(--vh)),10px) clamp(10px,1.6vw,18px) clamp(5px,calc(.9 * var(--vh)),10px) clamp(8px,1.2vw,14px);
+  font-size:clamp(17px,calc(3.2 * var(--vh)),30px);border-radius:20px;border:3px solid #0b0620!important;overflow:hidden;isolation:isolate;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--c) 78%,#1b0b40) 0,color-mix(in srgb,var(--c) 40%,#1b0b40) 34%,#1d0e45f0 72%);
+  box-shadow:0 5px 0 #0b0620,inset 0 2px 0 #ffffff30!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.rsx .rrow::after{content:'';position:absolute;left:0;right:0;top:0;height:46%;background:linear-gradient(#ffffff1c,#ffffff00);pointer-events:none;z-index:-1}
+.rsx .rpos{display:grid;place-items:center;width:1.9em;height:1.9em}
+.rsx .rpos img.fe{width:1.75em;height:1.75em}
+.rsx .rpos i{font-style:normal;display:grid;place-items:center;width:1.45em;height:1.45em;border-radius:50%;background:#0b0620aa;border:2px solid #ffffff40;font-size:.85em;color:#fff}
+.rsx .ravt{position:relative;display:grid;place-items:center;width:1.85em;height:1.85em;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6,transparent 60%),var(--c);border:3px solid #0b0620;box-shadow:0 3px 0 #0b0620}
+.rsx .ravt img.fe{width:1.25em;height:1.25em}
+.rsx .rcrown{position:absolute;top:-.62em;left:50%;transform:translateX(-50%) rotate(-12deg);font-size:.78em;filter:drop-shadow(0 2px 0 #0b0620)}
+.rsx .rcrown img.fe{width:1em;height:1em}
+.rsx .rname{text-align:left;color:#fff;text-shadow:0 2px 0 #0b0620;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.rsx .rval{justify-self:end;background:#0b062099;border:2px solid #ffffff26;color:#fff;border-radius:999px;padding:.12em .7em;font-size:.78em;white-space:nowrap;display:inline-flex;align-items:center;gap:.3em}
+.rsx .rval img.fe{width:1.05em;height:1.05em}
+.rsx .gain{min-width:4.2em;text-align:center;font-size:.9em;padding:.15em .6em;background:linear-gradient(#ffe066,#facc15);color:#3a1b00;border:2.5px solid #0b0620;box-shadow:0 3px 0 #0b0620;font-weight:900;border-radius:999px}
+.rsx .gain small{font-size:.6em;margin-left:.2em;opacity:.75}
+.rsx .gain.rsx0{background:#ffffff26;color:#ffffffaa;border-color:#0b062080;box-shadow:none}
+/* el ganador */
+.rsx .rrow.rk1{font-size:clamp(19px,calc(3.7 * var(--vh)),34px);border-color:#ffd34d!important;box-shadow:0 5px 0 #0b0620,0 0 0 3px #0b0620,0 0 26px #ffd34d88,inset 0 2px 0 #ffffff40!important}
+.rsx .rrow.rk1::before{content:'';position:absolute;top:0;bottom:0;width:30%;left:-40%;background:linear-gradient(100deg,transparent,#ffffff55,transparent);z-index:-1;animation:rsxshine 2.6s 1s ease-in-out infinite}
+.rsx .rrow.rk2{border-color:#cbd5e1!important}
+.rsx .rrow.rk3{border-color:#d08a4a!important}
+.rsx.rsx-mid .rrow{font-size:clamp(15px,calc(2.8 * var(--vh)),26px)}
+.rsx.rsx-many .rrow{font-size:clamp(13px,calc(2.3 * var(--vh)),22px);padding-top:3px;padding-bottom:3px}
+.rsx .rrow.pop{animation:rsxin .45s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes rsxin{from{opacity:0;transform:translateX(-40px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes rsxshine{0%{left:-40%}55%,100%{left:120%}}
+
+/* ===== marco de tele alrededor del juego ===== */
+.tvst::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background:radial-gradient(ellipse 60% 55% at 50% 48%,color-mix(in srgb,var(--gc) 26%,transparent),transparent 100%),
+  conic-gradient(from 180deg at 50% -8%,transparent 160deg,#ffffff0d 170deg,transparent 178deg,transparent 182deg,#ffffff0d 190deg,transparent 200deg)}
+.gwrap.tvon{z-index:0}
+.tvf{position:absolute;z-index:-1;pointer-events:none;border-radius:calc(22px + var(--b));
+  background:linear-gradient(165deg,#4a2596 0,#2a1462 38%,#1a0b44 70%,#2d1468 100%);
+  border:3px solid #0b0620;
+  box-shadow:0 calc(var(--b) * .7) 0 #0b0620,0 0 0 2px #ffffff14 inset,0 0 80px 10px color-mix(in srgb,var(--gc) 34%,transparent)}
+.tvf::before{content:'';position:absolute;inset:calc(var(--b) - 7px);border-radius:26px;border:3px solid var(--gc);box-shadow:0 0 14px color-mix(in srgb,var(--gc) 70%,transparent),inset 0 0 10px color-mix(in srgb,var(--gc) 50%,transparent)}
+.tvf::after{content:'';position:absolute;left:calc(var(--b) + 26px);right:calc(var(--b) + 26px);top:calc(var(--b) / 2 - 5px);bottom:calc(var(--b) / 2 - 5px);
+  background:radial-gradient(circle,#fff3c4 0 2.2px,#ffd34d99 3px,transparent 4.5px) 0 0/26px 10px repeat-x,radial-gradient(circle,#fff3c4 0 2.2px,#ffd34d99 3px,transparent 4.5px) 0 100%/26px 10px repeat-x;
+  animation:tvbulb 1.4s steps(2) infinite}
+.tvf.lowq::after{animation:none}
+@keyframes tvbulb{to{background-position:13px 0,13px 100%}}
+.tvf-tab{position:absolute;left:50%;top:0;transform:translate(-50%,-62%);display:flex;align-items:center;gap:.45em;white-space:nowrap;
+  font:900 clamp(12px,calc(2 * var(--vh)),19px)/1 'Lilita One',system-ui,sans-serif;color:#fff;letter-spacing:.02em;
+  padding:.45em 1em;border-radius:999px;background:linear-gradient(#3a1d7a,#22104f);border:3px solid #0b0620;box-shadow:0 3px 0 #0b0620,0 0 0 2px color-mix(in srgb,var(--gc) 80%,transparent) inset}
+.tvf-tab img.fe{width:1.2em;height:1.2em}
+.tvf-dot{width:.6em;height:.6em;border-radius:50%;background:#ff3b5c;box-shadow:0 0 8px #ff3b5c;animation:tvdot 1.2s ease-in-out infinite}
+.tvf.lowq .tvf-dot{animation:none}
+@keyframes tvdot{50%{opacity:.3}}
+.tvf-floor{position:absolute;left:8%;right:8%;bottom:calc(var(--b) * -1.9);height:calc(var(--b) * 2.2);border-radius:50%;background:radial-gradient(closest-side,#0b0620aa,transparent);z-index:-1}
+.gwrap.tvon>canvas.gc{box-shadow:none}

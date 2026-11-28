@@ -14,7 +14,8 @@
     "css/12-v15-generala-loca.css",
     "css/13-v17-domino-veloz.css",
     "css/14-v19-piedra-papel-o-tijera-closet-de-5-pestanas.css",
-    "css/15-v38-toque-turbo-3d.css"
+    "css/15-v38-toque-turbo-3d.css",
+    "css/16-marco-tele-y-resultados.css"
   ],
   "js": [
     [
@@ -219,6 +220,7 @@
       "js/sistema/auto-siguiente.js",
       "js/sistema/ui-config.js",
       "js/sistema/intro-deco.js",
+      "js/sistema/marco-tele.js",
       "js/sistema/pantalla-sin-saltos.js"
     ]
   ]
