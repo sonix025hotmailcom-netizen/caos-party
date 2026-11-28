@@ -1,14 +1,24 @@
-/* ================== PRESENTACIÓN DE CADA JUEGO MÁS DECORADA: rayos, brillo, emojis flotando, tarjeta, círculo y barra de carga ================== */
+/* ================== PRESENTACIÓN DEL JUEGO (diseño tipo show de TV) Y TABLA DE PUNTOS MEJORADA ================== */
 (() => {
-  const TIPS = ['😎 Tocá el botón de reacciones en tu cel para mandar emotes', '⚙️ Si la tele va lenta, usá la calidad Liviano', '🏆 Ganar te da chance de un cofre con regalo', '🤝 Si empatan, se reparten los puntos', '⛶ Poné pantalla completa para verlo mejor', '🕹️ En la compu también podés jugar con WASD y espacio'];
-  const deco = () => {
-    if (H.phase !== 'intro') return; const st = document.querySelector('#app > .host .stage'), intro = st && st.querySelector('.intro'); if (!intro || st.querySelector('.introfx')) return;
-    const g = H.game || {}, col = g.color || '#a855f7', em = g.emoji || '🎉', n = window.__lowq ? 6 : 14, src = typeof feSrc === 'function' ? feSrc(em) : null;
-    st.style.setProperty('--gc', col); st.classList.add('introst');
-    let parts = ''; for (let k = 0; k < n; k++) parts += `<i class="ifx-p" style="left:${(k * 97 % 100)}%;animation-delay:${-(k * 1.37 % 9).toFixed(2)}s;animation-duration:${(8 + k % 5 * 1.6).toFixed(1)}s;--s:${(.6 + (k * 7 % 10) / 12).toFixed(2)}">${src ? `<img src="${src}" alt="">` : em}</i>`;
-    const left = Math.max(1, (H.deadline || Date.now()) - Date.now());
-    st.insertAdjacentHTML('afterbegin', `<div class="introfx"><div class="ifx-rays"></div><div class="ifx-glow"></div>${parts}<div class="ifx-bar"><b style="animation-duration:${left}ms"></b></div></div>`);
-    if (!intro.querySelector('.ifx-tip')) intro.insertAdjacentHTML('beforeend', `<div class="ifx-tip">${pickR(TIPS)}</div>`);
+  const fe = e => { const s = typeof feSrc === 'function' ? feSrc(e) : null; return s ? `<img src="${s}" alt="${e}" draggable="false">` : e; };
+  /* parte la descripción en pasos cortos y fáciles de leer */
+  const steps = d => String(d || '').split(/(?<=[.!?…])\s+(?=[¡¿A-ZÁÉÍÓÚÑ0-9🎯-🫶])/u).map(s => s.trim()).filter(Boolean).slice(0, 8);
+  const intro = () => {
+    if (H.phase !== 'intro') return; const st = document.querySelector('#app > .host .stage'), it = st && st.querySelector('.intro'); if (!it || it.classList.contains('ix-done')) return;
+    const g = H.game || {}, col = g.color || '#a855f7', tags = it.querySelector('.gtags')?.outerHTML || '', rl = it.querySelector('.round-lbl')?.textContent || '', left = Math.max(1, (H.deadline || Date.now()) - Date.now());
+    st.style.setProperty('--gc', col); st.classList.add('ixst'); it.classList.add('ix-done');
+    it.innerHTML = `<div class="ix">
+      <div class="ix-poster"><div class="ix-round">${esc(rl)}</div><div class="ix-emoji">${fe(g.emoji || '🎉')}</div><div class="ix-name">${esc(g.name || '')}</div>${tags}</div>
+      <div class="ix-how"><div class="ix-lbl">Cómo se juega</div><ol>${steps(g.desc).map(s => `<li>${s}</li>`).join('')}</ol></div>
+    </div>
+    <div class="ix-foot"><div class="ix-track"><b style="animation-duration:${left}ms"></b></div><div class="ix-cd">Empieza en <span class="cdown" id="cdown"></span></div></div>`;
   };
-  const orh = renderHost; renderHost = function () { const r = orh.apply(this, arguments); try { deco(); } catch (e) {} return r; };
+  /* tabla de puntos: barra de color que se llena hasta donde llegó cada uno */
+  const board = () => {
+    if (H.phase !== 'board') return; const tr = document.querySelector('#app .track'); if (!tr || tr.classList.contains('bd-done')) return; tr.classList.add('bd-done');
+    tr.querySelectorAll('.tlane').forEach((l, i) => { const w = l.querySelector('.tway'), r = l.querySelector('.runner'); if (!w || !r) return; l.classList.toggle('lead', i === 0); const f = document.createElement('div'); f.className = 'tfill'; f.style.width = r.style.left; w.insertBefore(f, w.firstChild); setTimeout(() => { f.style.width = `calc(${r.dataset.to}% + 26px)`; }, 140); });
+    const t = document.querySelector('#app .stage > .title-pop'); if (t && !t.nextElementSibling?.classList.contains('bd-sub')) { const n = H.order.length, k = H.roundIdx + 1; t.insertAdjacentHTML('afterend', `<div class="bd-sub">${k >= n ? '¡Última ronda terminada!' : `Ronda ${k} de ${n} · faltan ${n - k} ${n - k === 1 ? 'juego' : 'juegos'}`}</div>`); }
+  };
+  setInterval(() => { const c = document.querySelector('.ix-cd .cdown'); if (!c || !H.deadline) return; const n = Math.max(0, Math.ceil((H.deadline - Date.now()) / 1000)), t = n > 0 ? String(n) : '¡YA!'; if (c.textContent !== t) { c.textContent = t; c.classList.remove('pulse'); void c.offsetWidth; c.classList.add('pulse'); } }, 200);
+  const orh = renderHost; renderHost = function () { const r = orh.apply(this, arguments); try { intro(); board(); } catch (e) {} return r; };
 })();
