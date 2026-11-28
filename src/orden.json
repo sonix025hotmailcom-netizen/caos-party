@@ -218,6 +218,7 @@
       "js/sistema/seguridad.js",
       "js/sistema/auto-siguiente.js",
       "js/sistema/ui-config.js",
+      "js/sistema/intro-deco.js",
       "js/sistema/pantalla-sin-saltos.js"
     ]
   ]

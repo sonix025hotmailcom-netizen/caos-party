@@ -52,3 +52,26 @@ body,#app{min-height:100vh;min-height:100dvh}
 .g-desc{font-size:clamp(22px,calc(2.9 * var(--vw)),34px);max-width:1000px;line-height:1.35}
 .lob-head{justify-content:flex-start;align-items:flex-start}.lob-head>:first-child{margin-right:auto}.lob-head>:not(:first-child){margin-top:12px}
 @media (max-width:900px){.lob-head{align-items:center}.lob-head>:first-child{margin-right:0}.lob-head>:not(:first-child){margin-top:0}}
+/* presentación del juego decorada */
+.introst{position:relative;overflow:hidden}
+.introst .intro{position:relative;z-index:1}
+.introfx{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.ifx-rays{position:absolute;left:50%;top:34%;width:220vmax;height:220vmax;transform:translate(-50%,-50%);background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--gc) 55%,transparent) 0deg 7deg,transparent 7deg 18deg);opacity:.22;animation:ifxspin 40s linear infinite;-webkit-mask:radial-gradient(circle,#000 0,#000 18%,transparent 52%);mask:radial-gradient(circle,#000 0,#000 18%,transparent 52%)}
+.ifx-glow{position:absolute;left:50%;top:34%;width:70vmin;height:70vmin;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--gc) 70%,transparent) 0,transparent 65%);opacity:.55;animation:ifxpulse 2.4s ease-in-out infinite}
+.ifx-p{position:absolute;bottom:-12vh;font-style:normal;font-size:calc(46px * var(--s));opacity:.35;animation:ifxfloat 10s linear infinite;filter:drop-shadow(0 6px 8px #0006)}
+.ifx-p img{width:1em;height:1em;display:block}
+.ifx-bar{position:absolute;left:0;right:0;bottom:0;height:8px;background:#0005}
+.ifx-bar b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gc),#fde047);box-shadow:0 0 14px var(--gc);animation:ifxfill linear forwards}
+.introst .g-desc{background:#0b0620b3;border:3px solid color-mix(in srgb,var(--gc) 75%,#fff);border-radius:22px;padding:.55em .9em;box-shadow:0 .35em 0 #0006,0 0 1.2em color-mix(in srgb,var(--gc) 35%,transparent)}
+.introst .g-name{text-shadow:0 .08em 0 #0008,0 0 .5em color-mix(in srgb,var(--gc) 70%,transparent)}
+.introst .cdown{display:grid;place-items:center;width:1.45em;height:1.45em;border-radius:50%;background:radial-gradient(circle,#0b0620cc 55%,#0b062055);box-shadow:0 0 0 .07em var(--gc),0 0 .45em var(--gc);font-size:clamp(56px,calc(9 * var(--vw)),110px)}
+.introst .cdown.pulse{animation:ifxbeat .5s ease-out}
+.ifx-tip{font-size:clamp(15px,calc(1.7 * var(--vw)),20px);opacity:.85;background:#ffffff14;border-radius:999px;padding:.3em 1em;margin-top:2px}
+@keyframes ifxspin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes ifxpulse{50%{opacity:.8;transform:translate(-50%,-50%) scale(1.08)}}
+@keyframes ifxfloat{0%{transform:translateY(0) rotate(-10deg)}50%{transform:translateY(-60vh) rotate(10deg)}100%{transform:translateY(-125vh) rotate(-10deg)}}
+@keyframes ifxfill{to{width:100%}}
+@keyframes ifxbeat{0%{transform:scale(1.35)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.ifx-rays,.ifx-p,.ifx-glow{animation:none}}
+.intro.tight .cdown{font-size:clamp(44px,calc(6.5 * var(--vw)),78px)}.intro.tight2 .ifx-tip{display:none}.intro.tight2 .g-tags,.intro.tight2 .gtags{margin:0}
+.intro.tight3 .g-emoji{display:none}.intro.tight3 .g-desc{font-size:clamp(18px,calc(2.2 * var(--vw)),26px)}
